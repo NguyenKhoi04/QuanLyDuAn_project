@@ -21,3 +21,5 @@ B4: COPPY lệnh:
 npx supabase gen types typescript --project-id <your-project-id> > database.types.ts
 (Lấy Project ID trong phần Project Settings trên Supabase)
 Cụ thể : npx supabase gen types typescript --project-id jdhorynqsvuitawvsmlo > database.types.ts
+
+//chỗ index.tsx có mục " quy định" nghĩa là theo thông báo page trường (link: https://www.facebook.com/share/p/1CYEQp7HCZ/)
