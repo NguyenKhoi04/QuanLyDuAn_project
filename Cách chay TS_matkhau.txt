@@ -1,0 +1,23 @@
+npm install
+npm run dev
+
+//Suparabase 
+Project: QLTaiSan_TDMU
+Mật khẩu : qltaisanTDMU
+
+Bước 2: Tạo File Database (Types) trong TypeScript
+Sau khi đã có bảng trên Supabase, bạn không nên tự gõ lại các interface/types trong TypeScript vì rất dễ sai sót. Supabase có tính năng tự động tạo file "định nghĩa" (Types) cho bạn.
+
+Nên: Sử dụng Supabase CLI (Khuyên dùng)
+Bạn mở terminal tại thư mục dự án của mình và chạy các lệnh sau:
+
+B1: Đăng nhập: npx supabase login
+
+b2: Khởi tạo: npx supabase init
+
+B3:Tạo file types: Chạy lệnh sau để nó quét database và tạo file database.types.ts:
+
+B4: COPPY lệnh:
+npx supabase gen types typescript --project-id <your-project-id> > database.types.ts
+(Lấy Project ID trong phần Project Settings trên Supabase)
+Cụ thể : npx supabase gen types typescript --project-id jdhorynqsvuitawvsmlo > database.types.ts
