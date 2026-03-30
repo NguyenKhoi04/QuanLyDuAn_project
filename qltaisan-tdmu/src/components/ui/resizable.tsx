@@ -1,7 +1,7 @@
 import { GripVertical } from "lucide-react";
+// Sửa dòng import này
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
 
 const ResizablePanelGroup = ({
@@ -17,7 +17,7 @@ const ResizablePanelGroup = ({
   />
 );
 
-const ResizablePanel = Panel; // Gán trực tiếp Panel vào đây
+const ResizablePanel = Panel;
 
 const ResizableHandle = ({
   withHandle,
@@ -42,8 +42,6 @@ const ResizableHandle = ({
 );
 
 export { ResizablePanelGroup, ResizablePanel, ResizableHandle };
-
-
 // import { GripVertical } from "lucide-react";
 // import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 // import * as React from "react";
