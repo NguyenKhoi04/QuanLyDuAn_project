@@ -3,7 +3,7 @@ import { Building2 } from "lucide-react";
 const navItems = [
   { label: "Trang chủ", href: "/" },
   { label: "Tài liệu", href: "#" },
-  { label: "Quy định", href: "#" }, // Rút ngắn tên để đỡ chiếm diện tích
+  { label: "Quy định", href: "#" },
   { label: "Giới thiệu", href: "#" },
   { label: "Quản lý tài sản", href: "#" },
   { label: "Báo cáo", href: "#" },
@@ -14,32 +14,33 @@ const navItems = [
 const AppHeader = () => {
   return (
     <header className="bg-blue-800 text-white shadow-md w-full">
-      <div className="flex items-center justify-between px-6 py-3">
+      <div className="flex items-center justify-between px-6 py-4"> {/* Tăng py lên 4 cho thoáng */}
         {/* Logo */}
-        <div className="flex items-center gap-3 shrink-0">
-          <Building2 className="h-8 w-8 text-blue-200" />
+        <div className="flex items-center gap-4 shrink-0">
+          <Building2 className="h-9 w-9 text-blue-200" />
           <div>
-            <h1 className="text-xl font-bold tracking-tight leading-none">
+            <h1 className="text-xl font-bold tracking-tight leading-tight">
               HỆ THỐNG QUẢN LÝ TÀI SẢN
             </h1>
-            <p className="text-[11px] opacity-80 mt-1 uppercase tracking-wider">
+            <p className="text-[12px] opacity-85 font-medium uppercase tracking-wide">
               Trường Đại học Thủ Dầu Một
             </p>
           </div>
         </div>
 
         {/* Navbar */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-2"> {/* Tăng gap lên 2 */}
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
               className="
-                px-3 py-1.5 rounded-md
-                text-[13px] font-medium 
+                px-4 py-2 rounded-md
+                text-[15px] font-semibold  /* Chữ 15px và đậm hơn một chút để dễ đọc */
                 transition-all duration-200
-                hover:bg-white/10
-                active:bg-white/20
+                hover:bg-white/15          /* Hiệu ứng hover rõ hơn */
+                hover:text-blue-100       /* Đổi màu nhẹ khi hover thay vì đỏ chói */
+                active:bg-white/25
               "
             >
               {item.label}
