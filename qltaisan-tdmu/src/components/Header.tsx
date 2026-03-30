@@ -3,8 +3,7 @@ import { Building2 } from "lucide-react";
 const navItems = [
   { label: "Trang chủ", href: "/" },
   { label: "Tài liệu", href: "#" },
-  { label: "Quy định quản lý sử dụng", href: "#" },
-  // coi trong fb trang cá nhân của toy về "Thông báo quản lý và sử dụng phòng học"
+  { label: "Quy định", href: "#" }, // Rút ngắn tên để đỡ chiếm diện tích
   { label: "Giới thiệu", href: "#" },
   { label: "Quản lý tài sản", href: "#" },
   { label: "Báo cáo", href: "#" },
@@ -14,33 +13,33 @@ const navItems = [
 
 const AppHeader = () => {
   return (
-    <header className="bg-blue-700 text-white shadow-lg">
-      <div className="flex items-center justify-between px-8 py-4">
+    <header className="bg-blue-800 text-white shadow-md w-full">
+      <div className="flex items-center justify-between px-6 py-3">
         {/* Logo */}
-        <div className="flex items-center gap-4">
-          <Building2 className="h-10 w-10" />
+        <div className="flex items-center gap-3 shrink-0">
+          <Building2 className="h-8 w-8 text-blue-200" />
           <div>
-            <h1 className="text-2xl font-bold tracking-wide">
+            <h1 className="text-xl font-bold tracking-tight leading-none">
               HỆ THỐNG QUẢN LÝ TÀI SẢN
             </h1>
-            <p className="text-sm opacity-90">
-              Trường Đại học Thủ Dầu Một – TP.HCM
+            <p className="text-[11px] opacity-80 mt-1 uppercase tracking-wider">
+              Trường Đại học Thủ Dầu Một
             </p>
           </div>
         </div>
 
         {/* Navbar */}
-        <nav className="flex gap-2">
+        <nav className="hidden lg:flex items-center gap-1">
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
               className="
-                px-4 py-2 rounded-lg
-                text-lg font-semibold
+                px-3 py-1.5 rounded-md
+                text-[13px] font-medium 
                 transition-all duration-200
-                hover:bg-blue-500 hover:text-red-500
-                active:bg-blue-400 active:text-red-600
+                hover:bg-white/10
+                active:bg-white/20
               "
             >
               {item.label}
