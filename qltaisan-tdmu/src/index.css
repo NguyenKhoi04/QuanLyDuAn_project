@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 20% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 20%;
+
+    --primary: 145 63% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 220 20% 20%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 145 63% 38%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 145 63% 32%;
+
+    --radius: 0.5rem;
+
+    /* Custom tokens */
+    --header-bg: 145 63% 32%;
+    --header-foreground: 0 0% 100%;
+    --sidebar-bg: 210 20% 96%;
+    --link-hover: 217 91% 50%;
+    --login-btn: 0 72% 51%;
+    --login-btn-foreground: 0 0% 100%;
+    --welcome-text: 0 0% 60%;
+
+    --sidebar-background: 210 20% 96%;
+    --sidebar-foreground: 220 20% 30%;
+    --sidebar-primary: 145 63% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 92%;
+    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 145 63% 32%;
+  }
+
+  .dark {
+    --background: 220 20% 10%;
+    --foreground: 210 40% 98%;
+    --card: 220 20% 12%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 145 63% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 145 63% 38%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 145 63% 42%;
+    --header-bg: 145 63% 28%;
+    --header-foreground: 0 0% 100%;
+    --sidebar-bg: 220 20% 12%;
+    --link-hover: 217 91% 60%;
+    --login-btn: 0 72% 51%;
+    --login-btn-foreground: 0 0% 100%;
+    --welcome-text: 0 0% 50%;
+    --sidebar-background: 220 20% 12%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 145 63% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 16%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 20% 16%;
+    --sidebar-ring: 145 63% 42%;
+  }
+}
+
+@layer base {
+  * {
+    /* Loại bỏ @apply border-border vì chưa định nghĩa utility này trong Tailwind.
+       Nếu cần viền mặc định, có thể thêm lại sau khi cấu hình plugin. */
+  }
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+}
