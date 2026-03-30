@@ -31,6 +31,7 @@ function App() {
             <Route path="/ai-chat" element={<AIChat />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/thongke" element={<ThongKe />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
