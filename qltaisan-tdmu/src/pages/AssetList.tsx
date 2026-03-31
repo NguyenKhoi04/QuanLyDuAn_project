@@ -4,7 +4,10 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Edit, Trash2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 const loaiTaiSan: Record<number, string> = {
@@ -57,7 +60,7 @@ interface TaiSan {
   TrangThai: number;
 }
 
-const sampleData: TaiSan[] = [
+const initialData: TaiSan[] = [
   { MaTaiSan: 1, MaCode: "TS001", TenTaiSan: "Máy tính Dell Vostro 3510", MaLoai: 1, MaPhongBan: 1, MaViTri: 1, MaNhaCungCap: 1, NgayMua: "2023-03-15", TrangThai: 1 },
   { MaTaiSan: 2, MaCode: "TS002", TenTaiSan: "Máy tính HP ProBook 450", MaLoai: 1, MaPhongBan: 4, MaViTri: 3, MaNhaCungCap: 2, NgayMua: "2023-05-20", TrangThai: 1 },
   { MaTaiSan: 3, MaCode: "TS003", TenTaiSan: "Bàn làm việc 1m2", MaLoai: 2, MaPhongBan: 2, MaViTri: 2, MaNhaCungCap: 3, NgayMua: "2022-11-10", TrangThai: 1 },
@@ -69,20 +72,74 @@ const sampleData: TaiSan[] = [
   { MaTaiSan: 9, MaCode: "TS009", TenTaiSan: "Router WiFi TP-Link", MaLoai: 4, MaPhongBan: 1, MaViTri: 1, MaNhaCungCap: 2, NgayMua: "2023-09-05", TrangThai: 1 },
   { MaTaiSan: 10, MaCode: "TS010", TenTaiSan: "Máy chiếu BenQ MH560", MaLoai: 3, MaPhongBan: 5, MaViTri: 5, MaNhaCungCap: 4, NgayMua: null, TrangThai: 2 },
 ];
+
+const ITEMS_PER_PAGE = 5;
+
 function AssetList() {
-  const [assets, setAssets] = useState<TaiSan[]>(sampleData);
+  const [data, setData] = useState<TaiSan[]>(initialData);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
    const [search, setSearch] = useState("");
 
-  const filtered = sampleData.filter(
+  const [form, setForm] = useState({
+    MaCode: "",
+    TenTaiSan: "",
+    MaLoai: "",
+    MaPhongBan: "",
+    MaViTri: "",
+    MaNhaCungCap: "",
+    NgayMua: "",
+    TrangThai: "",
+  });
+  const [formError, setFormError] = useState("");
+  const filtered = data.filter(
+
     (ts) =>
       ts.TenTaiSan.toLowerCase().includes(search.toLowerCase()) ||
       ts.MaCode.toLowerCase().includes(search.toLowerCase())
   );
 
+    const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paged = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+  const resetForm = () => {
+    setForm({ MaCode: "", TenTaiSan: "", MaLoai: "", MaPhongBan: "", MaViTri: "", MaNhaCungCap: "", NgayMua: "", TrangThai: "" });
+    setFormError("");
+  };
+  const handleSubmit = () => {
+    if (!form.MaCode.trim() || !form.TenTaiSan.trim() || !form.MaLoai || !form.MaPhongBan || !form.MaViTri || !form.TrangThai) {
+      setFormError("Vui lòng điền đầy đủ các trường bắt buộc (*)");
+      return;
+    }
+    const newItem: TaiSan = {
+      MaTaiSan: Math.max(...data.map((d) => d.MaTaiSan), 0) + 1,
+      MaCode: form.MaCode.trim(),
+      TenTaiSan: form.TenTaiSan.trim(),
+      MaLoai: Number(form.MaLoai),
+      MaPhongBan: Number(form.MaPhongBan),
+      MaViTri: Number(form.MaViTri),
+      MaNhaCungCap: form.MaNhaCungCap ? Number(form.MaNhaCungCap) : null,
+      NgayMua: form.NgayMua || null,
+      TrangThai: Number(form.TrangThai),
+    };
+    setData([...data, newItem]);
+    resetForm();
+    setDialogOpen(false);
+    setCurrentPage(1);
+  };
+  // Reset page when search changes
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  };
+
+
   useEffect(() => {
     axios.get("http://localhost:3000/assets")
-      .then(res => setAssets(res.data));
+      .then(res => setData(res.data));
   }, []);
 
   return (
@@ -93,9 +150,100 @@ function AssetList() {
         <main className="flex-1 p-6 overflow-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground">Danh sách tài sản</h2>
-            <Button className="bg-primary text-primary-foreground gap-2">
-              <Plus className="h-4 w-4" /> Thêm tài sản
-            </Button>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary text-primary-foreground gap-2">
+                  <Plus className="h-4 w-4" /> Thêm tài sản
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Thêm tài sản mới</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  {formError && <p className="text-sm text-destructive">{formError}</p>}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Mã Code *</Label>
+                      <Input value={form.MaCode} onChange={(e) => setForm({ ...form, MaCode: e.target.value })} placeholder="VD: TS011" maxLength={50} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Tên tài sản *</Label>
+                      <Input value={form.TenTaiSan} onChange={(e) => setForm({ ...form, TenTaiSan: e.target.value })} placeholder="Nhập tên tài sản" maxLength={100} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Loại tài sản *</Label>
+                      <Select value={form.MaLoai} onValueChange={(v) => setForm({ ...form, MaLoai: v })}>
+                        <SelectTrigger><SelectValue placeholder="Chọn loại" /></SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(loaiTaiSan).map(([k, v]) => (
+                            <SelectItem key={k} value={k}>{v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Phòng ban *</Label>
+                      <Select value={form.MaPhongBan} onValueChange={(v) => setForm({ ...form, MaPhongBan: v })}>
+                        <SelectTrigger><SelectValue placeholder="Chọn phòng ban" /></SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(phongBan).map(([k, v]) => (
+                            <SelectItem key={k} value={k}>{v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Vị trí *</Label>
+                      <Select value={form.MaViTri} onValueChange={(v) => setForm({ ...form, MaViTri: v })}>
+                        <SelectTrigger><SelectValue placeholder="Chọn vị trí" /></SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(viTri).map(([k, v]) => (
+                            <SelectItem key={k} value={k}>{v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nhà cung cấp</Label>
+                      <Select value={form.MaNhaCungCap} onValueChange={(v) => setForm({ ...form, MaNhaCungCap: v })}>
+                        <SelectTrigger><SelectValue placeholder="Chọn NCC" /></SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(nhaCungCap).map(([k, v]) => (
+                            <SelectItem key={k} value={k}>{v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Ngày mua</Label>
+                      <Input type="date" value={form.NgayMua} onChange={(e) => setForm({ ...form, NgayMua: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Trạng thái *</Label>
+                      <Select value={form.TrangThai} onValueChange={(v) => setForm({ ...form, TrangThai: v })}>
+                        <SelectTrigger><SelectValue placeholder="Chọn trạng thái" /></SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(trangThaiMap).map(([k, v]) => (
+                            <SelectItem key={k} value={k}>{v.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { resetForm(); setDialogOpen(false); }}>Hủy</Button>
+                  <Button onClick={handleSubmit}>Lưu tài sản</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="relative mb-4 max-w-sm">
@@ -103,7 +251,7 @@ function AssetList() {
             <Input
               placeholder="Tìm kiếm theo tên hoặc mã..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+             onChange={(e) => handleSearch(e.target.value)}
               className="pl-9"
             />
           </div>
@@ -125,11 +273,11 @@ function AssetList() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((ts, idx) => {
+               {paged.map((ts, idx) => {
                   const tt = trangThaiMap[ts.TrangThai];
                   return (
                     <TableRow key={ts.MaTaiSan}>
-                      <TableCell>{idx + 1}</TableCell>
+                     <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
                       <TableCell className="font-mono text-xs">{ts.MaCode}</TableCell>
                       <TableCell className="font-medium">{ts.TenTaiSan}</TableCell>
                       <TableCell>{loaiTaiSan[ts.MaLoai]}</TableCell>
@@ -153,7 +301,7 @@ function AssetList() {
                     </TableRow>
                   );
                 })}
-                {filtered.length === 0 && (
+                {paged.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                       Không tìm thấy tài sản nào
@@ -162,6 +310,31 @@ function AssetList() {
                 )}
               </TableBody>
             </Table>
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Hiển thị {paged.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} / {filtered.length} tài sản
+              </p>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" className="h-8 w-8" disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={page === currentPage ? "default" : "outline"}
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+                <Button variant="outline" size="icon" className="h-8 w-8" disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
         </main>
       </div>
