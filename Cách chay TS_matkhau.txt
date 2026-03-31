@@ -23,3 +23,24 @@ npx supabase gen types typescript --project-id <your-project-id> > database.type
 Cụ thể : npx supabase gen types typescript --project-id jdhorynqsvuitawvsmlo > database.types.ts
 
 //chỗ index.tsx có mục " quy định" nghĩa là theo thông báo page trường (link: https://www.facebook.com/share/p/1CYEQp7HCZ/)
+
+
+thêm chat với thêm "cái bong bóng chat nhỏ để tích hợp AL hỗ trợ thông tin bảo trì" sau:
+Cách dùng siêu dễ:
+
+Copy component trên vào file components/FloatingAIChat.tsx
+Thêm vào layout chính (hoặc bất kỳ trang nào trong dự án Lovable/Next.js):tsximport FloatingAIChat from '@/components/FloatingAIChat';
+// ...
+<FloatingAIChat />
+
+Đã tích hợp “bong bóng chat AI” vào project
+Tạo component: src/components/FloatingAIChat.tsx
+
+Port lại đúng React/Vite (bỏ 'use client')
+Dọn ref + imports để không báo lỗi build
+Giữ UI bong bóng + panel 4 tab: Chat / Gợi ý / Rủi ro / Tra cứu
+Tab “Gợi ý” đang dùng mockGoiYData (chỗ fetch đã để sẵn để bạn thay API thật)
+Gắn global để hiện mọi trang: cập nhật src/App.tsx
+
+Thêm import FloatingAIChat ...
+Render <FloatingAIChat /> ngay trong BrowserRouter (ngoài Routes) nên đi đâu cũng thấy bong bóng.

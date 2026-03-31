@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import ThongKe from "./pages/ThongKe";
 import Users from "./pages/Users";
 import Setting from "./pages/Setting";
+import FloatingAIChat from "@/components/FloatingAIChat";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ function App() {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <FloatingAIChat />
           <Routes>
             <Route path="/" element={<Index />} />
              <Route path="/login" element={<Login />} />
