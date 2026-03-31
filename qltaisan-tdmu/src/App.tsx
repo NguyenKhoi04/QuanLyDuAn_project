@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ThongKe from "./pages/ThongKe";
+import Users from "./pages/Users";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ function App() {
              <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/assets" element={<AssetList />} />
+            <Route path="/users" element={<Users />} />
             <Route path="/ai-chat" element={<AIChat />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/thongke" element={<ThongKe />} />
