@@ -323,7 +323,7 @@ function AssetList() {
                   )}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Mã Code *</Label>
+                      <Label>Mã Tài sản *</Label>
                       <Input
                         value={form.MaTS}
                         onChange={(e) =>
@@ -491,7 +491,7 @@ function AssetList() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-16">STT</TableHead>
-                  <TableHead>Mã Code</TableHead>
+                  <TableHead>Mã Tài sản</TableHead>
                   <TableHead>Tên tài sản</TableHead>
                   <TableHead>Loại</TableHead>
                   <TableHead>Phòng ban</TableHead>
