@@ -58,7 +58,7 @@ const trangThaiMap: Record<
 
 interface TaiSan {
   MaTaiSan: number;
-  MaCode: string;
+  MaTS: string;
   TenTaiSan: string;
   MaLoai: number;
   MaPhongBan: number;
@@ -71,7 +71,7 @@ interface TaiSan {
 const initialData: TaiSan[] = [
   {
     MaTaiSan: 1,
-    MaCode: "TS001",
+    MaTS: "TS001",
     TenTaiSan: "Máy tính Dell Vostro 3510",
     MaLoai: 1,
     MaPhongBan: 1,
@@ -82,7 +82,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 2,
-    MaCode: "TS002",
+    MaTS: "TS002",
     TenTaiSan: "Máy tính HP ProBook 450",
     MaLoai: 1,
     MaPhongBan: 4,
@@ -93,7 +93,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 3,
-    MaCode: "TS003",
+    MaTS: "TS003",
     TenTaiSan: "Bàn làm việc 1m2",
     MaLoai: 2,
     MaPhongBan: 2,
@@ -104,7 +104,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 4,
-    MaCode: "TS004",
+    MaTS: "TS004",
     TenTaiSan: "Ghế xoay văn phòng",
     MaLoai: 2,
     MaPhongBan: 3,
@@ -115,7 +115,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 5,
-    MaCode: "TS005",
+    MaTS: "TS005",
     TenTaiSan: "Máy chiếu Epson EB-X51",
     MaLoai: 3,
     MaPhongBan: 4,
@@ -126,7 +126,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 6,
-    MaCode: "TS006",
+    MaTS: "TS006",
     TenTaiSan: "Switch Cisco 24 port",
     MaLoai: 4,
     MaPhongBan: 1,
@@ -137,7 +137,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 7,
-    MaCode: "TS007",
+    MaTS: "TS007",
     TenTaiSan: "Điều hòa Daikin 12000BTU",
     MaLoai: 5,
     MaPhongBan: 5,
@@ -148,7 +148,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 8,
-    MaCode: "TS008",
+    MaTS: "TS008",
     TenTaiSan: "Máy tính Lenovo ThinkPad",
     MaLoai: 1,
     MaPhongBan: 2,
@@ -159,7 +159,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 9,
-    MaCode: "TS009",
+    MaTS: "TS009",
     TenTaiSan: "Router WiFi TP-Link",
     MaLoai: 4,
     MaPhongBan: 1,
@@ -170,7 +170,7 @@ const initialData: TaiSan[] = [
   },
   {
     MaTaiSan: 10,
-    MaCode: "TS010",
+    MaTS: "TS010",
     TenTaiSan: "Máy chiếu BenQ MH560",
     MaLoai: 3,
     MaPhongBan: 5,
@@ -193,7 +193,7 @@ function AssetList() {
   const [search, setSearch] = useState("");
 
   const emptyForm = {
-    MaCode: "",
+    MaTS: "",
     TenTaiSan: "",
     MaLoai: "",
     MaPhongBan: "",
@@ -207,7 +207,7 @@ function AssetList() {
   const filtered = data.filter(
     (ts) =>
       ts.TenTaiSan.toLowerCase().includes(search.toLowerCase()) ||
-      ts.MaCode.toLowerCase().includes(search.toLowerCase()),
+      ts.MaTS.toLowerCase().includes(search.toLowerCase()),
   );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
@@ -224,7 +224,7 @@ function AssetList() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (
-      !form.MaCode.trim() ||
+      !form.MaTS.trim() ||
       !form.TenTaiSan.trim() ||
       !form.MaLoai ||
       !form.MaPhongBan ||
@@ -238,7 +238,7 @@ function AssetList() {
       MaTaiSan: editingItem
         ? editingItem.MaTaiSan
         : Math.max(...data.map((d) => d.MaTaiSan), 0) + 1,
-      MaCode: form.MaCode.trim(),
+      MaTS: form.MaTS.trim(),
       TenTaiSan: form.TenTaiSan.trim(),
       MaLoai: Number(form.MaLoai),
       MaPhongBan: Number(form.MaPhongBan),
@@ -261,7 +261,7 @@ function AssetList() {
   const handleEdit = (ts: TaiSan) => {
     setEditingItem(ts);
     setForm({
-      MaCode: ts.MaCode,
+      MaTS: ts.MaTS,
       TenTaiSan: ts.TenTaiSan,
       MaLoai: String(ts.MaLoai),
       MaPhongBan: String(ts.MaPhongBan),
@@ -325,9 +325,9 @@ function AssetList() {
                     <div className="space-y-2">
                       <Label>Mã Code *</Label>
                       <Input
-                        value={form.MaCode}
+                        value={form.MaTS}
                         onChange={(e) =>
-                          setForm({ ...form, MaCode: e.target.value })
+                          setForm({ ...form, MaTS: e.target.value })
                         }
                         placeholder="VD: TS011"
                         maxLength={50}
@@ -511,7 +511,7 @@ function AssetList() {
                         {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                       </TableCell>
                       <TableCell className="font-mono text-xs">
-                        {ts.MaCode}
+                        {ts.MaTS}
                       </TableCell>
                       <TableCell className="font-medium">
                         {ts.TenTaiSan}
@@ -616,7 +616,7 @@ function AssetList() {
                 <AlertDialogTitle>Xác nhận xóa tài sản</AlertDialogTitle>
                 <AlertDialogDescription>
                   Bạn có chắc chắn muốn xóa tài sản{" "}
-                  <strong>{deleteItem?.TenTaiSan}</strong> ({deleteItem?.MaCode}
+                  <strong>{deleteItem?.TenTaiSan}</strong> ({deleteItem?.MaTS}
                   )? Hành động này không thể hoàn tác.
                 </AlertDialogDescription>
               </AlertDialogHeader>
