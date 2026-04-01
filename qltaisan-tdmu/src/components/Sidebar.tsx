@@ -8,6 +8,11 @@ import {
   Users,
   FileText,
   HelpCircle,
+  Wrench,
+  AlertTriangle,
+  UserCheck,
+  Clock,
+  ClipboardCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,6 +21,15 @@ const sidebarLinks = [
   { label: "Danh sách tài sản", icon: Package, path: "/assets" },
   { label: "Nhập/Xuất tài sản", icon: ClipboardList, path: "/nhap-xuat" },
   { label: "Kiểm kê", icon: FileText, path: "/kiem-ke" },
+  { label: "Dashboard bảo trì", icon: ClipboardCheck, path: "/bao-tri" },
+  {
+    label: "Kế hoạch bảo trì định kỳ",
+    icon: Wrench,
+    path: "/ke-hoach-bao-tri-dinh-ky",
+  },
+  { label: "Sự cố tài sản", icon: AlertTriangle, path: "/su-co-tai-san" },
+  { label: "Phân công sửa chữa", icon: UserCheck, path: "/phan-cong-sua-chua" },
+  { label: "Lịch sử bảo trì", icon: Clock, path: "/lich-su-bao-tri" },
   { label: "Báo cáo thống kê", icon: BarChart3, path: "/thongke" },
   { label: "Quản lý người dùng", icon: Users, path: "/users" },
   { label: "Cài đặt hệ thống", icon: Settings, path: "/settings" },

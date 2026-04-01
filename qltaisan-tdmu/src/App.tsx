@@ -15,6 +15,11 @@ import NotFound from "./pages/NotFound";
 import ThongKe from "./pages/ThongKe";
 import Users from "./pages/Users";
 import Setting from "./pages/Setting";
+import PeriodicMaintenancePlanning from "./pages/PeriodicMaintenancePlanning";
+import AssetIncidentRecording from "./pages/AssetIncidentRecording";
+import RepairAssignmentRecording from "./pages/RepairAssignmentRecording";
+import MaintenanceHistory from "./pages/MaintenanceHistory";
+import MaintenanceDashboard from "./pages/MaintenanceDashboard";
 import FloatingAIChat from "@/components/FloatingAIChat";
 
 const queryClient = new QueryClient();
@@ -32,6 +37,17 @@ function App() {
              <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/assets" element={<AssetList />} />
+            <Route
+              path="/ke-hoach-bao-tri-dinh-ky"
+              element={<PeriodicMaintenancePlanning />}
+            />
+            <Route path="/su-co-tai-san" element={<AssetIncidentRecording />} />
+            <Route
+              path="/phan-cong-sua-chua"
+              element={<RepairAssignmentRecording />}
+            />
+            <Route path="/lich-su-bao-tri" element={<MaintenanceHistory />} />
+            <Route path="/bao-tri" element={<MaintenanceDashboard />} />
             <Route path="/users" element={<Users />} />
             <Route path="/ai-chat" element={<AIChat />} />
             <Route path="/settings" element={<Setting />} />
