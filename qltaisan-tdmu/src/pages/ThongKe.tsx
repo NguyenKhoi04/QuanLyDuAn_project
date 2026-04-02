@@ -13,8 +13,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import AppHeader from "@/components/Header";
-import AppSidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
 import { useNavigate } from "react-router-dom";
 
 const barData = [
@@ -54,11 +53,7 @@ const COLORS = [
 const ThongKe = () => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen flex flex-col">
-      <AppHeader />
-      <div className="flex flex-1 min-h-0">
-        <AppSidebar />
-        <main className="flex-1 min-h-0 p-6 bg-background">
+    <AppShell mainClassName="p-6 bg-background">
           <h2 className="text-2xl font-bold text-foreground mb-6">
             Biểu đồ thống kê tài sản
           </h2>
@@ -166,9 +161,7 @@ const ThongKe = () => {
               </ResponsiveContainer>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+    </AppShell>
   );
 };
 

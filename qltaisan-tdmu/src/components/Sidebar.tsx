@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
@@ -15,7 +16,10 @@ import {
   MapPin,
   Move,
   ClipboardCheck,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type SidebarLink = { label: string; icon: LucideIcon; path: string };
@@ -59,11 +63,43 @@ const sidebarGroups: SidebarGroup[] = [
   },
 ];
 
+const SCROLL_STEP = 120;
+
 const AppSidebar = () => {
 // TODO: handle logout => navigate to login không được ở ngoài component này vì web trắng khi logout, nên để ở component Header hoặc App.tsx
   const navigate = useNavigate();
+  const navRef = useRef<HTMLElement>(null);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    setCanScrollUp(scrollTop > 2);
+    setCanScrollDown(scrollTop + clientHeight < scrollHeight - 2);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = navRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => updateScrollState());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [updateScrollState]);
+
+  function scrollNav(dir: "up" | "down") {
+    const el = navRef.current;
+    if (!el) return;
+    el.scrollBy({
+      top: dir === "up" ? -SCROLL_STEP : SCROLL_STEP,
+      behavior: "smooth",
+    });
+  }
+
   return (
-    <aside className="w-65 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 py-4 px-3 shrink-0">
+    <aside className="w-65 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 h-full py-4 px-3 shrink-0 overflow-hidden">
       {/* Login button */}
       <button 
       className="shrink-0 w-full mx-auto bg-login-btn text-login-btn-foreground font-bold text-sm py-2 px-4 
@@ -72,30 +108,61 @@ const AppSidebar = () => {
         Đăng nhập bằng tài khoản Google
       </button>
 
-      {/* Navigation: cuộn trong sidebar, nhấp điều hướng như cũ */}
-      <nav
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-y-contain pr-1 -mr-1 flex flex-col gap-4"
-        aria-label="Điều hướng chính"
-      >
-        {sidebarGroups.map((group) => (
-          <div key={group.title} className="flex flex-col gap-1">
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {group.title}
-            </p>
-            {group.links.map((link) => (
-              <button
-                key={link.path}
-                type="button"
-                onClick={() => navigate(link.path)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sidebar-foreground hover:text-link-hover hover:bg-sidebar-accent transition-colors group text-left"
-              >
-                <link.icon className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-link-hover transition-colors" />
-                <span className="text-sm font-medium">{link.label}</span>
-              </button>
-            ))}
-          </div>
-        ))}
-      </nav>
+      {/* Navigation: thanh cuộn dọc + nút kéo lên/xuống; chỉ vùng này cuộn trong sidebar */}
+      <div className="flex min-h-0 flex-1 min-w-0 gap-0">
+        <nav
+          ref={navRef}
+          onScroll={updateScrollState}
+          className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-scroll overflow-x-hidden overscroll-y-contain py-1 pr-1 [scrollbar-gutter:stable]"
+          aria-label="Điều hướng chính"
+        >
+          {sidebarGroups.map((group) => (
+            <div key={group.title} className="flex flex-col gap-1">
+              <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {group.title}
+              </p>
+              {group.links.map((link) => (
+                <button
+                  key={link.path}
+                  type="button"
+                  onClick={() => navigate(link.path)}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sidebar-foreground hover:text-link-hover hover:bg-sidebar-accent transition-colors group text-left"
+                >
+                  <link.icon className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-link-hover transition-colors" />
+                  <span className="text-sm font-medium">{link.label}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </nav>
+        <div
+          className="flex shrink-0 flex-col items-stretch gap-1 border-l border-sidebar-border bg-sidebar-accent/20 py-1 pl-1"
+          aria-hidden="true"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 rounded-md"
+            aria-label="Cuộn menu lên"
+            disabled={!canScrollUp}
+            onClick={() => scrollNav("up")}
+          >
+            <ChevronUp className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 rounded-md"
+            aria-label="Cuộn menu xuống"
+            disabled={!canScrollDown}
+            onClick={() => scrollNav("down")}
+          >
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       {/*  chen hình logo */}
       <div className="shrink-0 pt-4 mt-2 border-t border-sidebar-border">

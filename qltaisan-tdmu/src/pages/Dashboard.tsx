@@ -1,5 +1,4 @@
-import AppHeader from "@/components/Header";
-import AppSidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
 import NotificationSystem from "@/components/NotificationSystem";
 import {
   Bar,
@@ -53,11 +52,7 @@ const COLORS = ["#10b981", "#3b82f6", "#ef4444", "#eab308", "#8b5cf6"];
 
 function Dashboard() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader />
-      <div className="flex flex-1 min-h-0">
-        <AppSidebar />
-        <main className="flex-1 min-h-0 p-6 overflow-auto">
+    <AppShell>
           <div className="flex items-start justify-between gap-4 mb-6">
             <div>
               <h2 className="text-2xl font-bold text-foreground">
@@ -215,9 +210,7 @@ function Dashboard() {
               <span>Dữ liệu mẫu (có thể thay bằng API sau)</span>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+    </AppShell>
   );
 }
 

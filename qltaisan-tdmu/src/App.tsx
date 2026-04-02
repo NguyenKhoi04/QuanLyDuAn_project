@@ -21,8 +21,6 @@ import RepairAssignmentRecording from "./pages/RepairAssignmentRecording";
 import MaintenanceHistory from "./pages/MaintenanceHistory";
 import MaintenanceDashboard from "./pages/MaintenanceDashboard";
 import FloatingAIChat from "@/components/FloatingAIChat";
-import AppHeader from "@/components/Header";
-import AppSidebar from "@/components/Sidebar";
 import KiemKe from "./pages/KiemKe";
 import AssetLocationTracking from "./pages/AssetLocationTracking";
 import AssetTransferManagement from "./pages/AssetTransferManagement";

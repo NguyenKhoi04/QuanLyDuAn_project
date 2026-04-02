@@ -1,5 +1,4 @@
-import AppHeader from "@/components/Header";
-import AppSidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -74,11 +73,7 @@ function Setting() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader />
-      <div className="flex flex-1 min-h-0">
-        <AppSidebar />
-        <main className="flex-1 min-h-0 p-6 overflow-auto">
+    <AppShell>
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -412,9 +407,7 @@ function Setting() {
               </Card>
             </section>
           </div>
-        </main>
-      </div>
-    </div>
+    </AppShell>
   );
 }
 

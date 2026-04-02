@@ -1,5 +1,4 @@
-import AppHeader from "@/components/Header";
-import AppSidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -197,11 +196,7 @@ function MaintenanceDashboard() {
   }, [plans, todayISO]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader />
-      <div className="flex flex-1 min-h-0">
-        <AppSidebar />
-        <main className="flex-1 min-h-0 p-6 overflow-auto">
+    <AppShell>
           <h2 className="text-3xl font-bold text-foreground mb-1">
             Dashboard bảo trì
           </h2>
@@ -422,9 +417,7 @@ function MaintenanceDashboard() {
               </Table>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+    </AppShell>
   );
 }
 
