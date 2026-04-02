@@ -49,7 +49,7 @@ const AppHeader = () => {
           ))}
         </nav>
 
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="hidden lg:flex items-left gap-2">
           <ThemeToggle />
         </div>
       </div>
