@@ -136,6 +136,7 @@ const AppSidebar = () => {
           ))}
         </nav>
         
+      </div>
 
       {/*  chen hình logo */}
       <div className="shrink-0 pt-4 mt-2 border-t border-sidebar-border">
