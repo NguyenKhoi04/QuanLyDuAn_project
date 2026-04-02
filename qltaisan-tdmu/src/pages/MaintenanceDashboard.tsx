@@ -199,9 +199,9 @@ function MaintenanceDashboard() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <AppHeader />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <AppSidebar />
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 min-h-0 p-6 overflow-auto">
           <h2 className="text-3xl font-bold text-foreground mb-1">
             Dashboard bảo trì
           </h2>

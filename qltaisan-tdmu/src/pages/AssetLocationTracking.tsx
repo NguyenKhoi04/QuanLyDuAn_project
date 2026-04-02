@@ -61,10 +61,10 @@ export default function AssetLocationTracking() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <AppHeader />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <AppSidebar />
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 min-h-0 p-6 overflow-auto">
           <div className="flex items-start justify-between gap-4 mb-6">
             <div className="min-w-0">
               <h2 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">

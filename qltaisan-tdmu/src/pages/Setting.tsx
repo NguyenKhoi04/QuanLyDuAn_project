@@ -76,9 +76,9 @@ function Setting() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <AppHeader />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <AppSidebar />
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 min-h-0 p-6 overflow-auto">
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
