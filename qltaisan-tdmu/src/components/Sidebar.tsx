@@ -135,34 +135,7 @@ const AppSidebar = () => {
             </div>
           ))}
         </nav>
-        <div
-          className="flex shrink-0 flex-col items-stretch gap-1 border-l border-sidebar-border bg-sidebar-accent/20 py-1 pl-1"
-          aria-hidden="true"
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0 rounded-md"
-            aria-label="Cuộn menu lên"
-            disabled={!canScrollUp}
-            onClick={() => scrollNav("up")}
-          >
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0 rounded-md"
-            aria-label="Cuộn menu xuống"
-            disabled={!canScrollDown}
-            onClick={() => scrollNav("down")}
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+        
 
       {/*  chen hình logo */}
       <div className="shrink-0 pt-4 mt-2 border-t border-sidebar-border">
