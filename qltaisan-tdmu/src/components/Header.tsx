@@ -1,4 +1,5 @@
 import { Building2 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
   { label: "Trang chủ", href: "/" },
@@ -14,7 +15,7 @@ const navItems = [
 const AppHeader = () => {
   return (
     <header className="bg-blue-800 text-white shadow-md w-full">
-      <div className="flex items-center justify-between px-6 py-4"> {/* Tăng py lên 4 cho thoáng */}
+      <div className="flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="flex items-center gap-4 shrink-0">
           <Building2 className="h-9 w-9 text-blue-200" />
@@ -47,6 +48,10 @@ const AppHeader = () => {
             </a>
           ))}
         </nav>
+
+        <div className="hidden lg:flex items-center gap-2">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
