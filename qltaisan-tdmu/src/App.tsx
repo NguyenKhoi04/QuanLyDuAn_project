@@ -60,7 +60,6 @@ function App() {
             <Route path="/thongke" element={<ThongKe />} />
             <Route path="/kiem-ke" element={<KiemKe />} />
             <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
-            <Route path="/ghi-nhan-su-co" element={<AssetIncidentRecording />} />
             <Route path="/lich-su-bao-tri" element={<MaintenanceHistory />} />
             <Route path="/vi-tri-tai-san" element={<AssetLocationTracking />} />
               <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
