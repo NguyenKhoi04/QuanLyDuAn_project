@@ -1,3 +1,4 @@
+import ThemeToggle from '@/components/ThemeToggle';
 import {
   AlertTriangle,
   BarChart3,
@@ -95,6 +96,13 @@ function Index() {
             >
               Vào khu vực bảo trì
             </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 border border-zinc-700 hover:bg-zinc-900 rounded-2xl font-medium"
+            >
+              Đăng nhập
+            </button>
+            <ThemeToggle />
           </div>
         </div>
       </header>
