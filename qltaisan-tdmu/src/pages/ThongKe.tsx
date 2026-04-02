@@ -56,9 +56,9 @@ const ThongKe = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <AppSidebar />
-        <main className="flex-1 p-6 bg-background">
+        <main className="flex-1 min-h-0 p-6 bg-background">
           <h2 className="text-2xl font-bold text-foreground mb-6">
             Biểu đồ thống kê tài sản
           </h2>
