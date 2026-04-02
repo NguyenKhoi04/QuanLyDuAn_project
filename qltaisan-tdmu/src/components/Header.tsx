@@ -29,28 +29,31 @@ const AppHeader = () => {
           </div>
         </div>
 
-        {/* Navbar */}
-        <nav className="hidden lg:flex items-center gap-2"> {/* Tăng gap lên 2 */}
-          {navItems.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className="
-                px-4 py-2 rounded-md
-                text-[15px] font-semibold  /* Chữ 15px và đậm hơn một chút để dễ đọc */
-                transition-all duration-200
-                hover:bg-white/15          /* Hiệu ứng hover rõ hơn */
-                hover:text-blue-100       /* Đổi màu nhẹ khi hover thay vì đỏ chói */
-                active:bg-white/25
-              "
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
+        <div className="hidden lg:flex items-center gap-2">
+          {/* Navbar */}
+          <nav className="flex items-center gap-2">
+            {navItems.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="
+                  px-4 py-2 rounded-md
+                  text-[15px] font-semibold  /* Chữ 15px và đậm hơn một chút để dễ đọc */
+                  transition-all duration-200
+                  hover:bg-white/15          /* Hiệu ứng hover rõ hơn */
+                  hover:text-blue-100       /* Đổi màu nhẹ khi hover thay vì đỏ chói */
+                  active:bg-white/25
+                "
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
 
-        <div className="hidden lg:flex items-left gap-2">
-          <ThemeToggle />
+          {/* Theme toggle */}
+          <div className="flex items-center">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>
