@@ -1,5 +1,4 @@
-import AppHeader from "@/components/Header";
-import AppSidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
 import {Table,TableHeader,TableBody,TableRow,TableHead,TableCell} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -290,11 +289,7 @@ function AssetList() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader />
-      <div className="flex flex-1 min-h-0">
-        <AppSidebar />
-        <main className="flex-1 min-h-0 p-6 overflow-auto">
+    <AppShell>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground">
               Danh sách tài sản
@@ -631,9 +626,7 @@ function AssetList() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </main>
-      </div>
-    </div>
+    </AppShell>
   );
 }
 

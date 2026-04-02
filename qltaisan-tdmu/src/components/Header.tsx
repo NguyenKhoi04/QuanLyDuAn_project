@@ -14,7 +14,7 @@ const navItems = [
 
 const AppHeader = () => {
   return (
-    <header className="bg-blue-800 text-white shadow-md w-full">
+    <header className="shrink-0 z-30 bg-blue-800 text-white shadow-md w-full">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="flex items-center gap-4 shrink-0">
