@@ -36,7 +36,6 @@ const sidebarLinks = [
   { label: "Điều chuyển tài sản", icon: Move, path: "/dieu-chuyen-tai-san" },
 
   { label: "Sử dụng bảo trì", icon: ClipboardCheck, path: "/su-dung-bao-tri" },
-  {Label: "Ghi nhận sự cố", icon: Wrench, path: "/ghi-nhan-su-co" },
 
   { label: "Lịch sử bảo trì", icon: Clock, path: "/lich-su-bao-tri" },
   { label: "Báo cáo thống kê", icon: BarChart3, path: "/thongke" },
