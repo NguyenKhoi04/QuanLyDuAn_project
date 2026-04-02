@@ -19,6 +19,26 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+const completionTrendData = [
+  { name: "Tuần 1", uv: 590, pv: 800, amt: 1400 },
+  { name: "Tuần 2", uv: 868, pv: 967, amt: 1506 },
+  { name: "Tuần 3", uv: 1397, pv: 1098, amt: 989 },
+  { name: "Tuần 4", uv: 1480, pv: 1200, amt: 1228 },
+  { name: "Tuần 5", uv: 1520, pv: 1108, amt: 1100 },
+  { name: "Tuần 6", uv: 1400, pv: 680, amt: 1700 },
+];
 
 type TrangThaiSuCo = "Chưa xử lý" | "Đang xử lý" | "Đã xử lý" | "Tạm hoãn";
 
@@ -260,11 +280,52 @@ function MaintenanceDashboard() {
                 <TrendingUp className="h-4 w-4" /> Tỷ lệ hoàn thành 30 ngày qua
               </h3>
               <Button variant="outline" size="sm" disabled>
-                Biểu đồ (sắp có)
+                Demo dữ liệu
               </Button>
             </div>
-            <div className="h-64 bg-muted rounded-md flex items-center justify-center text-muted-foreground text-sm">
-              [Biểu đồ sẽ được thêm khi bạn dùng Recharts hoặc Chart.js]
+            <div className="h-64 w-full min-w-0 rounded-md bg-muted/30">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart
+                  data={completionTrendData}
+                  margin={{ top: 12, right: 8, bottom: 0, left: 0 }}
+                >
+                  <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.6} />
+                  <XAxis
+                    dataKey="name"
+                    scale="band"
+                    tick={{ fontSize: 11 }}
+                    stroke="hsl(var(--muted-foreground))"
+                  />
+                  <YAxis
+                    width={48}
+                    tick={{ fontSize: 11 }}
+                    stroke="hsl(var(--muted-foreground))"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid hsl(var(--border))",
+                      background: "hsl(var(--card))",
+                    }}
+                  />
+                  <Legend />
+                  <Bar
+                    dataKey="pv"
+                    name="Mục tiêu"
+                    barSize={20}
+                    fill="#413ea0"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="uv"
+                    name="Hoàn thành"
+                    stroke="#ff7300"
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
             </div>
           </div>
 

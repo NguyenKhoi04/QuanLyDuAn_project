@@ -44,3 +44,7 @@ Gắn global để hiện mọi trang: cập nhật src/App.tsx
 
 Thêm import FloatingAIChat ...
 Render <FloatingAIChat /> ngay trong BrowserRouter (ngoài Routes) nên đi đâu cũng thấy bong bóng.
+
+tải biểu đồ trong MaintenaceDashboard từ dòng  266
+
+sử dụng recharts: $ npm install recharts react-is
