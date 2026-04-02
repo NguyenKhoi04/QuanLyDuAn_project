@@ -12,9 +12,12 @@ import {
   AlertTriangle,
   UserCheck,
   Clock,
+  MapPin,
+  Move,
   ClipboardCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Label } from "recharts";
 
 const sidebarLinks = [
   { label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" },
@@ -29,6 +32,12 @@ const sidebarLinks = [
   },
   { label: "Sự cố tài sản", icon: AlertTriangle, path: "/su-co-tai-san" },
   { label: "Phân công sửa chữa", icon: UserCheck, path: "/phan-cong-sua-chua" },
+  { label: "Theo dõi vị trí tài sản", icon: MapPin, path: "/vi-tri-tai-san" },
+  { label: "Điều chuyển tài sản", icon: Move, path: "/dieu-chuyen-tai-san" },
+
+  { label: "Sử dụng bảo trì", icon: ClipboardCheck, path: "/su-dung-bao-tri" },
+  {Label: "Ghi nhận sự cố", icon: Wrench, path: "/ghi-nhan-su-co" },
+
   { label: "Lịch sử bảo trì", icon: Clock, path: "/lich-su-bao-tri" },
   { label: "Báo cáo thống kê", icon: BarChart3, path: "/thongke" },
   { label: "Quản lý người dùng", icon: Users, path: "/users" },
