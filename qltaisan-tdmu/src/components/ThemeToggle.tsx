@@ -89,8 +89,6 @@ const ThemeToggle = () => {
     };
   }, [open]);
 
-  if (!mounted) return null; // Tránh flash khi load
-
   const items = useMemo(
     () =>
       [
@@ -103,6 +101,8 @@ const ThemeToggle = () => {
 
   const ActiveIcon =
     theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
+
+  if (!mounted) return null; // Tránh flash khi load
 
   return (
     <div ref={containerRef} className="relative">
