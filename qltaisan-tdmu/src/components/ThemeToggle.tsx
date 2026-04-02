@@ -1,18 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 
 type Theme = 'light' | 'dark' | 'system';
 
 const ThemeToggle = () => {
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>("system");
   const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Tránh hydration mismatch (quan trọng khi dùng SSR)
   useEffect(() => {
     setMounted(true);
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
     if (savedTheme) {
       setTheme(savedTheme);
       applyTheme(savedTheme);
@@ -21,64 +23,131 @@ const ThemeToggle = () => {
     }
   }, []);
 
+  const getSystemIsDark = () =>
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+
   const applyTheme = (newTheme: Theme) => {
     const root = document.documentElement;
+    root.classList.remove("dark");
 
-    root.classList.remove('light', 'dark');
-
-    if (newTheme === 'system') {
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.classList.add(systemPrefersDark ? 'dark' : 'light');
-      localStorage.removeItem('theme'); // Theo hệ thống
-    } else {
-      root.classList.add(newTheme);
-      localStorage.setItem('theme', newTheme);
+    if (newTheme === "system") {
+      root.classList.toggle("dark", getSystemIsDark());
+      localStorage.removeItem("theme"); // Theo hệ thống
+      return;
     }
+
+    root.classList.toggle("dark", newTheme === "dark");
+    localStorage.setItem("theme", newTheme);
   };
 
   const changeTheme = (newTheme: Theme) => {
     setTheme(newTheme);
     applyTheme(newTheme);
+    setOpen(false);
   };
+
+  // Khi chọn "system", tự cập nhật nếu Windows đổi sáng/tối
+  useEffect(() => {
+    if (!mounted) return;
+    if (theme !== "system") return;
+
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => applyTheme("system");
+
+    if ("addEventListener" in mql) {
+      mql.addEventListener("change", onChange);
+      return () => mql.removeEventListener("change", onChange);
+    }
+
+    // Fallback Safari cũ
+    // eslint-disable-next-line deprecation/deprecation
+    mql.addListener(onChange);
+    // eslint-disable-next-line deprecation/deprecation
+    return () => mql.removeListener(onChange);
+  }, [mounted, theme]);
+
+  // Click ra ngoài / ESC để đóng dropdown (đỡ phải giữ chuột hover)
+  useEffect(() => {
+    if (!open) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      const el = containerRef.current;
+      if (!el) return;
+      if (e.target instanceof Node && el.contains(e.target)) return;
+      setOpen(false);
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   if (!mounted) return null; // Tránh flash khi load
 
+  const items = useMemo(
+    () =>
+      [
+        { key: "light" as const, label: "Giao diện Sáng", icon: Sun },
+        { key: "dark" as const, label: "Giao diện Tối", icon: Moon },
+        { key: "system" as const, label: "Theo hệ thống", icon: Monitor },
+      ] as const,
+    [],
+  );
+
+  const ActiveIcon =
+    theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
+
   return (
-    <div className="relative group">
+    <div ref={containerRef} className="relative">
       <button
-        className="p-3 hover:bg-zinc-800 rounded-2xl transition flex items-center gap-2 text-zinc-300 hover:text-white"
+        type="button"
+        aria-label="Đổi giao diện"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-pressed={theme !== "system"}
+        onClick={() => setOpen((v) => !v)}
+        className="p-3 hover:bg-zinc-800 rounded-2xl transition flex items-center gap-2 text-zinc-300 hover:text-white select-none"
       >
-        {theme === 'light' && <Sun className="w-5 h-5" />}
-        {theme === 'dark' && <Moon className="w-5 h-5" />}
-        {theme === 'system' && <Monitor className="w-5 h-5" />}
+        <ActiveIcon className="w-5 h-5" />
       </button>
 
       {/* Dropdown menu */}
-      <div className="absolute right-0 mt-2 w-52 bg-zinc-900 border border-zinc-700 rounded-3xl shadow-2xl py-2 hidden group-hover:block z-50">
-        <button
-          onClick={() => changeTheme('light')}
-          className={`w-full px-5 py-3 flex items-center gap-3 hover:bg-zinc-800 text-left ${theme === 'light' ? 'text-white' : 'text-zinc-400'}`}
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-56 bg-zinc-900 border border-zinc-700 rounded-3xl shadow-2xl py-2 z-50"
         >
-          <Sun className="w-5 h-5" />
-          Giao diện Sáng
-        </button>
-
-        <button
-          onClick={() => changeTheme('dark')}
-          className={`w-full px-5 py-3 flex items-center gap-3 hover:bg-zinc-800 text-left ${theme === 'dark' ? 'text-white' : 'text-zinc-400'}`}
-        >
-          <Moon className="w-5 h-5" />
-          Giao diện Tối
-        </button>
-
-        <button
-          onClick={() => changeTheme('system')}
-          className={`w-full px-5 py-3 flex items-center gap-3 hover:bg-zinc-800 text-left ${theme === 'system' ? 'text-white' : 'text-zinc-400'}`}
-        >
-          <Monitor className="w-5 h-5" />
-          Theo hệ thống
-        </button>
-      </div>
+          {items.map((x) => {
+            const Icon = x.icon;
+            const active = theme === x.key;
+            return (
+              <button
+                key={x.key}
+                type="button"
+                role="menuitemradio"
+                aria-checked={active}
+                onClick={() => changeTheme(x.key)}
+                className={`w-full px-5 py-3 flex items-center gap-3 hover:bg-zinc-800 text-left ${
+                  active ? "text-white" : "text-zinc-400"
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="flex-1">{x.label}</span>
+                {active && (
+                  <span className="text-xs text-zinc-500">Đang chọn</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
