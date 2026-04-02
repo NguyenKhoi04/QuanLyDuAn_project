@@ -20,7 +20,7 @@ const sidebarLinks = [
   { label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" },
   { label: "Danh sách tài sản", icon: Package, path: "/assets" },
   { label: "Nhập/Xuất tài sản", icon: ClipboardList, path: "/nhap-xuat" },
-  { label: "Kiểm kê", icon: FileText, path: "/KiemKe" },
+  { label: "Kiểm kê", icon: FileText, path: "/kiem-ke" },
   { label: "Dashboard bảo trì", icon: ClipboardCheck, path: "/bao-tri" },
   {
     label: "Kế hoạch bảo trì định kỳ",

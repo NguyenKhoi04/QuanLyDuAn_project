@@ -21,6 +21,9 @@ import RepairAssignmentRecording from "./pages/RepairAssignmentRecording";
 import MaintenanceHistory from "./pages/MaintenanceHistory";
 import MaintenanceDashboard from "./pages/MaintenanceDashboard";
 import FloatingAIChat from "@/components/FloatingAIChat";
+import AppHeader from "@/components/Header";
+import AppSidebar from "@/components/Sidebar";
+import KiemKe from "./pages/KiemKe";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +56,7 @@ function App() {
             <Route path="/settings" element={<Setting />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/thongke" element={<ThongKe />} />
+            <Route path="/kiem-ke" element={<KiemKe />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
