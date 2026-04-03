@@ -118,13 +118,17 @@ function Index() {
           <div className="inline-block px-4 py-1.5 mb-6 text-sm font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
             Ứng dụng tích hợp Trợ lý AI thế hệ mới
           </div>
-          <h2 className="text-4xl md:text-6xl font-black leading-tight mb-6 text-slate-900">
-            HỆ THỐNG QUẢN LÝ TÀI SẢN
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              TÍCH HỢP AI BẢO TRÌ TDMU
-            </span>
-          </h2>
+          <h2 className="leading-tight mb-6 text-slate-900">
+              {/* Chữ trên: Giữ cỡ To (6xl) */}
+              <span className="block text-4xl md:text-6xl font-black mb-2">
+                HỆ THỐNG QUẢN LÝ TÀI SẢN
+              </span>
+              
+              {/* Chữ dưới: Giảm xuống cỡ Vừa (3xl) */}
+              <span className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 tracking-wide">
+                TÍCH HỢP AI HỖ TRỢ BẢO TRÌ TDMU
+              </span>
+            </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
             Nền tảng hiện đại giúp theo dõi vòng đời tài sản, tự động hóa quy trình sửa chữa và tối ưu hóa chi phí vận hành cho nhà trường.
           </p>
