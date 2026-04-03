@@ -143,15 +143,15 @@ function Index() {
             <h3 className="text-2xl font-extrabold text-slate-900">
               <span className="block">Điều hướng nhanh </span>
               <span className="block text-blue-600">Tính năng cốt lõi</span>
-            </h3>
-
-            <h5 className="text-sm text-slate-500 mt-1">
-              <span className="block">Truy cập nhanh các phân hệ chính</span>
-              <span>của hệ thống</span>
-            </h5>
-            <div className="h-px flex-1 bg-slate-200 mx-6 hidden sm:block"></div>
+            </h3>  
           </div>
-
+          <div><h5 className="text-sm text-slate-500 mt-1">
+              <span className="block">Truy cập nhanh các phân hệ chính của hệ thống</span>
+            </h5>
+            <div className="h-px flex-1 bg-slate-200 mx-6 hidden sm:block">
+            </div>
+          </div>
+            
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {quickLinks.map((item) => (
               <button
