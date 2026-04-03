@@ -83,14 +83,14 @@ export default function AssetLocationTracking() {
           </div>
 
           <div className="bg-card border border-border rounded-3xl overflow-hidden">
-            <Table>
+            <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-24">Mã TS</TableHead>
-                  <TableHead>Tên tài sản</TableHead>
-                  <TableHead>Vị trí hiện tại</TableHead>
+                  <TableHead className="w-1/4">Tên tài sản</TableHead>
+                  <TableHead className="w-1/4">Vị trí hiện tại</TableHead> {/* Chia tỉ lệ */}
                   <TableHead className="w-48">Phòng ban</TableHead>
-                  <TableHead className="w-36">Trạng thái</TableHead>
+                  <TableHead className="w-32">Trạng thái</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
