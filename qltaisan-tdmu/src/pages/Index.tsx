@@ -167,7 +167,7 @@ function Index() {
           <span className="font-bold text-slate-800">TDMU ASSET</span>
         </div>
         <p className="text-slate-400 text-sm">
-          © 2026 Quản lý Tài sản - Đại học Thủ Dầu Một. Phát triển bởi Đề tài NCKH.
+          © 2026 Quản lý Tài sản - Đại học Thủ Dầu Một.
         </p>
       </footer>
     </div>
