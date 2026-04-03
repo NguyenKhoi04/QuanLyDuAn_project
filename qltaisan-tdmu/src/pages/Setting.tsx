@@ -158,26 +158,29 @@ function Setting() {
                           value={settings.timezone}
                           onValueChange={(v) => setSettings((s) => ({ ...s, timezone: v }))}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-white/50 backdrop-blur-sm border-white/20">
                             <SelectValue placeholder="Chọn múi giờ" />
                           </SelectTrigger>
-                          <SelectContent>
+                          {/* Thêm class mờ tại đây */}
+                          <SelectContent className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-white/20 shadow-xl">
                             <SelectItem value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (GMT+7)</SelectItem>
                             <SelectItem value="Asia/Bangkok">Asia/Bangkok (GMT+7)</SelectItem>
                             <SelectItem value="UTC">UTC (GMT+0)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
+
                       <div className="space-y-2">
                         <Label>Đơn vị tiền tệ</Label>
                         <Select
                           value={settings.currency}
                           onValueChange={(v) => setSettings((s) => ({ ...s, currency: v }))}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-white/50 backdrop-blur-sm border-white/20">
                             <SelectValue placeholder="Chọn tiền tệ" />
                           </SelectTrigger>
-                          <SelectContent>
+                          {/* Thêm class mờ tại đây */}
+                          <SelectContent className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-white/20 shadow-xl">
                             <SelectItem value="VND">VND - Vietnamese Dong</SelectItem>
                             <SelectItem value="USD">USD - US Dollar</SelectItem>
                           </SelectContent>
