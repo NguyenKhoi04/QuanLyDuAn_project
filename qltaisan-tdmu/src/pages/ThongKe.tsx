@@ -17,12 +17,12 @@ import AppShell from "@/components/AppShell";
 import { useNavigate } from "react-router-dom";
 
 const barData = [
-  { name: "Phòng A1", soLuong: 45 },
-  { name: "Phòng A2", soLuong: 32 },
-  { name: "Phòng B1", soLuong: 58 },
-  { name: "Phòng B2", soLuong: 27 },
-  { name: "Phòng C1", soLuong: 41 },
-  { name: "Phòng C2", soLuong: 36 },
+ { name: "Tòa nhà A1", soLuong: 45 },
+  { name: "Tòa nhà A2", soLuong: 32 },
+  { name: "Tòa nhà B1", soLuong: 58 },
+  { name: "Tòa nhà B2", soLuong: 27 },
+  { name: "Tòa nhà I", soLuong: 41 },
+  { name: "Tòa nhà D", soLuong: 36 },
 ];
 
 const lineData = [
@@ -68,7 +68,7 @@ const ThongKe = () => {
             </div>
             <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
               <p className="text-muted-foreground text-sm font-medium">
-                Tổng số phòng
+                Tổng số Tòa nhà
               </p>
               <p className="text-3xl font-bold text-foreground mt-2">6</p>
             </div>
@@ -115,10 +115,10 @@ const ThongKe = () => {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            {/* Bar chart - Số lượng tài sản theo phòng - biểu đồ cột */}
+            {/* Bar chart - Số lượng tài sản theo Tòa nhà - biểu đồ cột */}
             <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
               <h3 className="text-lg font-semibold text-foreground mb-4">
-                Số lượng tài sản theo phòng
+                Số lượng tài sản theo Tòa nhà
               </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={barData}>

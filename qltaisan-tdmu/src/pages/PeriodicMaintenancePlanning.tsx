@@ -75,7 +75,7 @@ const initialData: KeHoachBaoTri[] = [
     TenTaiSan: "Máy bơm nước",
     NgayBaoTri: "2026-04-15",
     ChuKy: "Hàng tháng",
-    NguoiPhuTrach: "Nguyễn Văn A",
+    NguoiPhuTrach: "Phan Nguyễn Ngọc Khôi",
     TrangThai: "Đang lên kế hoạch",
   },
   {
@@ -84,7 +84,7 @@ const initialData: KeHoachBaoTri[] = [
     TenTaiSan: "Hệ thống HVAC",
     NgayBaoTri: "2026-05-01",
     ChuKy: "Hàng quý",
-    NguoiPhuTrach: "Trần Thị B",
+    NguoiPhuTrach: "Lữ Hoàng Sơn",
     TrangThai: "Sẵn sàng",
   },
 ];

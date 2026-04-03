@@ -37,8 +37,8 @@ const initialTransfers: DieuChuyenTaiSan[] = [
     MaDieuChuyen: 1,
     MaTaiSan: 101,
     TenTaiSan: "Máy tính Dell",
-    TuPhongBan: "Khoa CNTT",
-    DenPhongBan: "Phòng Thí nghiệm",
+    TuPhongBan: "Thực hành Máy tính - Dãy C",
+    DenPhongBan: "Thực hành máy tính - Dãy I2",
     NgayChuyen: "2026-03-28",
   },
 ];

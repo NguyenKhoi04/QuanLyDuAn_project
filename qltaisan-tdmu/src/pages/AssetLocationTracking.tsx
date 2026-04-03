@@ -2,6 +2,7 @@ import AppShell from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { NONAME } from "dns";
 import { Building2, MapPin, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -18,21 +19,21 @@ const assets: AssetLocation[] = [
     MaTaiSan: 101,
     TenTaiSan: "Máy tính Dell OptiPlex",
     ViTri: "Tòa A - Tầng 3 - Phòng A301",
-    PhongBan: "Khoa CNTT",
+    PhongBan: "Thực hành Máy tính - Dãy C",
     TrangThai: "Hoạt động",
   },
   {
     MaTaiSan: 102,
     TenTaiSan: "Máy chiếu Epson",
-    ViTri: "Tòa B - Tầng 2 - Phòng B201",
+    ViTri: "Tòa I1 - Tầng 2 - Phòng I1.201",
     PhongBan: "Phòng Đào tạo",
     TrangThai: "Hoạt động",
   },
   {
     MaTaiSan: 103,
     TenTaiSan: "Bàn ghế gỗ",
-    ViTri: "Tòa C - Tầng 1 - Phòng C101",
-    PhongBan: "Khoa Kinh tế",
+    ViTri: "Khu tự học dãy I3-I4",
+    PhongBan: NONAME,
     TrangThai: "Bình thường",
   },
 ];
