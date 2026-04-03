@@ -477,7 +477,7 @@ function Index() {
         {/* Dòng bản quyền dưới cùng */}
         <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-slate-400 text-xs italic">
-            Phát triển bởi Nhóm nghiên cứu khoa học - Khoa CNTT - TDMU
+             © 2026 Hệ thống Quản lý Tài sản - Trường Đại học Thủ Dầu Một | Phát triển bởi Khoa Công nghệ Thông tin | Bản quyền thuộc về Đại học Thủ Dầu Một. Mọi quyền được bảo lưu.
           </p>
           <div className="flex items-center gap-6 text-xs font-medium text-slate-500">
             <span>Phiên bản v2.0.4</span>
