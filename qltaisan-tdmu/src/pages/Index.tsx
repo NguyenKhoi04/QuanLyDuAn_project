@@ -97,6 +97,10 @@ function Index() {
             >
               Khu vực bảo trì
             </button>
+            <button          onClick={() => navigate("/login")}
+              className="px-4 py-2 border border-zinc-200 hover:bg-zinc-100 rounded-2xl font-medium transition-colors">
+              Đăng nhập
+            </button>
             <ThemeToggle />
           </div>
         </div>
