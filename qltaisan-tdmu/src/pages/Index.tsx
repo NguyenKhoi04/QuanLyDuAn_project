@@ -141,7 +141,7 @@ function Index() {
         <section className="py-12">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-2xl font-extrabold text-slate-900 whitespace-pre-line">
-                {"Điều hướng nhanh -\nTính năng cốt lõi"}
+                {"Điều hướng nhanh - Tính năng cốt lõi"}
               </h3>
               <h5 className="text-sm text-slate-500 whitespace-pre-line">
                 {"\nTruy cập nhanh các phân hệ chính của hệ thống"}
