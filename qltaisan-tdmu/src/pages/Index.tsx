@@ -139,26 +139,17 @@ function Index() {
         </section>
 
         <section className="py-12">
-          <div className="mb-10">
-              {/* Hàng tiêu đề chính */}
+          <div className="flex flex-col mb-10">
               <div className="flex items-center gap-6 mb-2">
-                <div className="flex-shrink-0">
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-                    <span className="block">Điều hướng nhanh</span>
-                    <span className="block text-blue-600">Tính năng cốt lõi</span>
-                  </h3>
-                </div>
-                
-                {/* Đường kẻ ngang nối dài sang phải */}
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight whitespace-nowrap">
+                  Điều hướng nhanh - <span className="text-blue-600">Tính năng cốt lõi</span>
+                </h3>
                 <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent hidden sm:block"></div>
               </div>
-
-              {/* Dòng mô tả phụ nằm dưới */}
-              <div className="max-w-md">
-                <h5 className="text-sm md:text-base text-slate-500 font-medium leading-relaxed">
-                  Truy cập nhanh các phân hệ chính của hệ thống quản lý tài sản.
-                </h5>
-              </div>
+              
+              <h5 className="text-sm md:text-base text-slate-500 font-medium whitespace-nowrap">
+                Truy cập nhanh các phân hệ chính của hệ thống quản lý tài sản
+              </h5>
             </div>
 
             
