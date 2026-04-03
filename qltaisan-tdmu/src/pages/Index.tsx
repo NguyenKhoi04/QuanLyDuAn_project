@@ -112,7 +112,7 @@ function Index() {
           XÂY DỰNG HỆ THỐNG QUẢN LÝ TÀI SẢN
           <br />
           <span className="text-blue-400">
-            TÍCH HỢP AI HỖ TRỢ THÔNG TIN BẢO TRÌ TRONG TRƯỜNG
+            TÍCH HỢP AI HỖ TRỢ THÔNG TIN BẢO TRÌ TDMU
           </span>
         </h2>
         <p className="text-base sm:text-xl text-zinc-400 max-w-3xl mx-auto">
