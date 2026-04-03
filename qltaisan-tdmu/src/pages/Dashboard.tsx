@@ -23,12 +23,12 @@ import {
 } from "lucide-react";
 
 const barData = [
-  { name: "Phòng A1", soLuong: 45 },
-  { name: "Phòng A2", soLuong: 32 },
-  { name: "Phòng B1", soLuong: 58 },
-  { name: "Phòng B2", soLuong: 27 },
-  { name: "Phòng C1", soLuong: 41 },
-  { name: "Phòng C2", soLuong: 36 },
+  { name: "Tòa nhà A1", soLuong: 45 },
+  { name: "Tòa nhà A2", soLuong: 32 },
+  { name: "Tòa nhà B1", soLuong: 58 },
+  { name: "Tòa nhà B2", soLuong: 27 },
+  { name: "Tòa nhà I", soLuong: 41 },
+  { name: "Tòa nhà D", soLuong: 36 },
 ];
 
 const lineData = [
@@ -127,7 +127,7 @@ function Dashboard() {
 
             <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">
-                Số lượng tài sản theo phòng
+                Số lượng tài sản theo Tòa nhà
               </h3>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={barData}>

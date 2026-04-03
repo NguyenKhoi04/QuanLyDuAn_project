@@ -60,8 +60,9 @@ interface PhanCongSuaChua {
 }
 
 const nguoiSuaMau = [
-  { id: 1, name: "Nguyễn Văn A" },
-  { id: 2, name: "Trần Thị B" },
+  { id: 1, name: "Phan Nguyễn Ngọc Khôi" },
+  { id: 2, name: "Phạm Huỳnh Ngọc Sơn" },
+  { id: 3, name: "Cao Niên Trường Sơn" },
 ];
 
 const initialData: PhanCongSuaChua[] = [
@@ -69,7 +70,7 @@ const initialData: PhanCongSuaChua[] = [
     MaPhanCong: 1,
     MaTaiSan: 101,
     MaNguoiSua: 1,
-    TenNguoiSua: "Nguyễn Văn A",
+    TenNguoiSua: "Phan Nguyễn Ngọc Khôi",
     NgayDuKienHoanThanh: "2026-04-10",
     TrangThai: "Đang chờ",
   },

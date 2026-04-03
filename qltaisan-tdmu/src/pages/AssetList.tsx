@@ -20,16 +20,16 @@ const loaiTaiSan: Record<number, string> = {
 };
 
 const phongBan: Record<number, string> = {
-  1: "Phòng CNTT",
+  1: "Viện Đào tạo CNTT & Chuyển đổi số",
   2: "Phòng Kế toán",
   3: "Phòng Nhân sự",
-  4: "Khoa CNTT",
+  4: "Thực hành Máy tính - Dãy C",
   5: "Khoa Kinh tế",
 };
 
 const viTri: Record<number, string> = {
-  1: "Tầng 1 - P101",
-  2: "Tầng 1 - P102",
+  1: "Tầng 3 - P301",
+  2: "Tầng 1 - P101",
   3: "Tầng 2 - P201",
   4: "Tầng 2 - P202",
   5: "Tầng 3 - P301",
