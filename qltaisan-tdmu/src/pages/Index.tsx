@@ -182,174 +182,309 @@ function Index() {
 
         {/* --- BỔ SUNG VÀO SAU SECTION ĐIỀU HƯỚNG NHANH --- */}
 
-{/* Section: Tại sao chọn TDMU Asset? (Lợi ích cốt lõi) */}
-<section className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-100">
-  <div className="text-center mb-12">
-    <h3 className="text-3xl font-black text-slate-900 mb-4">Giá trị hệ thống mang lại</h3>
-    <p className="text-slate-500 max-w-2xl mx-auto">Tối ưu hóa nguồn lực và thời gian thông qua quy trình tự động hóa.</p>
-  </div>
+      {/* Section: Tại sao chọn TDMU Asset? (Lợi ích cốt lõi) */}
+      <section className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-100">
+        <div className="text-center mb-12">
+          <h3 className="text-3xl font-black text-slate-900 mb-4">Giá trị hệ thống mang lại</h3>
+          <p className="text-slate-500 max-w-2xl mx-auto">Tối ưu hóa nguồn lực và thời gian thông qua quy trình tự động hóa.</p>
+        </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div className="flex gap-5 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
-      <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center shrink-0">
-        <Clock className="w-6 h-6 text-orange-600" />
-      </div>
-      <div>
-        <h4 className="font-bold text-slate-900 mb-1">Giảm 40% thời gian phản hồi</h4>
-        <p className="text-sm text-slate-500 leading-relaxed">AI tự động phân loại sự cố và gửi thông báo trực tiếp đến bộ phận kỹ thuật có chuyên môn phù hợp.</p>
-      </div>
-    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex gap-5 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center shrink-0">
+              <Clock className="w-6 h-6 text-orange-600" />
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 mb-1">Giảm 40% thời gian phản hồi</h4>
+              <p className="text-sm text-slate-500 leading-relaxed">AI tự động phân loại sự cố và gửi thông báo trực tiếp đến bộ phận kỹ thuật có chuyên môn phù hợp.</p>
+            </div>
+          </div>
 
-    <div className="flex gap-5 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
-      <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
-        <CheckCircle className="w-6 h-6 text-emerald-600" />
-      </div>
-      <div>
-        <h4 className="font-bold text-slate-900 mb-1">Dữ liệu chính xác 100%</h4>
-        <p className="text-sm text-slate-500 leading-relaxed">Mọi lịch sử bảo trì và thay thế linh kiện được lưu trữ vĩnh viễn, minh bạch, hỗ trợ tốt cho công tác kiểm kê.</p>
-      </div>
-    </div>
-  </div>
-</section>
+          <div className="flex gap-5 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
+              <CheckCircle className="w-6 h-6 text-emerald-600" />
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 mb-1">Dữ liệu chính xác 100%</h4>
+              <p className="text-sm text-slate-500 leading-relaxed">Mọi lịch sử bảo trì và thay thế linh kiện được lưu trữ vĩnh viễn, minh bạch, hỗ trợ tốt cho công tác kiểm kê.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-{/* Section: Trạng thái hệ thống thực tế (Stats) */}
-<section className="max-w-7xl mx-auto px-6 py-12 mb-16">
-  <div className="bg-indigo-600 rounded-[3rem] p-10 md:p-16 text-white overflow-hidden relative">
-    {/* Decor nền */}
-    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-50 -mr-20 -mt-20"></div>
-    
-    <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-      <div>
-        <p className="text-4xl md:text-5xl font-black mb-2">1,200+</p>
-        <p className="text-indigo-100 text-sm font-medium">Tài sản quản lý</p>
-      </div>
-      <div>
-        <p className="text-4xl md:text-5xl font-black mb-2">85%</p>
-        <p className="text-indigo-100 text-sm font-medium">Bảo trì định kỳ</p>
-      </div>
-      <div>
-        <p className="text-4xl md:text-5xl font-black mb-2">24/7</p>
-        <p className="text-indigo-100 text-sm font-medium">AI Hỗ trợ</p>
-      </div>
-      <div>
-        <p className="text-4xl md:text-5xl font-black mb-2">150+</p>
-        <p className="text-indigo-100 text-sm font-medium">Cán bộ vận hành</p>
-      </div>
-    </div>
-  </div>
-</section>
+      {/* Section: Trạng thái hệ thống thực tế (Stats) */}
+      <section className="max-w-7xl mx-auto px-6 py-12 mb-16">
+        <div className="bg-indigo-600 rounded-[3rem] p-10 md:p-16 text-white overflow-hidden relative">
+          {/* Decor nền */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-50 -mr-20 -mt-20"></div>
+          
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-4xl md:text-5xl font-black mb-2">1,200+</p>
+              <p className="text-indigo-100 text-sm font-medium">Tài sản quản lý</p>
+            </div>
+            <div>
+              <p className="text-4xl md:text-5xl font-black mb-2">85%</p>
+              <p className="text-indigo-100 text-sm font-medium">Bảo trì định kỳ</p>
+            </div>
+            <div>
+              <p className="text-4xl md:text-5xl font-black mb-2">24/7</p>
+              <p className="text-indigo-100 text-sm font-medium">AI Hỗ trợ</p>
+            </div>
+            <div>
+              <p className="text-4xl md:text-5xl font-black mb-2">150+</p>
+              <p className="text-indigo-100 text-sm font-medium">Cán bộ vận hành</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-{/* Section: Quy trình AI (Workflow) */}
-<section className="max-w-7xl mx-auto px-6 py-10 mb-20">
-  <div className="bg-slate-900 rounded-[3rem] p-8 md:p-12 text-white">
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-      <div>
-        <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
-          <Bot className="w-8 h-8 text-blue-400" />
-          Luồng xử lý thông minh
-        </h3>
-        <p className="text-slate-400">Cách trợ lý AI hỗ trợ bạn trong công việc hàng ngày.</p>
-      </div>
-      <button 
-        onClick={() => navigate("/ai-chat")}
-        className="px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold hover:bg-blue-50 transition-colors"
-      >
-        Thử nghiệm ngay
-      </button>
-    </div>
+      {/* Section: Quy trình AI (Workflow) */}
+      <section className="max-w-7xl mx-auto px-6 py-10 mb-20">
+        <div className="bg-slate-900 rounded-[3rem] p-8 md:p-12 text-white">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+            <div>
+              <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                <Bot className="w-8 h-8 text-blue-400" />
+                Luồng xử lý thông minh
+              </h3>
+              <p className="text-slate-400">Cách trợ lý AI hỗ trợ bạn trong công việc hàng ngày.</p>
+            </div>
+            <button 
+              onClick={() => navigate("/ai-chat")}
+              className="px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold hover:bg-blue-50 transition-colors"
+            >
+              Thử nghiệm ngay
+            </button>
+          </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
-        <span className="absolute -top-4 -left-4 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-lg">1</span>
-        <h5 className="font-bold mb-3 mt-2">Tiếp nhận thông tin</h5>
-        <p className="text-sm text-slate-400">Bạn chỉ cần nhập mô tả sự cố bằng ngôn ngữ tự nhiên (ví dụ: "Máy chiếu phòng C102 không lên nguồn").</p>
-      </div>
-      <div className="relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
-        <span className="absolute -top-4 -left-4 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-lg">2</span>
-        <h5 className="font-bold mb-3 mt-2">Phân tích & Gợi ý</h5>
-        <p className="text-sm text-slate-400">AI truy xuất lịch sử thiết bị và gợi ý các bước kiểm tra sơ bộ hoặc đề xuất nhân sự sửa chữa phù hợp nhất.</p>
-      </div>
-      <div className="relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
-        <span className="absolute -top-4 -left-4 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-lg">3</span>
-        <h5 className="font-bold mb-3 mt-2">Hoàn tất báo cáo</h5>
-        <p className="text-sm text-slate-400">Tự động tổng hợp dữ liệu thành báo cáo chi tiết sau khi sự cố được khắc phục để lưu trữ vào lịch sử.</p>
-      </div>
-    </div>
-  </div>
-</section>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+              <span className="absolute -top-4 -left-4 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-lg">1</span>
+              <h5 className="font-bold mb-3 mt-2">Tiếp nhận thông tin</h5>
+              <p className="text-sm text-slate-400">Bạn chỉ cần nhập mô tả sự cố bằng ngôn ngữ tự nhiên (ví dụ: "Máy chiếu phòng C102 không lên nguồn").</p>
+            </div>
+            <div className="relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+              <span className="absolute -top-4 -left-4 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-lg">2</span>
+              <h5 className="font-bold mb-3 mt-2">Phân tích & Gợi ý</h5>
+              <p className="text-sm text-slate-400">AI truy xuất lịch sử thiết bị và gợi ý các bước kiểm tra sơ bộ hoặc đề xuất nhân sự sửa chữa phù hợp nhất.</p>
+            </div>
+            <div className="relative p-6 bg-slate-800/50 rounded-2xl border border-slate-700">
+              <span className="absolute -top-4 -left-4 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-lg">3</span>
+              <h5 className="font-bold mb-3 mt-2">Hoàn tất báo cáo</h5>
+              <p className="text-sm text-slate-400">Tự động tổng hợp dữ liệu thành báo cáo chi tiết sau khi sự cố được khắc phục để lưu trữ vào lịch sử.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+              {/* --- PHẦN QUY TRÌNH & AI HỖ TRỢ --- */}
+        <section className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Khối: Quy trình bảo trì - sửa chữa */}
+            <div className="lg:col-span-2 bg-white border border-zinc-200 rounded-[2.5rem] p-8 shadow-sm">
+              <h3 className="text-xl font-bold mb-8 flex items-center gap-3 text-zinc-900">
+                <Calendar className="w-6 h-6 text-violet-500" />
+                Quy trình bảo trì – sửa chữa (gợi ý)
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Bước 1 */}
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-100 group hover:bg-white hover:shadow-md transition-all">
+                  <p className="font-bold flex items-center gap-2 text-zinc-800">
+                    <AlertTriangle className="w-5 h-5 text-orange-500" />
+                    Ghi nhận sự cố
+                  </p>
+                  <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
+                    Tiếp nhận mô tả, mức độ, ngày xảy ra và trạng thái xử lý ban đầu.
+                  </p>
+                </div>
+
+                {/* Bước 2 */}
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-100 group hover:bg-white hover:shadow-md transition-all">
+                  <p className="font-bold flex items-center gap-2 text-zinc-800">
+                    <UserCheck className="w-5 h-5 text-blue-500" />
+                    Phân công sửa chữa
+                  </p>
+                  <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
+                    Giao việc cho nhân sự phù hợp, đặt hạn dự kiến hoàn thành công việc.
+                  </p>
+                </div>
+
+                {/* Bước 3 */}
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-100 group hover:bg-white hover:shadow-md transition-all">
+                  <p className="font-bold flex items-center gap-2 text-zinc-800">
+                    <Wrench className="w-5 h-5 text-violet-500" />
+                    Lập kế hoạch định kỳ
+                  </p>
+                  <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
+                    Thiết lập chu kỳ bảo dưỡng, người phụ trách và theo dõi thực hiện.
+                  </p>
+                </div>
+
+                {/* Bước 4 */}
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-100 group hover:bg-white hover:shadow-md transition-all">
+                  <p className="font-bold flex items-center gap-2 text-zinc-800">
+                    <CheckCircle className="w-5 h-5 text-emerald-500" />
+                    Lưu lịch sử & chi phí
+                  </p>
+                  <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
+                    Ghi nhận kết quả, chi phí và phục vụ công tác thống kê – báo cáo.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Khối: AI hỗ trợ bảo trì */}
+            <div className="bg-zinc-900 rounded-[2.5rem] p-8 text-white shadow-xl shadow-zinc-200 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Bot className="w-24 h-24" />
+              </div>
+              
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-3 relative z-10">
+                <Bot className="w-6 h-6 text-blue-400" />
+                AI hỗ trợ bảo trì
+              </h3>
+              
+              <ul className="space-y-4 text-zinc-400 text-sm relative z-10 mb-8">
+                <li className="flex gap-2">
+                  <span className="text-blue-400">•</span>
+                  Tra cứu nhanh tài sản, sự cố, kế hoạch và lịch sử bảo trì.
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-400">•</span>
+                  Tóm tắt dữ liệu và gợi ý checklist xử lý theo mô tả sự cố.
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-400">•</span>
+                  Hỗ trợ ra quyết định: ưu tiên xử lý theo mức độ – rủi ro.
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-400">•</span>
+                  Gợi ý báo cáo: tổng hợp số liệu theo tuần/tháng/quý.
+                </li>
+              </ul>
+
+              <button 
+                onClick={() => navigate("/ai-chat")}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+              >
+                <Bot className="w-5 h-5" /> Mở AI Chat
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* --- PHẦN PHẠM VI CHỨC NĂNG --- */}
+        <section className="max-w-7xl mx-auto px-6 py-12 mb-12">
+          <div className="bg-white border border-zinc-200 rounded-[2.5rem] p-10 shadow-sm">
+            <div className="mb-10">
+              <h3 className="text-2xl font-black text-zinc-900 mb-2">Phạm vi chức năng</h3>
+              <p className="text-zinc-500">Tập trung vào quản lý tài sản và mô-đun bảo trì/sửa chữa tích hợp AI.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Chức năng 1 */}
+              <div className="p-6 rounded-3xl bg-zinc-50 border border-zinc-100 hover:border-blue-200 transition-colors">
+                <h4 className="font-bold text-zinc-900 mb-3">Quản lý tài sản</h4>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Danh sách, tình trạng, phân loại, vị trí, phòng ban, nhà cung cấp.
+                </p>
+              </div>
+
+              {/* Chức năng 2 */}
+              <div className="p-6 rounded-3xl bg-zinc-50 border border-zinc-100 hover:border-blue-200 transition-colors">
+                <h4 className="font-bold text-zinc-900 mb-3">Bảo trì – sửa chữa</h4>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Kế hoạch định kỳ, sự cố, phân công, lịch sử, chi phí, trạng thái.
+                </p>
+              </div>
+
+              {/* Chức năng 3 */}
+              <div className="p-6 rounded-3xl bg-zinc-50 border border-zinc-100 hover:border-blue-200 transition-colors">
+                <h4 className="font-bold text-zinc-900 mb-3">Báo cáo & AI</h4>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Thống kê, xuất báo cáo và trợ lý AI phục vụ tra cứu/tổng hợp dữ liệu.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </main>
 
-      <footer className="bg-white border-t border-slate-200 pt-16 pb-8 mt-20">
-  <div className="max-w-7xl mx-auto px-6">
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-      
-      {/* Cột 1: Thương hiệu & Giới thiệu */}
-      <div className="col-span-1 md:col-span-1">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-            <Shield className="w-6 h-6 text-white" />
+          <footer className="bg-white border-t border-slate-200 pt-16 pb-8 mt-20">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          
+          {/* Cột 1: Thương hiệu & Giới thiệu */}
+          <div className="col-span-1 md:col-span-1">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <span className="font-bold text-xl text-slate-900 tracking-tight">QLTS -Tài sản TDMU  -Tài sản hệ thống</span>
+            </div>
+            <p className="text-slate-500 text-sm leading-relaxed mb-6">
+              Hệ thống quản lý tài sản thông minh tích hợp trợ lý ảo AI, tối ưu hóa quy trình bảo trì và vận hành tại Đại học Thủ Dầu Một.
+            </p>
           </div>
-          <span className="font-bold text-xl text-slate-900 tracking-tight">QLTS -Tài sản TDMU  -Tài sản hệ thống</span>
+
+          {/* Cột 2: Liên kết nhanh */}
+          <div>
+            <h4 className="font-bold text-slate-900 mb-6">Hệ thống</h4>
+            <ul className="space-y-4 text-sm text-slate-600">
+              <li><button onClick={() => navigate("/assets")} className="hover:text-blue-600 transition-colors">Danh mục tài sản</button></li>
+              <li><button onClick={() => navigate("/bao-tri")} className="hover:text-blue-600 transition-colors">Khu vực bảo trì</button></li>
+              <li><button onClick={() => navigate("/ai-chat")} className="hover:text-blue-600 transition-colors">Trợ lý ảo AI</button></li>
+              <li><button onClick={() => navigate("/thongke")} className="hover:text-blue-600 transition-colors">Báo cáo thống kê</button></li>
+            </ul>
+          </div>
+
+          {/* Cột 3: Hỗ trợ */}
+          <div>
+            <h4 className="font-bold text-slate-900 mb-6">Hỗ trợ</h4>
+            <ul className="space-y-4 text-sm text-slate-600">
+              <li><a href="#" className="hover:text-blue-600 transition-colors">Hướng dẫn sử dụng</a></li>
+              <li><a href="#" className="hover:text-blue-600 transition-colors">Quy trình bảo trì</a></li>
+              <li><a href="#" className="hover:text-blue-600 transition-colors">Báo cáo sự cố</a></li>
+              <li><a href="#" className="hover:text-blue-600 transition-colors">Chính sách bảo mật</a></li>
+            </ul>
+          </div>
+
+          {/* Cột 4: Liên hệ trực tiếp */}
+          <div>
+            <h4 className="font-bold text-slate-900 mb-6">Liên hệ</h4>
+            <ul className="space-y-4 text-sm text-slate-600">
+              <li className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-blue-600 shrink-0" />
+                <span>Số 06, Trần Văn Ơn, Phú Lợi, Thành phố Hồ Chí Minh.</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-blue-600 shrink-0" />
+                <span>it@tdmu.edu.vn</span>
+              </li>
+            </ul>
+          </div>
         </div>
-        <p className="text-slate-500 text-sm leading-relaxed mb-6">
-          Hệ thống quản lý tài sản thông minh tích hợp trợ lý ảo AI, tối ưu hóa quy trình bảo trì và vận hành tại Đại học Thủ Dầu Một.
-        </p>
-      </div>
 
-      {/* Cột 2: Liên kết nhanh */}
-      <div>
-        <h4 className="font-bold text-slate-900 mb-6">Hệ thống</h4>
-        <ul className="space-y-4 text-sm text-slate-600">
-          <li><button onClick={() => navigate("/assets")} className="hover:text-blue-600 transition-colors">Danh mục tài sản</button></li>
-          <li><button onClick={() => navigate("/bao-tri")} className="hover:text-blue-600 transition-colors">Khu vực bảo trì</button></li>
-          <li><button onClick={() => navigate("/ai-chat")} className="hover:text-blue-600 transition-colors">Trợ lý ảo AI</button></li>
-          <li><button onClick={() => navigate("/thongke")} className="hover:text-blue-600 transition-colors">Báo cáo thống kê</button></li>
-        </ul>
-      </div>
-
-      {/* Cột 3: Hỗ trợ */}
-      <div>
-        <h4 className="font-bold text-slate-900 mb-6">Hỗ trợ</h4>
-        <ul className="space-y-4 text-sm text-slate-600">
-          <li><a href="#" className="hover:text-blue-600 transition-colors">Hướng dẫn sử dụng</a></li>
-          <li><a href="#" className="hover:text-blue-600 transition-colors">Quy trình bảo trì</a></li>
-          <li><a href="#" className="hover:text-blue-600 transition-colors">Báo cáo sự cố</a></li>
-          <li><a href="#" className="hover:text-blue-600 transition-colors">Chính sách bảo mật</a></li>
-        </ul>
-      </div>
-
-      {/* Cột 4: Liên hệ trực tiếp */}
-      <div>
-        <h4 className="font-bold text-slate-900 mb-6">Liên hệ</h4>
-        <ul className="space-y-4 text-sm text-slate-600">
-          <li className="flex items-start gap-3">
-            <MapPin className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>Số 06, Trần Văn Ơn, Phú Lợi, Thành phố Hồ Chí Minh.</span>
-          </li>
-          <li className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>it@tdmu.edu.vn</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    {/* Dòng bản quyền dưới cùng */}
-    <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
-      <p className="text-slate-400 text-xs italic">
-        Phát triển bởi Nhóm nghiên cứu khoa học - Khoa CNTT - TDMU
-      </p>
-      <div className="flex items-center gap-6 text-xs font-medium text-slate-500">
-        <span>Phiên bản v2.0.4</span>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-          <span>Hệ thống trực tuyến</span>
+        {/* Dòng bản quyền dưới cùng */}
+        <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-slate-400 text-xs italic">
+            Phát triển bởi Nhóm nghiên cứu khoa học - Khoa CNTT - TDMU
+          </p>
+          <div className="flex items-center gap-6 text-xs font-medium text-slate-500">
+            <span>Phiên bản v2.0.4</span>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+              <span>Hệ thống trực tuyến</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</footer>
+    </footer>
 {/* 
       <footer className="max-w-7xl mx-auto px-6 py-12 mt-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-2">
