@@ -43,17 +43,26 @@ function NotificationSystem() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      
+      {/* Cập nhật className ở đây */}
+      <DropdownMenuContent 
+        align="end" 
+        className="w-80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 shadow-xl"
+      >
         <DropdownMenuLabel>Thông báo</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {items.map((x) => (
-          <DropdownMenuItem key={x.id} className="flex flex-col items-start">
-            <span className="font-medium">{x.title}</span>
-            {x.desc && (
-              <span className="text-xs text-muted-foreground">{x.desc}</span>
-            )}
-          </DropdownMenuItem>
-        ))}
+        
+        <div className="max-h-[300px] overflow-y-auto"> {/* Thêm scroll nếu quá nhiều thông báo */}
+          {items.map((x) => (
+            <DropdownMenuItem key={x.id} className="flex flex-col items-start focus:bg-white/20">
+              <span className="font-medium">{x.title}</span>
+              {x.desc && (
+                <span className="text-xs text-muted-foreground">{x.desc}</span>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </div>
+
         {items.length === 0 && (
           <DropdownMenuItem disabled>Không có thông báo</DropdownMenuItem>
         )}
