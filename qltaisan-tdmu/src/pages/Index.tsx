@@ -109,7 +109,7 @@ function Index() {
 
       <section className="max-w-7xl mx-auto px-6 pt-14 sm:pt-20 pb-10 sm:pb-14 text-center">
         <h2 className="text-3xl sm:text-5xl font-bold leading-tight mb-5">
-          XÂY DỰNG HỆ THỐNG QUẢN LÝ TÀI SẢN
+         HỆ THỐNG QUẢN LÝ TÀI SẢN
           <br />
           <span className="text-blue-400">
             TÍCH HỢP AI HỖ TRỢ THÔNG TIN BẢO TRÌ TDMU
