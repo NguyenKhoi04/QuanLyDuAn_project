@@ -135,7 +135,7 @@ function Index() {
 
           <div className="mt-10 flex flex-wrap gap-4 justify-center">
             <button
-              onClick={() => navigate("/bao-tri")}
+              onClick={() => navigate("/dashboard")}
               className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-lg font-bold shadow-xl transition-transform active:scale-95"
             >
               Bắt đầu quản lý
