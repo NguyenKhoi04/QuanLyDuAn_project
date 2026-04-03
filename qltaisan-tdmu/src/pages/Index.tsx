@@ -177,7 +177,7 @@ function Index() {
       <footer className="max-w-7xl mx-auto px-6 py-12 mt-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-slate-200 rounded-md"></div>
-          <span className="font-bold text-slate-800">TDMU ASSET</span>
+          <span className="font-bold text-slate-800">Quản lý Tài sản - Đại học Thủ Dầu Một</span>
         </div>
         <p className="text-slate-400 text-sm">
           © 2026 Quản lý Tài sản - Đại học Thủ Dầu Một.
