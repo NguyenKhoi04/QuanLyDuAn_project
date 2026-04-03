@@ -2,7 +2,6 @@ import AppShell from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { NONAME } from "dns";
 import { Building2, MapPin, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -33,7 +32,7 @@ const assets: AssetLocation[] = [
     MaTaiSan: 103,
     TenTaiSan: "Bàn ghế gỗ",
     ViTri: "Khu tự học dãy I3-I4",
-    PhongBan: NONAME,
+    PhongBan: " ",
     TrangThai: "Bình thường",
   },
 ];
