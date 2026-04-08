@@ -28,8 +28,8 @@ const Login = () => {
             prompt: 'select_account',
           },
           // URL quay lại sau khi đăng nhập thành công (khai báo trong Supabase)
-          //redirectTo: window.location.origin + '/dashboard', 
-          redirectTo: window.location.origin,
+          redirectTo: window.location.origin + '/dashboard', 
+          //redirectTo: window.location.origin,
         },
       });
 
