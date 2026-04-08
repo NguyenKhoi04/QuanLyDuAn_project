@@ -127,7 +127,7 @@ const Login = () => {
           </a>
         </div>
         <div className="mt-2 text-center flex justify-center items-center">
-          <a  className="text-sm text-link-hover hover:no-underline hover:text-red-600 cursor-pointer" style={{ marginLeft: '10px' }} onClick={() => navigate('/')}>
+          <a  className="text-sm text-link-hover hover:no-underline hover:text-red-600 cursor-pointer" style={{ marginLeft: '10px' }} onClick={() => navigate('/dashboard')}>
            🔙 Quay lại trang chủ
           </a>
         </div>
