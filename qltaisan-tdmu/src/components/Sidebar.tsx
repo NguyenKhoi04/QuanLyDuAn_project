@@ -101,8 +101,6 @@ const AppSidebar = () => {
 
   if (loading) return <aside className="w-65 bg-sidebar border-r h-full" />;
 
-
-
   const formatFullName = (fullName: string | undefined) => {
   if (!fullName) return "Người dùng TDMU";
   
