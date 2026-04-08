@@ -148,9 +148,9 @@ const AppSidebar = () => {
                 </p>
                 
                 {/* Hiển thị Email */}
-                <p className="text-[11px] truncate text-slate-500 mt-0.5">
+                {/* <p className="text-[11px] truncate text-slate-500 mt-0.5">
                   {user.email}
-                </p> */
+                </p> */ }
             </div>
             
             <button
