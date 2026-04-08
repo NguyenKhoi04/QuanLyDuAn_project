@@ -139,11 +139,11 @@ const AppSidebar = () => {
       </div>
 
       {/*  chen hình logo */}
-      <div className="shrink-0 pt-4 mt-2 border-t border-sidebar-border w-full flex justify-center">
+      <div className="shrink-0 p-4 mt-2 border-t border-sidebar-border bg-slate-100 flex items-center justify-center rounded-lg">
         <img
           src="/images/logo_DHTDMU.png"
           alt="Logo TDMU"
-          className="max-w-[80%] h-auto object-contain opacity-90 hover:opacity-100 transition-all"
+          className="w-auto h-auto max-w-[90%] max-h-[120px] object-contain opacity-90 hover:opacity-100 transition-all mx-auto"
         />
       </div>
     </aside>
