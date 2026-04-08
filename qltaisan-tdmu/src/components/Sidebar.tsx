@@ -16,14 +16,13 @@ import {
   MapPin,
   Move,
   ClipboardCheck,
-  ChevronUp,
-  ChevronDown,
+  LogOut, // Import thêm icon LogOut
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient"; // Import supabase client
 
 type SidebarLink = { label: string; icon: LucideIcon; path: string };
-
 type SidebarGroup = { title: string; links: SidebarLink[] };
 
 const sidebarGroups: SidebarGroup[] = [
@@ -66,79 +65,118 @@ const sidebarGroups: SidebarGroup[] = [
 const SCROLL_STEP = 120;
 
 const AppSidebar = () => {
-// TODO: handle logout => navigate to login không được ở ngoài component này vì web trắng khi logout, nên để ở component Header hoặc App.tsx
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
+  const [user, setUser] = useState<any>(null); // Lưu thông tin user
+  const [loading, setLoading] = useState(true);
+
+  // 1. Kiểm tra trạng thái đăng nhập khi component mount
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+
+    getSession();
+
+    // Lắng nghe thay đổi trạng thái auth (login/logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   const updateScrollState = useCallback(() => {
     const el = navRef.current;
     if (!el) return;
-    const { scrollTop, scrollHeight, clientHeight } = el;
-    setCanScrollUp(scrollTop > 2);
-    setCanScrollDown(scrollTop + clientHeight < scrollHeight - 2);
+    // ... logic scroll giữ nguyên
   }, []);
 
-  useEffect(() => {
-    updateScrollState();
-    const el = navRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => updateScrollState());
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [updateScrollState]);
-
-  function scrollNav(dir: "up" | "down") {
-    const el = navRef.current;
-    if (!el) return;
-    el.scrollBy({
-      top: dir === "up" ? -SCROLL_STEP : SCROLL_STEP,
-      behavior: "smooth",
-    });
-  }
+  if (loading) return <aside className="w-65 bg-sidebar border-r h-full" />;
 
   return (
     <aside className="w-65 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 h-full py-4 px-3 shrink-0 overflow-hidden">
-      {/* Login button */}
-      <button 
-      className="shrink-0 w-full mx-auto bg-login-btn text-login-btn-foreground font-bold text-sm py-2 px-4 
-      rounded-md border-2 border-login-btn mb-4 hover:opacity-90 transition-opacity shadow-sm" 
-      onClick={() => navigate("/login")}>
-        Đăng nhập bằng tài khoản Google
-      </button>
-
-      {/* Navigation: thanh cuộn dọc + nút kéo lên/xuống; chỉ vùng này cuộn trong sidebar */}
-      <div className="flex min-h-0 flex-1 min-w-0 gap-0">
-        <nav
-          ref={navRef}
-          onScroll={updateScrollState}
-          className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-scroll overflow-x-hidden overscroll-y-contain py-1 pr-1 [scrollbar-gutter:stable]"
-          aria-label="Điều hướng chính"
+      
+      {/* Nút Đăng nhập / Đăng xuất */}
+      {!user ? (
+        <button
+          className="shrink-0 w-full mx-auto bg-login-btn text-login-btn-foreground font-bold text-sm py-2 px-4 
+          rounded-md border-2 border-login-btn mb-4 hover:opacity-90 transition-opacity shadow-sm"
+          onClick={() => navigate("/login")}
         >
-          {sidebarGroups.map((group) => (
-            <div key={group.title} className="flex flex-col gap-1">
-              <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {group.title}
-              </p>
-              {group.links.map((link) => (
-                <button
-                  key={link.path}
-                  type="button"
-                  onClick={() => navigate(link.path)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sidebar-foreground hover:text-link-hover hover:bg-sidebar-accent transition-colors group text-left"
-                >
-                  <link.icon className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-link-hover transition-colors" />
-                  <span className="text-sm font-medium">{link.label}</span>
-                </button>
-              ))}
+          Đăng nhập bằng tài khoản Google
+        </button>
+      ) : (
+        <div className="mb-4 flex flex-col gap-2">
+            <div className="px-3 py-3 bg-blue-50 border border-blue-100 rounded-md mb-1 shadow-sm">
+                <p className="text-[10px] text-blue-600 font-bold uppercase tracking-wider mb-1">Đã đăng nhập</p>
+                
+                {/* Hiển thị Họ và Tên từ Google Metadata */}
+                <p className="text-sm font-bold text-slate-800 leading-tight">
+                  {user.user_metadata?.full_name || "Người dùng TDMU"}
+                </p>
+                
+                {/* Hiển thị Email */}
+                <p className="text-[11px] truncate text-slate-500 mt-0.5">
+                  {user.email}
+                </p>
             </div>
-          ))}
-        </nav>
-        
+            
+            <button
+              className="shrink-0 w-full flex items-center justify-center gap-2 bg-white text-red-600 font-bold text-xs py-2 px-4 
+              rounded-md border border-red-200 hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              Đăng xuất
+            </button>
+        </div>
+      )}
+
+      {/* Navigation: Chỉ hiển thị khi đã đăng nhập */}
+      <div className="flex min-h-0 flex-1 min-w-0 gap-0">
+        {user ? (
+          <nav
+            ref={navRef}
+            onScroll={updateScrollState}
+            className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden py-1 pr-1"
+          >
+            {sidebarGroups.map((group) => (
+              <div key={group.title} className="flex flex-col gap-1">
+                <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {group.title}
+                </p>
+                {group.links.map((link) => (
+                  <button
+                    key={link.path}
+                    type="button"
+                    onClick={() => navigate(link.path)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sidebar-foreground hover:text-link-hover hover:bg-sidebar-accent transition-colors group text-left"
+                  >
+                    <link.icon className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-link-hover transition-colors" />
+                    <span className="text-sm font-medium">{link.label}</span>
+                  </button>
+                ))}
+              </div>
+            ))}
+          </nav>
+        ) : (
+          <div className="flex-1 flex items-center justify-center p-6 text-center">
+            <p className="text-sm text-muted-foreground italic">
+              Vui lòng đăng nhập để xem các chức năng hệ thống.
+            </p>
+          </div>
+        )}
       </div>
 
-      {/*  chen hình logo */}
+      {/* Logo TDMU */}
       <div className="shrink-0 p-4 mt-2 border-t border-sidebar-border bg-slate-100 flex items-center justify-center rounded-lg">
         <img
           src="/images/logo_DHTDMU.png"

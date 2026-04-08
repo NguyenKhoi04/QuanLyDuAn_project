@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/Header";
+import { supabase } from "@/lib/supabaseClient"; // Đường dẫn tùy vào dự án của bạn với file supabaseClient.ts
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -12,23 +13,51 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!username.trim() || !password.trim()) {
-      setError("Vui lòng nhập đầy đủ tên người dùng và mật khẩu.");
-      return;
-    }
-    setError("");
-    // TODO: handle login logic
-  };
-
-  const handleGoogleLogin = () => {
-    // TODO: handle Google login
-  };
-
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    try {
+      setError("");
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // Tham số "hd" yêu cầu Google chỉ hiển thị/chấp nhận tài khoản thuộc domain này
+          queryParams: {
+            hd: 'student.tdmu.edu.vn',
+            prompt: 'select_account',
+          },
+          // URL quay lại sau khi đăng nhập thành công (khai báo trong Supabase)
+          redirectTo: window.location.origin + '/dashboard', 
+        },
+      });
+
+      if (error) throw error;
+    } catch (err: any) {
+      setError("Lỗi đăng nhập Google: " + err.message);
+    }
+  };
+
+  // Cần một useEffect để kiểm tra domain sau khi redirect về (Double Check)
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const email = session.user.email;
+        if (!email?.endsWith("@student.tdmu.edu.vn")) {
+          // Nếu lọt lưới, thực hiện đăng xuất ngay lập tức
+          await supabase.auth.signOut();
+          setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
+        } else {
+          navigate("/dashboard");
+        }
+      }
+    };
+    checkUser();
+  }, [navigate]);
+  
   return (
+    
     <div >
     <AppHeader />
 
@@ -53,7 +82,7 @@ const Login = () => {
           <p className="text-xs text-destructive text-center mb-4 font-medium">{error}</p>
         )}
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+        <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
           {/* Username */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="username">Tên người dùng</Label>
@@ -109,13 +138,21 @@ const Login = () => {
             </button>
 
             {/* Google login button */}
-            <button
+            {/* <button
             type="button"
             onClick={handleGoogleLogin}
             className="w-full bg-red-600 text-white font-semibold py-2.5 rounded-md 
                         hover:bg-red-700 transition-colors shadow-sm"
             >
             Đăng nhập bằng tài khoản Google
+            </button> */}
+            <button
+              type="button"
+              disabled={loading}
+              onClick={handleGoogleLogin}
+              className="w-full bg-red-600 text-white font-semibold py-2.5 rounded-md hover:bg-red-700 disabled:bg-gray-400"
+            >
+              {loading ? "Đang kết nối..." : "Đăng nhập bằng tài khoản Google"}
             </button>
 
         </form>
