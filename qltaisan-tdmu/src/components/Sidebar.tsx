@@ -143,7 +143,7 @@ const AppSidebar = () => {
         <img
           src="/images/logo_DHTDMU.png"
           alt="Logo TDMU"
-          className="w-28 h-28 object-contain mx-auto opacity-90 hover:opacity-100 transition-all"
+          className="w-30 h-30 object-contain mx-auto opacity-90 hover:opacity-100 transition-all"
         />
       </div>
     </aside>
