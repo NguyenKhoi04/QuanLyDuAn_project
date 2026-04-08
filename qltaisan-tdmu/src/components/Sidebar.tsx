@@ -101,6 +101,19 @@ const AppSidebar = () => {
 
   if (loading) return <aside className="w-65 bg-sidebar border-r h-full" />;
 
+
+
+  const formatFullName = (fullName: string | undefined) => {
+  if (!fullName) return "Người dùng TDMU";
+  
+  const parts = fullName.trim().split(" ");
+  if (parts.length < 2) return fullName;
+
+  const firstName = parts[0];
+  const lastName = parts.slice(1).join(" ");
+  return `${firstName} ${lastName}`;
+  };
+  
   return (
     <aside className="w-65 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 h-full py-4 px-3 shrink-0 overflow-hidden">
       
@@ -119,14 +132,25 @@ const AppSidebar = () => {
                 <p className="text-[10px] text-blue-600 font-bold uppercase tracking-wider mb-1">Đã đăng nhập</p>
                 
                 {/* Hiển thị Họ và Tên từ Google Metadata */}
-                <p className="text-sm font-bold text-slate-800 leading-tight">
+
+                {/* Sử dụng hàm formatFullName ở đây */}
+                  <p className="text-sm font-bold text-slate-800 leading-tight">
+                    {formatFullName(user.user_metadata?.full_name)}
+                  </p>
+                  
+                  <p className="text-[11px] truncate text-slate-500 mt-0.5">
+                    {user.email}
+                  </p>
+
+
+                {/* <p className="text-sm font-bold text-slate-800 leading-tight">
                   {user.user_metadata?.full_name || "Người dùng TDMU"}
                 </p>
                 
                 {/* Hiển thị Email */}
                 <p className="text-[11px] truncate text-slate-500 mt-0.5">
                   {user.email}
-                </p>
+                </p> */
             </div>
             
             <button

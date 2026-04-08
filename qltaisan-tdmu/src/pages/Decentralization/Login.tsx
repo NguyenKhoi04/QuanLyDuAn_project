@@ -16,16 +16,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const formatFullName = (fullName: string | undefined) => {
-  if (!fullName) return "Người dùng TDMU";
   
-  const parts = fullName.trim().split(" ");
-  if (parts.length < 2) return fullName;
-
-  const firstName = parts[0];
-  const lastName = parts.slice(1).join(" ");
-  return `${firstName} ${lastName}`;
-  };
   const handleGoogleLogin = async () => {
     try {
       setError("");
