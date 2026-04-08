@@ -125,7 +125,7 @@ const AppSidebar = () => {
             rounded-md border-2 border-login-btn mb-4 hover:opacity-90 transition-opacity shadow-sm"
             onClick={() => navigate("/login")}
           >
-            Đăng nhập Google
+            Đăng nhập bằng tài khoản Google
           </button>
         ) : (
           <div className="mb-4 flex flex-col gap-2 w-full">
