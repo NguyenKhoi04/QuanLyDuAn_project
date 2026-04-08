@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Building2, Eye, EyeOff } from "lucide-react";
+import { Building2, Eye, EyeOff, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/Header";
-import { supabase } from "@/lib/supabaseClient"; // Đường dẫn tùy vào dự án của bạn với file supabaseClient.ts
+import { supabase } from "@/lib/supabaseClient";
+// Đường dẫn tùy vào dự án của bạn với file supabaseClient.ts
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -16,20 +17,19 @@ const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  
   const handleGoogleLogin = async () => {
     try {
       setError("");
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
           // Tham số "hd" yêu cầu Google chỉ hiển thị/chấp nhận tài khoản thuộc domain này
           queryParams: {
-            hd: 'student.tdmu.edu.vn',
-            prompt: 'select_account',
+            hd: "student.tdmu.edu.vn",
+            prompt: "select_account",
           },
           // URL quay lại sau khi đăng nhập thành công (khai báo trong Supabase)
-          redirectTo: window.location.origin + '/dashboard', 
+          redirectTo: window.location.origin + "/dashboard",
           //redirectTo: window.location.origin,
         },
       });
@@ -43,7 +43,9 @@ const Login = () => {
   // Cần một useEffect để kiểm tra domain sau khi redirect về (Double Check)
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session?.user) {
         const email = session.user.email;
         if (!email?.endsWith("@student.tdmu.edu.vn")) {
@@ -57,86 +59,103 @@ const Login = () => {
     };
     checkUser();
   }, [navigate]);
-  
+
   return (
-    
-    <div >
-    <AppHeader />
+    <div>
+      <AppHeader />
 
-    <div className="min-h-screen flex items-center justify-center bg-muted/40">
-      <div className="w-full max-w-md mx-4 bg-background/80 backdrop-blur-md border border-border rounded-xl shadow-xl p-8">
-        {/* Logo / Title */}
-        <div className="flex flex-col items-center gap-2 mb-4">
-          {/* <Building2 className="h-10 w-10 text-primary" /> */}
-          <img src="/images/logo-tdmu.png" alt="Logo Trường Đại học Thủ Dầu Một" className="w-48 h-24 object-contain" />
-          <h1 className="text-xl font-bold text-center text-foreground tracking-tight">
-            HỆ THỐNG QUẢN LÝ TÀI SẢN
-          </h1>
-          <p className="text-xs text-muted-foreground">Trường Đại học Thủ Dầu Một – TP.HCM</p>
-        </div>
-
-        <p className="text-xs text-muted-foreground text-center mb-6">
-          Bạn hãy đăng nhập trước khi vào chức năng
-        </p>
-
-        {/* Error message */}
-        {error && (
-          <p className="text-xs text-destructive text-center mb-4 font-medium">{error}</p>
-        )}
-
-        <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
-          {/* Username */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="username">Tên người dùng</Label>
-            <Input
-              id="username"
-              placeholder="Nhập tên người dùng"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+      <div className="min-h-screen flex items-center justify-center bg-muted/40">
+        <div className="w-full max-w-md mx-4 bg-background/80 backdrop-blur-md border border-border rounded-xl shadow-xl p-8">
+          {/* Logo / Title */}
+          <div className="flex flex-col items-center gap-2 mb-4">
+            {/* <Building2 className="h-10 w-10 text-primary" /> */}
+            <img
+              src="/images/logo-tdmu.png"
+              alt="Logo Trường Đại học Thủ Dầu Một"
+              className="w-48 h-24 object-contain"
             />
+            <h1 className="text-xl font-bold text-center text-foreground tracking-tight">
+              HỆ THỐNG QUẢN LÝ TÀI SẢN
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              Trường Đại học Thủ Dầu Một – TP.HCM
+            </p>
           </div>
 
-          {/* Password */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Mật khẩu</Label>
-            <div className="relative">
+          <p className="text-xs text-muted-foreground text-center mb-6">
+            Bạn hãy đăng nhập trước khi vào chức năng
+          </p>
+
+          {/* Error message */}
+          {error && (
+            <p className="text-xs text-destructive text-center mb-4 font-medium">
+              {error}
+            </p>
+          )}
+
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="flex flex-col gap-4"
+          >
+            {/* Username */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="username">Tên người dùng</Label>
               <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Nhập mật khẩu"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pr-10"
+                id="username"
+                placeholder="Nhập tên người dùng"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
             </div>
-          </div>
 
-          {/* Remember me */}
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="remember"
-              checked={remember}
-              onCheckedChange={(v) => setRemember(v === true)}
-            />
-            <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
-              Nhớ mật khẩu
-            </Label>
-          </div>
+            {/* Password */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password">Mật khẩu</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Nhập mật khẩu"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
 
-          {/* Login button */}
+            {/* Remember me */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="remember"
+                checked={remember}
+                onCheckedChange={(v) => setRemember(v === true)}
+              />
+              <Label
+                htmlFor="remember"
+                className="text-sm font-normal cursor-pointer"
+              >
+                Nhớ mật khẩu
+              </Label>
+            </div>
+
+            {/* Login button */}
             <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-md 
+              type="submit"
+              className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-md 
                         hover:bg-blue-700 transition-colors shadow-sm"
             >
-            Đăng nhập
+              Đăng nhập
             </button>
 
             {/* Google login button */}
@@ -156,22 +175,54 @@ const Login = () => {
             >
               {loading ? "Đang kết nối..." : "Đăng nhập bằng tài khoản Google"}
             </button>
+          </form>
 
-        </form>
+          {/* Forgot password */}
+          {/* Bottom Links: Quên mật khẩu & Quay lại */}
+          <div className="mt-8 pt-6 border-t border-border/50 flex flex-col gap-4">
+            <div className="flex items-center justify-between text-sm">
+              <button
+                type="button"
+                className="text-muted-foreground hover:text-red-600 transition-colors flex items-center gap-1.5 group"
+              >
+                <span className="p-1.5 bg-secondary rounded-md group-hover:bg-red-50 transition-colors">
+                  <Lock className="w-3.5 h-3.5" />
+                </span>
+                Quên mật khẩu?
+              </button>
 
-        {/* Forgot password */}
-        <div className="mt-4 text-center">
-          <a href="#" className="text-sm text-link-hover no-underline hover:no-underline hover:text-red-600 cursor-pointer">
-           🔏 Quên mật khẩu?
-          </a>
-        </div>
-        <div className="mt-2 text-center flex justify-center items-center">
-          <a  className="text-sm text-link-hover hover:no-underline hover:text-red-600 cursor-pointer" style={{ marginLeft: '10px' }} onClick={() => navigate('/dashboard')}>
-           🔙 Quay lại trang chủ
-          </a>
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard")}
+                className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 group"
+              >
+                Quay lại trang chủ
+                <span className="p-1.5 bg-secondary rounded-md group-hover:bg-primary/10 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="group-hover:translate-x-0.5 transition-transform"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+
+            <p className="text-[11px] text-center text-muted-foreground/60 italic">
+              Hỗ trợ kỹ thuật: Viện Công nghệ số- Trường Đại học Thủ Dầu Một
+            </p>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
