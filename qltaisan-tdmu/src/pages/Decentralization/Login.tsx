@@ -196,24 +196,11 @@ const Login = () => {
                 onClick={() => navigate("/dashboard")}
                 className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 group"
               >
-                Quay lại trang chủ
                 <span className="p-1.5 bg-secondary rounded-md group-hover:bg-primary/10 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="group-hover:translate-x-0.5 transition-transform"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
+                  <Building2 className="w-3.5 h-3.5" />
                 </span>
+                Quay lại trang chủ
+                
               </button>
             </div>
 
