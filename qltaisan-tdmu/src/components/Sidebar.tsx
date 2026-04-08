@@ -107,10 +107,14 @@ const AppSidebar = () => {
   const parts = fullName.trim().split(" ");
   if (parts.length < 2) return fullName;
 
-  const firstName = parts[0];
-  const lastName = parts.slice(1).join(" ");
-  return `${firstName} ${lastName}`;
-  };
+  // Lấy từ cuối cùng làm Tên (firstName)
+  const firstName = parts[parts.length - 1];
+  // Lấy các từ còn lại làm Họ và chữ lót (lastName)
+  const lastName = parts.slice(0, parts.length - 1).join(" ");
+  
+  // Trả về định dạng: Họ và tên lót + Tên
+  return `${lastName} ${firstName}`;
+};
   
   return (
     <aside className="w-65 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 h-full py-4 px-3 shrink-0 overflow-hidden">
