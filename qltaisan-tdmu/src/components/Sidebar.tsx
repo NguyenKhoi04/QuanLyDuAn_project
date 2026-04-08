@@ -117,54 +117,41 @@ const AppSidebar = () => {
 };
   
   return (
-    <aside className="w-65 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 h-full py-4 px-3 shrink-0 overflow-hidden">
-      
-      {/* Nút Đăng nhập / Đăng xuất */}
-      {!user ? (
-        <button
-          className="shrink-0 w-full mx-auto bg-login-btn text-login-btn-foreground font-bold text-sm py-2 px-4 
-          rounded-md border-2 border-login-btn mb-4 hover:opacity-90 transition-opacity shadow-sm"
-          onClick={() => navigate("/login")}
-        >
-          Đăng nhập bằng tài khoản Google
-        </button>
-      ) : (
-        <div className="mb-4 flex flex-col gap-2">
-            <div className="px-3 py-3 bg-blue-50 border border-blue-100 rounded-md mb-1 shadow-sm">
-                <p className="text-[10px] text-blue-600 font-bold uppercase tracking-wider mb-1">Đã đăng nhập</p>
-                
-                {/* Hiển thị Họ và Tên từ Google Metadata */}
-
-                {/* Sử dụng hàm formatFullName ở đây */}
-                  <p className="text-sm font-bold text-slate-800 leading-tight">
+    <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 h-full py-4 px-3 shrink-0 overflow-hidden">
+  
+        {!user ? (
+          <button
+            className="shrink-0 w-full mx-auto bg-login-btn text-login-btn-foreground font-bold text-xs py-2.5 px-4 
+            rounded-md border-2 border-login-btn mb-4 hover:opacity-90 transition-opacity shadow-sm"
+            onClick={() => navigate("/login")}
+          >
+            Đăng nhập Google
+          </button>
+        ) : (
+          <div className="mb-4 flex flex-col gap-2 w-full">
+              {/* Ô thông tin: Dùng w-full nhưng thêm padding và căn chỉnh text */}
+              <div className="px-3 py-3 bg-blue-50 border border-blue-100 rounded-lg shadow-sm">
+                  <p className="text-[9px] text-blue-600 font-bold uppercase tracking-tighter mb-1">Thành viên</p>
+                  
+                  <p className="text-sm font-bold text-slate-800 leading-tight break-words">
                     {formatFullName(user.user_metadata?.full_name)}
                   </p>
                   
-                  <p className="text-[11px] truncate text-slate-500 mt-0.5">
+                  <p className="text-[10px] truncate text-slate-500 mt-1 italic">
                     {user.email}
                   </p>
-
-
-                {/* <p className="text-sm font-bold text-slate-800 leading-tight">
-                  {user.user_metadata?.full_name || "Người dùng TDMU"}
-                </p>
-                
-                {/* Hiển thị Email */}
-                {/* <p className="text-[11px] truncate text-slate-500 mt-0.5">
-                  {user.email}
-                </p> */ }
-            </div>
-            
-            <button
-              className="shrink-0 w-full flex items-center justify-center gap-2 bg-white text-red-600 font-bold text-xs py-2 px-4 
-              rounded-md border border-red-200 hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4" />
-              Đăng xuất
-            </button>
-        </div>
-      )}
+              </div>
+              
+              <button
+                className="w-full flex items-center justify-center gap-2 bg-white text-red-600 font-bold text-[11px] py-1.5 px-3 
+                rounded-md border border-red-200 hover:bg-red-50 transition-all shadow-sm"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Đăng xuất
+              </button>
+          </div>
+        )}
 
       {/* Navigation: Chỉ hiển thị khi đã đăng nhập */}
       <div className="flex min-h-0 flex-1 min-w-0 gap-0">
@@ -203,12 +190,14 @@ const AppSidebar = () => {
       </div>
 
       {/* Logo TDMU */}
-      <div className="shrink-0 p-4 mt-2 border-t border-sidebar-border bg-slate-100 flex items-center justify-center rounded-lg">
-        <img
-          src="/images/logo_DHTDMU.png"
-          alt="Logo TDMU"
-          className="w-auto h-auto max-w-[90%] max-h-[120px] object-contain opacity-90 hover:opacity-100 transition-all mx-auto"
-        />
+      <div className="shrink-0 p-2 mt-auto border-t border-sidebar-border flex items-center justify-center">
+        <div className="bg-white/50 p-2 rounded-lg w-full flex justify-center">
+            <img
+              src="/images/logo_DHTDMU.png"
+              alt="Logo TDMU"
+              className="w-full h-auto max-w-[140px] object-contain mix-blend-multiply" 
+            />
+        </div>
       </div>
     </aside>
   );
