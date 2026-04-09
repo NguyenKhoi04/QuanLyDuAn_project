@@ -80,7 +80,7 @@ const AppSidebar = () => {
 
       // 👉 Nếu đã đăng nhập thì lưu vào bảng NguoiDung
       if (currentUser) {
-        const { error } = await supabase.from("NguoiDung").upsert({
+        const { error } = await supabase.from("nguoidung").upsert({
           auth_id: user.id,
           HoTen: user.user_metadata?.full_name || "Người dùng",
           Email: user.email,
