@@ -74,8 +74,26 @@ const AppSidebar = () => {
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setLoading(false);
+
+      // 👉 Nếu đã đăng nhập thì lưu vào bảng NguoiDung
+      if (currentUser) {
+        const { error } = await supabase.from("NguoiDung").upsert({
+          MaNguoiDung: currentUser.id, // UUID từ auth.users
+          HoTen: currentUser.user_metadata?.full_name || "Người dùng",
+          Email: currentUser.email,
+          MaVaiTro: 1, // role mặc định
+          TrangThai: 1
+        });
+
+        if (error) {
+          console.error("Lỗi lưu người dùng:", error.message);
+        }
+      }
+
+  setLoading(false);
     };
 
     getSession();
