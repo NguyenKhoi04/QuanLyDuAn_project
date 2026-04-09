@@ -73,25 +73,48 @@ const AppSidebar = () => {
   // 1. Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setLoading(false);
+      // const { data: { session } } = await supabase.auth.getSession();
+      // const currentUser = session?.user ?? null;
+      // setUser(currentUser);
+      // setLoading(false);
 
-      // 👉 Nếu đã đăng nhập thì lưu vào bảng NguoiDung
-      if (currentUser) {
-        const { error } = await supabase.from("NguoiDung").upsert({
-          MaNguoiDung: currentUser.id, // UUID từ auth.users
-          HoTen: currentUser.user_metadata?.full_name || "Người dùng",
-          Email: currentUser.email,
-          MaVaiTro: 1, // role mặc định
-          TrangThai: 1
-        });
+      // // 👉 Nếu đã đăng nhập thì lưu vào bảng NguoiDung
+      // if (currentUser) {
+      //   const { error } = await supabase.from("NguoiDung").upsert({
+      //     MaNguoiDung: currentUser.id, // UUID từ auth.users
+      //     HoTen: currentUser.user_metadata?.full_name || "Người dùng",
+      //     Email: currentUser.email,
+      //     MaVaiTro: 1, // role mặc định
+      //     TrangThai: 1
+      //   });
 
-        if (error) {
-          console.error("Lỗi lưu người dùng:", error.message);
+      //   if (error) {
+      //     console.error("Lỗi lưu người dùng:", error.message);
+      //   }
+      // }
+
+
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (_event, session) => {
+          const currentUser = session?.user ?? null;
+          setUser(currentUser);
+
+          if (currentUser) {
+            const { error } = await supabase.from("NguoiDung").upsert({
+              MaNguoiDung: currentUser.id,
+              HoTen: currentUser.user_metadata?.full_name || "Người dùng",
+              Email: currentUser.email,
+              MaVaiTro: 1,
+              TrangThai: 1
+            });
+
+            if (error) {
+              console.error("Lỗi lưu người dùng:", error.message);
+            }
+          }
         }
-      }
+      );
 
   setLoading(false);
     };
