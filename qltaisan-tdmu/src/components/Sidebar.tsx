@@ -73,27 +73,28 @@ const AppSidebar = () => {
   // 1. Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setLoading(false);
+  const { data: { session } } = await supabase.auth.getSession();
+  const currentUser = session?.user ?? null;
 
-      // 👉 Nếu đã đăng nhập thì lưu vào bảng NguoiDung
-      if (currentUser) {
-        const { error } = await supabase.from("nguoidung").upsert({
-          auth_id: user.id,
-          HoTen: user.user_metadata?.full_name || "Người dùng",
-          Email: user.email,
-          MaVaiTro: 1,
-          TrangThai: 1
-        }, {
-          onConflict: 'auth_id'
-        });
+  setUser(currentUser);
 
-        if (error) {
-          console.error("Lỗi lưu người dùng:", error.message);
-        }
-      }
+  if (currentUser) {
+    const { error } = await supabase.from("NguoiDung").upsert({
+      auth_id: currentUser.id,
+      HoTen: currentUser.user_metadata?.full_name || "Người dùng",
+      Email: currentUser.email,
+      MaVaiTro: 1,
+      TrangThai: 1
+    }, {
+      onConflict: 'auth_id'
+    });
+
+    if (error) {
+      console.error("🔥 Lỗi lưu người dùng:", error);
+    } else {
+      console.log("✅ Đã lưu user vào DB");
+    }
+  }
 
       // const { data: { subscription } } = supabase.auth.onAuthStateChange(
       //   async (_event, session) => {
