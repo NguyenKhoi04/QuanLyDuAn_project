@@ -55,27 +55,19 @@ const Login = () => {
 
     if (error || !data || data.length === 0) {
       setError("Sai tài khoản hoặc mật khẩu!");
-      setLoading(false);
       return;
     }
 
-const userData = data[0];
+    const userData = data[0];
 
-    // 👉 Lưu user vào localStorage (hoặc state global)
-    localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("user", JSON.stringify(userData));
 
-    // 👉 Phân quyền điều hướng
-    const role = data.MaVaiTro;
+    const role = userData.MaVaiTro;
 
-    if (role === 1) {
-      navigate("/dashboard"); // Admin
-    } else if (role === 2) {
-      navigate("/assets"); // Nhân viên quản lý tài sản
-    } else if (role === 4) {
-      navigate("/bao-tri"); // Kỹ thuật viên
-    } else {
-      setError("Bạn không có quyền truy cập hệ thống!");
-    }
+    if (role === 1) navigate("/dashboard");
+    else if (role === 2) navigate("/assets");
+    else if (role === 4) navigate("/bao-tri");
+    else setError("Bạn không có quyền truy cập!");
 
   } catch (err: any) {
     setError("Lỗi: " + err.message);
