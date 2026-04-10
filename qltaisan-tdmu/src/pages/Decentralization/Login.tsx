@@ -40,66 +40,74 @@ const Login = () => {
     }
   };
 
-
-
   const handleLogin = async () => {
-  try {
-    setError("");
-    setLoading(true);
+    try {
+      setError("");
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("nguoidung")
-      .select("*")
-      .eq("tendangnhap", username)
-      .eq("matkhau", password)
-      .single();   // Dùng .single() thay vì mảng
+      const { data, error } = await supabase
+        .from("nguoidung")
+        .select("*")
+        .eq("TenDangNhap", username)
+        .eq("MatKhau", password)
+        .single(); // Dùng .single() thay vì mảng
 
-    if (error || !data) {
-      setError("Sai tài khoản hoặc mật khẩu!");
-      return;
+      if (error || !data) {
+        setError("Sai tài khoản hoặc mật khẩu!");
+        return;
+      }
+
+      localStorage.setItem("user", JSON.stringify(data));
+
+      // Redirect theo role
+      const role = data.mavaitro ?? data.MaVaiTro ?? 0;
+      switch (role) {
+        case 1:
+          navigate("/dashboard");
+          break;
+        case 2:
+          navigate("/assets");
+          break;
+        case 4:
+          navigate("/bao-tri");
+          break;
+        default:
+          navigate("/dashboard");
+      }
+    } catch (err: any) {
+      setError("Lỗi: " + err.message);
+    } finally {
+      setLoading(false);
     }
-
-    localStorage.setItem("user", JSON.stringify(data));
-
-    // Redirect theo role
-    switch (data.mavaitro) {
-      case 1: navigate("/dashboard"); break;
-      case 2: navigate("/assets"); break;
-      case 4: navigate("/bao-tri"); break;
-      default: navigate("/dashboard");
-    }
-  } catch (err: any) {
-    setError("Lỗi: " + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Cần một useEffect để kiểm tra domain sau khi redirect về (Double Check)
   useEffect(() => {
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      const email = session.user.email;
-      if (!email?.endsWith("@student.tdmu.edu.vn")) {
-        await supabase.auth.signOut();
-        setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
-      } else {
-        // TỰ ĐỘNG FETCH VÀ LƯU VÀO LOCAL STORAGE TẠI ĐÂY ĐỂ SIDEBAR CÓ DATA NGAY
-        const { data: dbUser } = await supabase
-          .from("nguoidung")
-          .select("*")
-          .eq("email", email)
-          .single();
+    const checkUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) {
+        const email = session.user.email;
+        if (!email?.endsWith("@student.tdmu.edu.vn")) {
+          await supabase.auth.signOut();
+          setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
+        } else {
+          // TỰ ĐỘNG FETCH VÀ LƯU VÀO LOCAL STORAGE TẠI ĐÂY ĐỂ SIDEBAR CÓ DATA NGAY
+          const { data: dbUser } = await supabase
+            .from("nguoidung")
+            .select("*")
+            .eq("email", email)
+            .single();
 
-        if (dbUser) {
-          localStorage.setItem("user", JSON.stringify(dbUser));
+          if (dbUser) {
+            localStorage.setItem("user", JSON.stringify(dbUser));
+          }
         }
       }
-    }
-  };
-  checkUser();
-}, [navigate]);
+    };
+    checkUser();
+  }, [navigate]);
 
   return (
     <div>
@@ -139,11 +147,13 @@ const Login = () => {
             className="flex flex-col gap-4" }
           > */}
 
-          <form  className="flex flex-col gap-4"
-          onSubmit={(e) => { e.preventDefault();
-             handleLogin();
-}}
->
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin();
+            }}
+          >
             {/* Username */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="username">Tên người dùng</Label>
@@ -247,7 +257,6 @@ const Login = () => {
                   <Building2 className="w-3.5 h-3.5" />
                 </span>
                 Quay lại trang chủ
-                
               </button>
             </div>
 

@@ -115,7 +115,7 @@ const AppSidebar = () => {
 
   useEffect(() => {
     const initAuth = async () => {
-      // 1. Kiểm tra session
+      // 1. Kiểm tra session Supabase
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -131,23 +131,46 @@ const AppSidebar = () => {
         if (dbUser) {
           setUser(dbUser);
           localStorage.setItem("user", JSON.stringify(dbUser));
-        } else {
-          // Trường hợp user mới (Logic tự tạo user bạn đã viết ở code trước)
-          // Đảm bảo logic insert này hoạt động và trả về dbUser
+        }
+      } else {
+        // Nếu không có session Supabase, dùng user từ localStorage
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch (error) {
+            localStorage.removeItem("user");
+            setUser(null);
+          }
         }
       }
+
       setLoading(false);
     };
 
     initAuth();
 
-    // Lắng nghe thay đổi login/logout
+    // Lắng nghe thay đổi login/logout từ Supabase
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
-        setUser(null);
-        localStorage.removeItem("user");
+        // Nếu đăng xuất bằng Supabase, xóa localStorage và reset user.
+        if (event === "SIGNED_OUT") {
+          localStorage.removeItem("user");
+          setUser(null);
+        } else {
+          // Với đăng nhập thủ công không dùng Supabase session, giữ user từ localStorage.
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            try {
+              setUser(JSON.parse(storedUser));
+            } catch {
+              localStorage.removeItem("user");
+              setUser(null);
+            }
+          }
+        }
       } else {
         initAuth(); // Re-fetch khi trạng thái thay đổi
       }
@@ -157,7 +180,7 @@ const AppSidebar = () => {
   }, []);
 
   // Thay vì dùng biến role từ localStorage cũ, dùng trực tiếp từ state user
-  const role = user?.mavaitro || 0;
+  const role = user?.mavaitro || user?.MaVaiTro || user?.MaVaiRo || 0;
   const navigate = useNavigate();
 
   // useEffect(() => {
@@ -266,13 +289,13 @@ const AppSidebar = () => {
             </p>
 
             <p className="text-sm font-bold text-slate-800 leading-tight break-words">
-              {user?.hoten
-                ? user.hoten
+              {user?.hoten || user?.HoTen
+                ? user?.hoten ?? user?.HoTen
                 : formatFullName(user?.user_metadata?.full_name)}
             </p>
 
             <p className="text-[10px] truncate text-slate-500 mt-1 italic">
-              {user.email}
+              {user?.email ?? user?.Email}
             </p>
           </div>
 
