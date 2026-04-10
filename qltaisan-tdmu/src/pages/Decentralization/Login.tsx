@@ -78,24 +78,29 @@ const Login = () => {
 
   // Cần một useEffect để kiểm tra domain sau khi redirect về (Double Check)
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user) {
-        const email = session.user.email;
-        if (!email?.endsWith("@student.tdmu.edu.vn")) {
-          // Nếu lọt lưới, thực hiện đăng xuất ngay lập tức
-          await supabase.auth.signOut();
-          setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
-        } else {
-          // Nếu email hợp lệ, bạn có thể lưu thông tin user vào localStorage hoặc state, tạm thời
-          // navigate("/dashboard");
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const email = session.user.email;
+      if (!email?.endsWith("@student.tdmu.edu.vn")) {
+        await supabase.auth.signOut();
+        setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
+      } else {
+        // TỰ ĐỘNG FETCH VÀ LƯU VÀO LOCAL STORAGE TẠI ĐÂY ĐỂ SIDEBAR CÓ DATA NGAY
+        const { data: dbUser } = await supabase
+          .from("nguoidung")
+          .select("*")
+          .eq("email", email)
+          .single();
+
+        if (dbUser) {
+          localStorage.setItem("user", JSON.stringify(dbUser));
         }
       }
-    };
-    checkUser();
-  }, [navigate]);
+    }
+  };
+  checkUser();
+}, [navigate]);
 
   return (
     <div>

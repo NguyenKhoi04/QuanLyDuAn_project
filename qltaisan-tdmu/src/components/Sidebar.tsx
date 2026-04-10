@@ -109,14 +109,55 @@ const filterSidebar = (role: number) => {
 const SCROLL_STEP = 120;
 
 const AppSidebar = () => {
-  const navigate = useNavigate();
-  const navRef = useRef<HTMLElement>(null);
   const [user, setUser] = useState<any>(null);
-  // Lưu thông tin user
   const [loading, setLoading] = useState(true);
+  const navRef = useRef<HTMLElement>(null);
 
-  const localUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const role = localUser?.mavaitro || 0;
+  useEffect(() => {
+    const initAuth = async () => {
+      // 1. Kiểm tra session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // 2. Lấy dữ liệu từ DB dựa trên email session
+        const { data: dbUser } = await supabase
+          .from("nguoidung")
+          .select("*")
+          .eq("email", session.user.email)
+          .single();
+
+        if (dbUser) {
+          setUser(dbUser);
+          localStorage.setItem("user", JSON.stringify(dbUser));
+        } else {
+          // Trường hợp user mới (Logic tự tạo user bạn đã viết ở code trước)
+          // Đảm bảo logic insert này hoạt động và trả về dbUser
+        }
+      }
+      setLoading(false);
+    };
+
+    initAuth();
+
+    // Lắng nghe thay đổi login/logout
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        setUser(null);
+        localStorage.removeItem("user");
+      } else {
+        initAuth(); // Re-fetch khi trạng thái thay đổi
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Thay vì dùng biến role từ localStorage cũ, dùng trực tiếp từ state user
+  const role = user?.mavaitro || 0;
 
   // 1. Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
@@ -254,6 +295,8 @@ const AppSidebar = () => {
 
   //   return () => subscription.unsubscribe();
   // }, []);
+
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
