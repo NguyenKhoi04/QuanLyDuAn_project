@@ -92,7 +92,7 @@ const filterSidebar = (role: number) => {
   //   links: group.links.filter(link => allowed.includes(link.path))
   // }));
 
-  return filterSidebar(role).map(group => ({
+  return sidebarGroups.map(group => ({
     ...group,
     links: group.links.filter(link => allowed.includes(link.path))
   }));
@@ -108,7 +108,7 @@ const AppSidebar = () => {
   const [loading, setLoading] = useState(true);
 
   const localUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const role = localUser?.mavaitro;
+  const role = localUser?.mavaitro || 0;
 
   // 1. Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
