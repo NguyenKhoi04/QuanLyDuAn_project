@@ -41,23 +41,25 @@ const Login = () => {
   };
 
 
+
   const handleLogin = async () => {
   try {
     setError("");
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("nguoidung")
+      .from("NguoiDung")
       .select("*")
-      .eq("tendangnhap", username)
-      .eq("matkhau", password)
-      .single();
+      .eq("TenDangNhap", username)
+      .eq("MatKhau", password);
 
-    if (error || !data) {
+    if (error || !data || data.length === 0) {
       setError("Sai tài khoản hoặc mật khẩu!");
       setLoading(false);
       return;
     }
+
+const userData = data[0];
 
     // 👉 Lưu user vào localStorage (hoặc state global)
     localStorage.setItem("user", JSON.stringify(data));
