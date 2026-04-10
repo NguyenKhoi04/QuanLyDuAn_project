@@ -48,8 +48,8 @@ const Login = () => {
       const { data, error } = await supabase
         .from("nguoidung")
         .select("*")
-        .eq("TenDangNhap", username)
-        .eq("MatKhau", password)
+        .eq("tendangnhap", username)
+        .eq("matKhau", password)
         .single(); // Dùng .single() thay vì mảng
 
       if (error || !data) {
