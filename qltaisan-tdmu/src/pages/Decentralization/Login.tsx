@@ -48,10 +48,10 @@ const Login = () => {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("NguoiDung")
+      .from("nguoidung")
       .select("*")
-      .eq("TenDangNhap", username)
-      .eq("MatKhau", password);
+      .eq("tendangnhap", username)
+      .eq("matkhau", password);
 
     if (error || !data || data.length === 0) {
       setError("Sai tài khoản hoặc mật khẩu!");
@@ -62,7 +62,7 @@ const Login = () => {
 
     localStorage.setItem("user", JSON.stringify(userData));
 
-    const role = userData.MaVaiTro;
+    const role = userData.mavaitro;
 
     if (role === 1) navigate("/dashboard");
     else if (role === 2) navigate("/assets");
@@ -89,7 +89,8 @@ const Login = () => {
           await supabase.auth.signOut();
           setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
         } else {
-          navigate("/dashboard");
+          // Nếu email hợp lệ, bạn có thể lưu thông tin user vào localStorage hoặc state, tạm thời
+          // navigate("/dashboard");
         }
       }
     };
