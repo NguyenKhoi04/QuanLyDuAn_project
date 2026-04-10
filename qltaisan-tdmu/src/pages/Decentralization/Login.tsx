@@ -51,24 +51,23 @@ const Login = () => {
       .from("nguoidung")
       .select("*")
       .eq("tendangnhap", username)
-      .eq("matkhau", password);
+      .eq("matkhau", password)
+      .single();   // Dùng .single() thay vì mảng
 
-    if (error || !data || data.length === 0) {
+    if (error || !data) {
       setError("Sai tài khoản hoặc mật khẩu!");
       return;
     }
 
-    const userData = data[0];
+    localStorage.setItem("user", JSON.stringify(data));
 
-    localStorage.setItem("user", JSON.stringify(userData));
-
-    const role = userData.mavaitro;
-
-    if (role === 1) navigate("/dashboard");
-    else if (role === 2) navigate("/assets");
-    else if (role === 4) navigate("/bao-tri");
-    else setError("Bạn không có quyền truy cập!");
-
+    // Redirect theo role
+    switch (data.mavaitro) {
+      case 1: navigate("/dashboard"); break;
+      case 2: navigate("/assets"); break;
+      case 4: navigate("/bao-tri"); break;
+      default: navigate("/dashboard");
+    }
   } catch (err: any) {
     setError("Lỗi: " + err.message);
   } finally {

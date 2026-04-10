@@ -158,84 +158,7 @@ const AppSidebar = () => {
 
   // Thay vì dùng biến role từ localStorage cũ, dùng trực tiếp từ state user
   const role = user?.mavaitro || 0;
-
-  // 1. Kiểm tra trạng thái đăng nhập khi component mount
-  useEffect(() => {
-    const fetchUserData = async (currentUser: any) => {
-      if (!currentUser) {
-        setUser(null);
-        localStorage.removeItem("user");
-        return;
-      }
-
-      // Lấy data từ DB
-      let { data: dbUser, error } = await supabase
-        .from("nguoidung")
-        .select("*")
-        .eq("email", currentUser.email)
-        .single();
-
-      // 👉 Nếu chưa có thì tạo mới
-      if (!dbUser) {
-        const { data: newUser, error } = await supabase
-          .from("nguoidung")
-          .insert({
-            tendangnhap: currentUser.email,
-            matkhau: "google_login",
-            hoten: currentUser.user_metadata?.full_name || "Người dùng",
-            email: currentUser.email,
-            mavaitro: 5,
-            trangthai: 1,
-          })
-          .select()
-          .single();
-
-        if (error) {
-          console.error("Lỗi insert:", error);
-        } else {
-          dbUser = newUser;
-        }
-      }
-
-      // 👉 SET USER DUY NHẤT Ở ĐÂY
-      if (dbUser) {
-        setUser(dbUser);
-        localStorage.setItem("user", JSON.stringify(dbUser));
-      } else {
-        // Nếu không có trong DB, sử dụng thông tin từ Google Metadata tạm thời
-        const fallbackUser = {
-          hoten: currentUser.user_metadata?.full_name || "Người dùng",
-          email: currentUser.email,
-          mavaitro: 5,
-        };
-        setUser(fallbackUser);
-      }
-      setLoading(false);
-    };
-
-    // Kiểm tra session hiện tại
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        fetchUserData(session.user);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // Lắng nghe thay đổi (Login/Logout)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        await fetchUserData(session.user);
-      } else {
-        setUser(null);
-        localStorage.removeItem("user");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const navigate = useNavigate();
 
   // useEffect(() => {
   //   const getSession = async () => {
@@ -296,13 +219,11 @@ const AppSidebar = () => {
   //   return () => subscription.unsubscribe();
   // }, []);
 
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem("user");
     navigate("/login");
   };
-
   const updateScrollState = useCallback(() => {
     const el = navRef.current;
     if (!el) return;
