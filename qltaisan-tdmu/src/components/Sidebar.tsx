@@ -103,11 +103,12 @@ const SCROLL_STEP = 120;
 const AppSidebar = () => {
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
-  const [user, setUser] = useState<any>(null); // Lưu thông tin user
+  const [user, setUser] = useState<any>(null); 
+  // Lưu thông tin user
   const [loading, setLoading] = useState(true);
 
   const localUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const role = localUser?.MaVaiTro;
+  const role = localUser?.mavaitro;
 
   // 1. Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
@@ -115,31 +116,42 @@ const AppSidebar = () => {
     const { data: { session } } = await supabase.auth.getSession();
     const currentUser = session?.user ?? null;
 
-    setUser(currentUser);
+    //setUser(currentUser);
+    // Lấy user từ DB
+        const { data: dbUser } = await supabase
+          .from("nguoidung")
+          .select("*")
+          .eq("email", currentUser.email)
+          .single();
+
+        if (dbUser) {
+          setUser(dbUser); // 👉 dùng user từ DB
+          localStorage.setItem("user", JSON.stringify(dbUser));
+        }
 
     if (currentUser) {
       // 👉 Kiểm tra đã có user chưa
       const { data: existingUser } = await supabase
-        .from("NguoiDung")
+        .from("nguoidung")
         .select("*")
-        .eq("Email", currentUser.email)
+        .eq("email", currentUser.email)
         .single();
 
       if (!existingUser) {
         // 👉 Nếu chưa có thì thêm mới
-        const { error } = await supabase.from("NguoiDung").insert({
-          TenDangNhap: currentUser.email,
-          MatKhau: "google_login",
-          HoTen: currentUser.user_metadata?.full_name || "Người dùng",
-          Email: currentUser.email,
-          MaVaiTro: 5, // mặc định Sinh viên
-          TrangThai: 1
+        const { error } = await supabase.from("nguoidung").insert({
+          tendangnhap: currentUser.email,
+          matkhau: "google_login",
+          hoten: currentUser.user_metadata?.full_name || "Người dùng",
+          email: currentUser.email,
+          mavaitro: 5, // mặc định Sinh viên
+          trangthai: 1
         });
 
         if (error) {
-          console.error("🔥 Lỗi insert:", error);
+          console.error(" Lỗi insert:", error);
         } else {
-          console.log("✅ Đã tạo user mới");
+          console.log(" Đã tạo user mới");
         }
       } else {
         // 👉 Lưu vào localStorage để phân quyền
@@ -266,8 +278,10 @@ const AppSidebar = () => {
                   <p className="text-[9px] text-blue-600 font-bold uppercase tracking-tighter mb-1">Thành viên</p>
                   
                   <p className="text-sm font-bold text-slate-800 leading-tight break-words">
-                    {formatFullName(user.user_metadata?.full_name)}
-                  </p>
+                      {user?.hoten 
+                        ? user.hoten 
+                        : formatFullName(user?.user_metadata?.full_name)}
+                    </p>
                   
                   <p className="text-[10px] truncate text-slate-500 mt-1 italic">
                     {user.email}
