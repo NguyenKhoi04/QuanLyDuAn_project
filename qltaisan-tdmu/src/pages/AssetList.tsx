@@ -453,6 +453,19 @@ function AssetList() {
     setCurrentPage(1);
   };
 
+  useEffect(() => {
+    fetchAssets();
+  }, []);
+
+  useEffect(() => {
+    fetchAssets();
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchAssets();
+  }, [search]);
+
+
   return (
     <AppShell>
       <div className="flex items-center justify-between mb-6">
@@ -845,6 +858,7 @@ function AssetList() {
             )}
           </TableBody>
         </Table>
+        </div>
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-border">
           <p className="text-sm text-muted-foreground">
