@@ -47,10 +47,10 @@ const Login = () => {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("NguoiDung")
+      .from("nguoidung")
       .select("*")
-      .eq("TenDangNhap", username)
-      .eq("MatKhau", password)
+      .eq("tendangnhap", username)
+      .eq("matkhau", password)
       .single();
 
     if (error || !data) {
