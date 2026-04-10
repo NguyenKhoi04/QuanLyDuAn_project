@@ -1,18 +1,19 @@
 import AppShell from "@/components/AppShell";
-import {Table,TableHeader,TableBody,TableRow,TableHead,TableCell} from "@/components/ui/table";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
-import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from "@/components/ui/select";
-import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter,DialogTrigger} from "@/components/ui/dialog";
-import {AlertDialog,AlertDialogAction,AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {Search,Plus,Edit,Trash2,ChevronLeft,ChevronRight} from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { supabase } from "@/lib/supabaseClient";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import AppHeader from "@/components/Header";
+
 
 
 // const loaiTaiSan: Record<number, string> = {
@@ -54,7 +55,7 @@ const trangThaiMap: Record<number, { label: string; variant: "default" | "second
 };
 
 interface TaiSan {
-  maTaiSan: number;        // Primary key
+  maTaiSan: number;
   maTS: string;
   tentaisan: string;
   maloai: number;
@@ -178,30 +179,29 @@ interface TaiSan {
 //   },
 // ];
 
-const ITEMS_PER_PAGE = 5;
+// Removed duplicate AssetList definition and related state/hooks above.
+// The correct AssetList function is defined below.
+  };
+
+  const ITEMS_PER_PAGE = 5;
 
 function AssetList() {
-  // const [data, setData] = useState<TaiSan[]>(initialData);
   const [data, setData] = useState<TaiSan[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TaiSan | null>(null);
   const [deleteItem, setDeleteItem] = useState<TaiSan | null>(null);
-
-  const [selectedItems, setSelectedItems] = useState<TaiSan[]>([]);
-
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const [loaiTaiSanList, setLoaiTaiSanList] = useState<{ maloai: number; tenloai: string; mota: string }[]>([]);
-const [phongBanList, setPhongBanList] = useState<any[]>([]);
-const [viTriList, setViTriList] = useState<any[]>([]);
-const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; tennhacungcap: string }[]>([]);
-
+  // Danh mục
+  const [loaiTaiSanList, setLoaiTaiSanList] = useState<any[]>([]);
+  const [phongBanList, setPhongBanList] = useState<any[]>([]);
+  const [viTriList, setViTriList] = useState<any[]>([]);
+  const [nhaCungCapList, setNhaCungCapList] = useState<any[]>([]);
 
   const emptyForm = {
-    mataisan: "",
+    maTS: "",
     tentaisan: "",
     maloai: "",
     maphongban: "",
@@ -210,12 +210,11 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
     ngaymua: "",
     trangthai: "",
   };
+
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-
-  // Fetch data từ Supabase
+  // ====================== FETCH DATA ======================
   const fetchAssets = async () => {
     setLoading(true);
     const { data: taiSanData, error } = await supabase
@@ -224,51 +223,36 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
       .order("maTaiSan", { ascending: true });
 
     if (error) {
-      console.error("Lỗi lấy danh sách tài sản:", error);
+      console.error("Lỗi lấy tài sản:", error);
     } else {
       setData(taiSanData || []);
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-    // Fetch Loại tài sản
-    const { data: loaiData } = await supabase
-      .from("loaitaisan")
-      .select("maloai, tenloai, mota")
-      .order("tenloai");
+  const fetchDanhMuc = async () => {
+    const [loai, phong, vitri, ncc] = await Promise.all([
+      supabase.from("loaitaisan").select("maloai, tenloai"),
+      supabase.from("phongban").select("maphongban, tenphongban"),
+      supabase.from("vitri").select("mavitri, tenvitri"),
+      supabase.from("nhacungcap").select("manhacungcap, tennhacungcap"),
+    ]);
 
-    if (loaiData) setLoaiTaiSanList(loaiData);
-
-    // Fetch Phòng ban (ví dụ)
-    const { data: phongData } = await supabase
-      .from("phongban")
-      .select("maphongban, tenphongban");
-
-    if (phongData) setPhongBanList(phongData);
-
-    // Fetch Vi tri
-    const { data: viTriData } = await supabase
-      .from("vitri")
-      .select("mavitri, tenvitri");
-
-    if (viTriData) setViTriList(viTriData);
-
-    // Fetch Nhà cùng cập
-    const { data: nhaCungCapData } = await supabase
-      .from("nhacungcap")
-      .select("manhacungcap, tennhacungcap");
-
-    if (nhaCungCapData) setNhaCungCapList(nhaCungCapData);
+    setLoaiTaiSanList(loai.data || []);
+    setPhongBanList(phong.data || []);
+    setViTriList(vitri.data || []);
+    setNhaCungCapList(ncc.data || []);
   };
-    fetchAllData();
+
+  useEffect(() => {
+    fetchDanhMuc();
     fetchAssets();
   }, []);
 
+  // ====================== FILTER & PAGINATION ======================
   const filtered = data.filter((ts) =>
-    ts.tentaisan.toLowerCase().includes(search.toLowerCase()) ||
-    ts.maTS.toLowerCase().includes(search.toLowerCase())
+    ts.tentaisan?.toLowerCase().includes(search.toLowerCase()) ||
+    ts.maTS?.toLowerCase().includes(search.toLowerCase())
   );
 
   // const filtered = data.filter(
@@ -280,17 +264,21 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
+
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
   const resetForm = () => {
     setForm(emptyForm);
   };
+  // ====================== CRUD ======================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.mataisan.trim() || !form.tentaisan.trim() || !form.maloai || !form.maphongban || !form.mavitri || !form.trangthai) {
+    setFormError("");
+
+    if (!form.maTS.trim() || !form.tentaisan.trim() || !form.maloai || !form.maphongban || !form.mavitri || !form.trangthai) {
       setFormError("Vui lòng điền đầy đủ các trường bắt buộc (*)");
       return;
     }
@@ -311,7 +299,7 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
 
 
     const newAsset = {
-      maTS: form.mataisan.trim(),
+      maTS: form.maTS.trim(),
       tentaisan: form.tentaisan.trim(),
       maloai: Number(form.maloai),
       maphongban: Number(form.maphongban),
@@ -321,39 +309,25 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
       trangthai: Number(form.trangthai),
     };
 
-    const item: TaiSan = {
-      maTaiSan: editingItem ? editingItem.maTaiSan : Math.max(...data.map((d) => d.maTaiSan), 0) + 1,
-      ...newAsset,
-    };
-    
     if (editingItem) {
-      // UPDATE
-      const { error } = await supabase
-        .from("taisan")
-        .update(newAsset)
-        .eq("maTaiSan", editingItem.maTaiSan);
-
-      if (error) console.error("Lỗi cập nhật:", error);
+      const { error } = await supabase.from("taisan").update(newAsset).eq("maTaiSan", editingItem.maTaiSan);
+      if (error) console.error(error);
     } else {
-      // INSERT
-      const { error } = await supabase
-        .from("taisan")
-        .insert([newAsset]);
-
-      if (error) console.error("Lỗi thêm mới:", error);
+      const { error } = await supabase.from("taisan").insert([newAsset]);
+      if (error) console.error(error);
     }
 
     resetForm();
     setDialogOpen(false);
     setEditingItem(null);
-    fetchAssets(); // Refresh danh sách
+    fetchAssets();
   };
   const handleEdit = (ts: TaiSan) => {
     setEditingItem(ts);
     fetchAssets(); // Refresh data before editing
 
     setForm({
-      mataisan: ts.maTS,
+      maTS: ts.maTS,
       tentaisan: ts.tentaisan,
       maloai: String(ts.maloai),
       maphongban: String(ts.maphongban),
@@ -390,6 +364,7 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
     setSearch(val);
     setCurrentPage(1);
   };
+
 
   useEffect(() => {
     axios.get("http://localhost:3000/assets").then((res) => setData(res.data));
@@ -432,9 +407,9 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
                     <div className="space-y-2">
                       <Label>Mã Tài sản *</Label>
                       <Input
-                        value={form.mataisan}
+                        value={form.maTS}
                         onChange={(e) =>
-                          setForm({ ...form, mataisan: e.target.value })
+                          setForm({ ...form, maTS: e.target.value })
                         }
                         placeholder="VD: TS011"
                         maxLength={50}
@@ -674,7 +649,7 @@ const [nhaCungCapList, setNhaCungCapList] = useState<{ manhacungcap: number; ten
                       <TableCell>
                         {ts.manhacungcap ? nhacungcap[ts.manhacungcap] : "—"}
                       </TableCell> */}
-                      
+
                       <TableCell>{loaiTaiSanList.find(l => l.maloai === ts.maloai)?.tenloai || "—"}</TableCell>
                       <TableCell>{phongBanList.find(p => p.maphongban === ts.maphongban)?.tenphongban || "—"}</TableCell>
                       <TableCell>{viTriList.find(v => v.mavitri === ts.mavitri)?.tenvitri || "—"}</TableCell>
