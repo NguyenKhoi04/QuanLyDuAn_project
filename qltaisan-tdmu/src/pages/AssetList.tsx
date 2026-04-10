@@ -261,6 +261,7 @@ function AssetList() {
 
     if (error) {
       console.error("Lỗi lấy tài sản:", error);
+      console.error("Chi tiết lỗi:", error);
       setData([]);
     } else {
       const normalized = (taiSanData || []).map((item: any) => ({
@@ -274,6 +275,7 @@ function AssetList() {
         ngaymua: item.ngaymua ?? item.NgayMua ?? null,
         trangthai: item.trangthai ?? item.TrangThai ?? 0,
       }));
+      console.log("✅ Lấy thành công:", taiSanData?.length, "tài sản");
       setData(normalized);
     }
     setLoading(false);
