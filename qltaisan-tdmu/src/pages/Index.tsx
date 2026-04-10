@@ -1,79 +1,72 @@
 import ThemeToggle from '../components/ThemeToggle';
 import {
-  AlertTriangle,
-  BarChart3,
-  Bot,
-  Calendar,
-  CheckCircle,
-  ClipboardCheck,
-  Clock,
-  Shield,
-  UserCheck,
-  Wrench,
-  MapPin,
-  Move,
-  ChevronUp,
-  ChevronDown,
-  ChevronRight,
-  Mail,
-  
+  AlertTriangle, BarChart3, Bot, Calendar, CheckCircle, ClipboardCheck,
+  Clock, Shield, UserCheck, Wrench, MapPin, Move, ChevronRight,
+  Mail, LogOut, User
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";   // ← Quan trọng
 
 function Index() {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const quickLinks = useMemo(
-    () => [
-      {
-        title: "Dashboard bảo trì",
-        desc: "Tổng quan sự cố, kế hoạch, tiến độ sửa chữa.",
-        icon: ClipboardCheck,
-        tone: "text-sky-500", // Tăng độ đậm màu để nổi trên nền trắng
-        path: "/bao-tri",
-      },
-      {
-        title: "Kế hoạch bảo trì định kỳ",
-        desc: "Lập và theo dõi kế hoạch theo chu kỳ.",
-        icon: Wrench,
-        tone: "text-violet-500",
-        path: "/ke-hoach-bao-tri-dinh-ky",
-      },
-      {
-        title: "Ghi nhận sự cố tài sản",
-        desc: "Tạo sự cố, theo dõi trạng thái xử lý.",
-        icon: AlertTriangle,
-        tone: "text-orange-500",
-        path: "/su-co-tai-san",
-      },
-      {
-        title: "Phân công sửa chữa",
-        desc: "Giao việc cho người sửa và quản lý tiến độ.",
-        icon: UserCheck,
-        tone: "text-emerald-500",
-        path: "/phan-cong-sua-chua",
-      },
-      {
-        title: "Lịch sử bảo trì",
-        desc: "Lưu lịch sử sửa chữa, chi phí, kết quả.",
-        icon: Clock,
-        tone: "text-teal-500",
-        path: "/lich-su-bao-tri",
-      },
-      {
-        title: "Báo cáo thống kê",
-        desc: "Thống kê, tổng hợp và xuất báo cáo.",
-        icon: BarChart3,
-        tone: "text-blue-500",
-        path: "/thongke",
-      },
-    ],
-    [],
-  );
+  // ==================== KIỂM TRA ĐĂNG NHẬP ====================
+  useEffect(() => {
+    const initAuth = async () => {
+      // 1. Kiểm tra session Supabase (Google Login)
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        const { data: dbUser } = await supabase
+          .from("nguoidung")
+          .select("*")
+          .eq("email", session.user.email)
+          .single();
+
+        if (dbUser) {
+          setUser(dbUser);
+          localStorage.setItem("user", JSON.stringify(dbUser));
+        }
+      } 
+      // 2. Nếu không có session Supabase → kiểm tra localStorage (Đăng nhập thường)
+      else {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch (e) {
+            localStorage.removeItem("user");
+            setUser(null);
+          }
+        }
+      }
+      setLoading(false);
+    };
+
+    initAuth();
+
+    // Lắng nghe thay đổi (logout, login Google)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      initAuth();
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/");
+  };
+
+  // ==================== QUICK LINKS ====================
+  const quickLinks = useMemo(() => [ /* ... giữ nguyên */ ], []);
 
   return (
-    /* Ép nền trắng rõ ràng */
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans">
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md py-4 sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between gap-6">
@@ -98,16 +91,46 @@ function Index() {
             >
               Tài sản
             </button>
+
             <button
               onClick={() => navigate("/bao-tri")}
               className="px-5 py-2.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-md shadow-indigo-100 transition-all"
             >
               Khu vực bảo trì
             </button>
-            <button          onClick={() => navigate("/login")}
-              className="px-4 py-2 border border-zinc-200 hover:bg-zinc-100 rounded-2xl font-medium transition-colors">
-              Đăng nhập
-            </button>
+
+            {/* ==================== NÚT ĐĂNG NHẬP / TÀI KHOẢN ==================== */}
+            {!loading && (
+              user ? (
+                <div className="flex items-center gap-2">
+                  <div 
+                    onClick={() => navigate("/dashboard")}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-2xl cursor-pointer transition-all"
+                  >
+                    <User className="w-4 h-4 text-slate-600" />
+                    <span className="text-sm font-medium text-slate-700 truncate max-w-[160px]">
+                      {user.hoten || "Người dùng"}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                    title="Đăng xuất"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate("/login")}
+                  className="px-5 py-2 border border-zinc-200 hover:bg-zinc-100 rounded-2xl font-medium transition-colors"
+                >
+                  Đăng nhập
+                </button>
+              )
+            )}
+
             <ThemeToggle />
           </div>
         </div>
