@@ -92,7 +92,7 @@ const trangThaiMap: Record<
 };
 
 interface TaiSan {
-  maTaiSan: number;
+  mataisan: number;
   mats: string;
   tentaisan: string;
   maloai: number;
@@ -105,111 +105,111 @@ interface TaiSan {
 
 // const initialData: TaiSan[] = [
 //   {
-//     MaTaiSan: 1,
+//     mataisan: 1,
 //     mats: "TS001",
 //     TenTaiSan: "Máy tính Dell Vostro 3510",
 //     MaLoai: 1,
 //     MaPhongBan: 1,
-//     MaViTri: 1,
+//     mavitri: 1,
 //     MaNhaCungCap: 1,
 //     NgayMua: "2023-03-15",
 //     TrangThai: 1,
 //   },
 //   {
-//     MaTaiSan: 2,
+//     mataisan: 2,
 //     mats: "TS002",
 //     TenTaiSan: "Máy tính HP ProBook 450",
 //     MaLoai: 1,
 //     MaPhongBan: 4,
-//     MaViTri: 3,
+//     mavitri: 3,
 //     MaNhaCungCap: 2,
 //     NgayMua: "2023-05-20",
 //     TrangThai: 1,
 //   },
 //   {
-//     MaTaiSan: 3,
+//     mataisan: 3,
 //     mats: "TS003",
 //     TenTaiSan: "Bàn làm việc 1m2",
 //     MaLoai: 2,
 //     MaPhongBan: 2,
-//     MaViTri: 2,
+//     mavitri: 2,
 //     MaNhaCungCap: 3,
 //     NgayMua: "2022-11-10",
 //     TrangThai: 1,
 //   },
 //   {
-//     MaTaiSan: 4,
+//     mataisan: 4,
 //     mats: "TS004",
 //     TenTaiSan: "Ghế xoay văn phòng",
 //     MaLoai: 2,
 //     MaPhongBan: 3,
-//     MaViTri: 4,
+//     mavitri: 4,
 //     MaNhaCungCap: 3,
 //     NgayMua: "2022-11-10",
 //     TrangThai: 2,
 //   },
 //   {
-//     MaTaiSan: 5,
+//     mataisan: 5,
 //     mats: "TS005",
 //     TenTaiSan: "Máy chiếu Epson EB-X51",
 //     MaLoai: 3,
 //     MaPhongBan: 4,
-//     MaViTri: 3,
+//     mavitri: 3,
 //     MaNhaCungCap: 1,
 //     NgayMua: "2024-01-08",
 //     TrangThai: 1,
 //   },
 //   {
-//     MaTaiSan: 6,
+//     mataisan: 6,
 //     mats: "TS006",
 //     TenTaiSan: "Switch Cisco 24 port",
 //     MaLoai: 4,
 //     MaPhongBan: 1,
-//     MaViTri: 1,
+//     mavitri: 1,
 //     MaNhaCungCap: 2,
 //     NgayMua: "2023-07-22",
 //     TrangThai: 3,
 //   },
 //   {
-//     MaTaiSan: 7,
+//     mataisan: 7,
 //     mats: "TS007",
 //     TenTaiSan: "Điều hòa Daikin 12000BTU",
 //     MaLoai: 5,
 //     MaPhongBan: 5,
-//     MaViTri: 5,
+//     mavitri: 5,
 //     MaNhaCungCap: 4,
 //     NgayMua: "2021-06-15",
 //     TrangThai: 4,
 //   },
 //   {
-//     MaTaiSan: 8,
+//     mataisan: 8,
 //     mats: "TS008",
 //     TenTaiSan: "Máy tính Lenovo ThinkPad",
 //     MaLoai: 1,
 //     MaPhongBan: 2,
-//     MaViTri: 2,
+//     mavitri: 2,
 //     MaNhaCungCap: 1,
 //     NgayMua: "2024-02-28",
 //     TrangThai: 2,
 //   },
 //   {
-//     MaTaiSan: 9,
+//     mataisan: 9,
 //     mats: "TS009",
 //     TenTaiSan: "Router WiFi TP-Link",
 //     MaLoai: 4,
 //     MaPhongBan: 1,
-//     MaViTri: 1,
+//     mavitri: 1,
 //     MaNhaCungCap: 2,
 //     NgayMua: "2023-09-05",
 //     TrangThai: 1,
 //   },
 //   {
-//     MaTaiSan: 10,
+//     mataisan: 10,
 //     mats: "TS010",
 //     TenTaiSan: "Máy chiếu BenQ MH560",
 //     MaLoai: 3,
 //     MaPhongBan: 5,
-//     MaViTri: 5,
+//     mavitri: 5,
 //     MaNhaCungCap: 4,
 //     NgayMua: null,
 //     TrangThai: 2,
@@ -265,12 +265,12 @@ function AssetList() {
       setData([]);
     } else {
       const normalized = (taiSanData || []).map((item: any) => ({
-        maTaiSan: item.maTaiSan ?? item.MaTaiSan,
+        mataisan: item.mataisan ?? item.mataisan,
         mats: item.mats ?? item.mats ?? "",
         tentaisan: item.tentaisan ?? item.TenTaiSan ?? "",
         maloai: item.maloai ?? item.MaLoai,
         maphongban: item.maphongban ?? item.MaPhongBan,
-        mavitri: item.mavitri ?? item.MaViTri,
+        mavitri: item.mavitri ?? item.mavitri,
         manhacungcap: item.manhacungcap ?? item.MaNhaCungCap ?? null,
         ngaymua: item.ngaymua ?? item.NgayMua ?? null,
         trangthai: item.trangthai ?? item.TrangThai ?? 0,
@@ -343,14 +343,14 @@ function AssetList() {
     }
 
     // const item: TaiSan = {
-    //   MaTaiSan: editingItem
-    //     ? editingItem.MaTaiSan
-    //     : Math.max(...data.map((d) => d.MaTaiSan), 0) + 1,
+    //   mataisan: editingItem
+    //     ? editingItem.mataisan
+    //     : Math.max(...data.map((d) => d.mataisan), 0) + 1,
     //   mats: form.mats.trim(),
     //   TenTaiSan: form.TenTaiSan.trim(),
     //   MaLoai: Number(form.MaLoai),
     //   MaPhongBan: Number(form.MaPhongBan),
-    //   MaViTri: Number(form.MaViTri),
+    //   mavitri: Number(form.mavitri),
     //   MaNhaCungCap: form.MaNhaCungCap ? Number(form.MaNhaCungCap) : null,
     //   NgayMua: form.NgayMua || null,
     //   TrangThai: Number(form.TrangThai),
@@ -371,7 +371,7 @@ function AssetList() {
       const { error } = await supabase
         .from("taisan")
         .update(newAsset)
-        .eq("maTaiSan", editingItem.maTaiSan);
+        .eq("mataisan", editingItem.mataisan);
       if (error) console.error(error);
     } else {
       const { error } = await supabase.from("taisan").insert([newAsset]);
@@ -402,7 +402,7 @@ function AssetList() {
   };
   // const handleDelete = () => {
   //   if (deleteItem) {
-  //     setData(data.filter((d) => d.MaTaiSan !== deleteItem.MaTaiSan));
+  //     setData(data.filter((d) => d.mataisan !== deleteItem.mataisan));
   //     setDeleteItem(null);
   //   }
   // };
@@ -412,7 +412,7 @@ function AssetList() {
     const { error } = await supabase
       .from("taisan")
       .delete()
-      .eq("maTaiSan", deleteItem.maTaiSan);
+      .eq("mataisan", deleteItem.mataisan);
 
     if (error) console.error("Lỗi xóa:", error);
 
@@ -687,12 +687,12 @@ function AssetList() {
             {paged.map((ts, idx) => {
               const tt = trangThaiMap[ts.trangthai];
               return (
-                <TableRow key={ts.maTaiSan}>
+                <TableRow key={ts.mataisan}>
                   <TableCell>
                     {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                   </TableCell>
                   <TableCell className="font-mono text-xs">
-                    {ts.maTaiSan}
+                    {ts.mataisan}
                   </TableCell>
                   <TableCell className="font-medium">{ts.tentaisan}</TableCell>
                   {/* <TableCell>{loaitaisan[ts.maloai]}</TableCell>
@@ -814,7 +814,7 @@ function AssetList() {
             <AlertDialogTitle>Xác nhận xóa tài sản</AlertDialogTitle>
             <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa tài sản{" "}
-              <strong>{deleteItem?.tentaisan}</strong> ({deleteItem?.maTaiSan}
+              <strong>{deleteItem?.tentaisan}</strong> ({deleteItem?.mataisan}
               )? Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
