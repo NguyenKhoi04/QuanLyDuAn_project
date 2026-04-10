@@ -181,7 +181,7 @@ interface TaiSan {
 
 // Removed duplicate AssetList definition and related state/hooks above.
 // The correct AssetList function is defined below.
-  };
+  // };
 
   const ITEMS_PER_PAGE = 5;
 
