@@ -93,7 +93,7 @@ const trangThaiMap: Record<
 
 interface TaiSan {
   maTaiSan: number;
-  maTS: string;
+  mats: string;
   tentaisan: string;
   maloai: number;
   maphongban: number;
@@ -106,7 +106,7 @@ interface TaiSan {
 // const initialData: TaiSan[] = [
 //   {
 //     MaTaiSan: 1,
-//     MaTS: "TS001",
+//     mats: "TS001",
 //     TenTaiSan: "Máy tính Dell Vostro 3510",
 //     MaLoai: 1,
 //     MaPhongBan: 1,
@@ -117,7 +117,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 2,
-//     MaTS: "TS002",
+//     mats: "TS002",
 //     TenTaiSan: "Máy tính HP ProBook 450",
 //     MaLoai: 1,
 //     MaPhongBan: 4,
@@ -128,7 +128,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 3,
-//     MaTS: "TS003",
+//     mats: "TS003",
 //     TenTaiSan: "Bàn làm việc 1m2",
 //     MaLoai: 2,
 //     MaPhongBan: 2,
@@ -139,7 +139,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 4,
-//     MaTS: "TS004",
+//     mats: "TS004",
 //     TenTaiSan: "Ghế xoay văn phòng",
 //     MaLoai: 2,
 //     MaPhongBan: 3,
@@ -150,7 +150,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 5,
-//     MaTS: "TS005",
+//     mats: "TS005",
 //     TenTaiSan: "Máy chiếu Epson EB-X51",
 //     MaLoai: 3,
 //     MaPhongBan: 4,
@@ -161,7 +161,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 6,
-//     MaTS: "TS006",
+//     mats: "TS006",
 //     TenTaiSan: "Switch Cisco 24 port",
 //     MaLoai: 4,
 //     MaPhongBan: 1,
@@ -172,7 +172,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 7,
-//     MaTS: "TS007",
+//     mats: "TS007",
 //     TenTaiSan: "Điều hòa Daikin 12000BTU",
 //     MaLoai: 5,
 //     MaPhongBan: 5,
@@ -183,7 +183,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 8,
-//     MaTS: "TS008",
+//     mats: "TS008",
 //     TenTaiSan: "Máy tính Lenovo ThinkPad",
 //     MaLoai: 1,
 //     MaPhongBan: 2,
@@ -194,7 +194,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 9,
-//     MaTS: "TS009",
+//     mats: "TS009",
 //     TenTaiSan: "Router WiFi TP-Link",
 //     MaLoai: 4,
 //     MaPhongBan: 1,
@@ -205,7 +205,7 @@ interface TaiSan {
 //   },
 //   {
 //     MaTaiSan: 10,
-//     MaTS: "TS010",
+//     mats: "TS010",
 //     TenTaiSan: "Máy chiếu BenQ MH560",
 //     MaLoai: 3,
 //     MaPhongBan: 5,
@@ -238,7 +238,7 @@ function AssetList() {
   const [nhaCungCapList, setNhaCungCapList] = useState<any[]>([]);
 
   const emptyForm = {
-    maTS: "",
+    mats: "",
     tentaisan: "",
     maloai: "",
     maphongban: "",
@@ -257,7 +257,7 @@ function AssetList() {
     const { data: taiSanData, error } = await supabase
       .from("taisan")
       .select("*")
-      .order("maTaiSan", { ascending: true });
+      .order("mataisan", { ascending: true });
 
     if (error) {
       console.error("Lỗi lấy tài sản:", error);
@@ -266,7 +266,7 @@ function AssetList() {
     } else {
       const normalized = (taiSanData || []).map((item: any) => ({
         maTaiSan: item.maTaiSan ?? item.MaTaiSan,
-        maTS: item.maTS ?? item.MaTS ?? "",
+        mats: item.mats ?? item.mats ?? "",
         tentaisan: item.tentaisan ?? item.TenTaiSan ?? "",
         maloai: item.maloai ?? item.MaLoai,
         maphongban: item.maphongban ?? item.MaPhongBan,
@@ -304,13 +304,13 @@ function AssetList() {
   const filtered = data.filter(
     (ts) =>
       ts.tentaisan?.toLowerCase().includes(search.toLowerCase()) ||
-      ts.maTS?.toLowerCase().includes(search.toLowerCase()),
+      ts.mats?.toLowerCase().includes(search.toLowerCase()),
   );
 
   // const filtered = data.filter(
   //   (ts) =>
   //     ts.TenTaiSan.toLowerCase().includes(search.toLowerCase()) ||
-  //     ts.MaTS.toLowerCase().includes(search.toLowerCase()),
+  //     ts.mats.toLowerCase().includes(search.toLowerCase()),
   // );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
@@ -331,7 +331,7 @@ function AssetList() {
     setFormError("");
 
     if (
-      !form.maTS.trim() ||
+      !form.mats.trim() ||
       !form.tentaisan.trim() ||
       !form.maloai ||
       !form.maphongban ||
@@ -346,7 +346,7 @@ function AssetList() {
     //   MaTaiSan: editingItem
     //     ? editingItem.MaTaiSan
     //     : Math.max(...data.map((d) => d.MaTaiSan), 0) + 1,
-    //   MaTS: form.MaTS.trim(),
+    //   mats: form.mats.trim(),
     //   TenTaiSan: form.TenTaiSan.trim(),
     //   MaLoai: Number(form.MaLoai),
     //   MaPhongBan: Number(form.MaPhongBan),
@@ -357,7 +357,7 @@ function AssetList() {
     // };
 
     const newAsset = {
-      maTS: form.maTS.trim(),
+      mats: form.mats.trim(),
       tentaisan: form.tentaisan.trim(),
       maloai: Number(form.maloai),
       maphongban: Number(form.maphongban),
@@ -388,7 +388,7 @@ function AssetList() {
     fetchAssets(); // Refresh data before editing
 
     setForm({
-      maTS: ts.maTS,
+      mats: ts.mats,
       tentaisan: ts.tentaisan,
       maloai: String(ts.maloai),
       maphongban: String(ts.maphongban),
@@ -465,8 +465,8 @@ function AssetList() {
                 <div className="space-y-2">
                   <Label>Mã Tài sản *</Label>
                   <Input
-                    value={form.maTS}
-                    onChange={(e) => setForm({ ...form, maTS: e.target.value })}
+                    value={form.mats}
+                    onChange={(e) => setForm({ ...form, mats: e.target.value })}
                     placeholder="VD: TS011"
                     maxLength={50}
                   />
