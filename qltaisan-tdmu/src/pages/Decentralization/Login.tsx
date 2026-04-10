@@ -49,7 +49,7 @@ const Login = () => {
         .from("nguoidung")
         .select("*")
         .eq("tendangnhap", username)
-        .eq("matKhau", password)
+        .eq("matkhau", password)
         .single(); // Dùng .single() thay vì mảng
 
       if (error || !data) {
