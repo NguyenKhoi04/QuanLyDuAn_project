@@ -116,6 +116,12 @@ const AppSidebar = () => {
     const { data: { session } } = await supabase.auth.getSession();
     const currentUser = session?.user ?? null;
 
+    //Bọc logic lấy user từ DB vào đây để đảm bảo có user rồi mới truy vấn DB
+    if (!currentUser) {
+    setUser(null);
+    setLoading(false);
+    return;
+  }
     //setUser(currentUser);
     // Lấy user từ DB
         const { data: dbUser } = await supabase
@@ -164,12 +170,24 @@ const AppSidebar = () => {
 
   getSession();
 
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-    }
-  );
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        const currentUser = session?.user ?? null;
+
+        if (!currentUser) {
+          setUser(null);
+          return;
+        }
+
+        const { data: dbUser } = await supabase
+          .from("nguoidung")
+          .select("*")
+          .eq("email", currentUser.email)
+          .single();
+
+        setUser(dbUser);
+      }
+    );
 
   return () => subscription.unsubscribe();
 }, []);
@@ -307,7 +325,7 @@ const AppSidebar = () => {
             onScroll={updateScrollState}
             className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden py-1 pr-1"
           >
-            {sidebarGroups.map((group) => (
+            {filterSidebar(role).map((group) => (
               <div key={group.title} className="flex flex-col gap-1">
                 <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {group.title}
