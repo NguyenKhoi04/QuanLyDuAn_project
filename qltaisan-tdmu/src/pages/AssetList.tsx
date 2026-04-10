@@ -44,7 +44,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 // const loaiTaiSan: Record<number, string> = {
@@ -250,6 +250,33 @@ function AssetList() {
 
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState("");
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  const handleResize = (e: ReactMouseEvent<HTMLTableHeaderCellElement>, columnIndex: number) => {
+    e.preventDefault();
+    const th = e.currentTarget;
+    const startX = e.pageX;
+    const startWidth = th.offsetWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const newWidth = startWidth + (moveEvent.pageX - startX);
+      if (newWidth > 80) {
+        th.style.width = `${newWidth}px`;
+      }
+    };
+
+    const onMouseUp = () => {
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  };
 
   // ====================== FETCH DATA ======================
   const fetchAssets = async () => {
@@ -667,22 +694,79 @@ function AssetList() {
         />
       </div>
 
-      <div className="bg-card border border-border rounded-lg shadow-sm">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">STT</TableHead>
-              <TableHead>Mã Tài sản</TableHead>
-              <TableHead>Tên tài sản</TableHead>
-              <TableHead>Loại</TableHead>
-              <TableHead>Phòng ban</TableHead>
-              <TableHead>Vị trí</TableHead>
-              <TableHead>Nhà cung cấp</TableHead>
-              <TableHead>Ngày mua</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead className="text-center w-24">Thao tác</TableHead>
-            </TableRow>
-          </TableHeader>
+      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table ref={tableRef} className="min-w-[1400px] table-fixed">
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-16 text-center">STT</TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "130px" }}
+                  onMouseDown={(e) => handleResize(e, 1)}
+                >
+                  Mã Tài sản
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "320px" }}
+                  onMouseDown={(e) => handleResize(e, 2)}
+                >
+                  Tên tài sản
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "180px" }}
+                  onMouseDown={(e) => handleResize(e, 3)}
+                >
+                  Loại
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "260px" }}
+                  onMouseDown={(e) => handleResize(e, 4)}
+                >
+                  Phòng ban
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "200px" }}
+                  onMouseDown={(e) => handleResize(e, 5)}
+                >
+                  Vị trí
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "200px" }}
+                  onMouseDown={(e) => handleResize(e, 6)}
+                >
+                  Nhà cung cấp
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "140px" }}
+                  onMouseDown={(e) => handleResize(e, 7)}
+                >
+                  Ngày mua
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead
+                  className="cursor-col-resize relative group"
+                  style={{ width: "150px" }}
+                  onMouseDown={(e) => handleResize(e, 8)}
+                >
+                  Trạng thái
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                </TableHead>
+                <TableHead className="text-center w-28">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
           <TableBody>
             {paged.map((ts, idx) => {
               const tt = trangThaiMap[ts.trangthai];
