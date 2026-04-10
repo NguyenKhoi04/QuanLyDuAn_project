@@ -70,6 +70,9 @@ const sidebarGroups: SidebarGroup[] = [
   },
 ];
 
+ // //số 4 Kỹ thuật viên chỉ lấy file quản lý bảo trì (gồm file /bao-tri, file /ke-hoach-bao-tri-dinh-ky, 
+      // file /su-co-tai-san, file /phan-cong-sua-chua, file /lich-su-bao-tri), 
+      // số 2 (file /su-co-tai-san, /assets,/kiem-ke,/vi-tri-tai-san,/dieu-chuyen-tai-san)
 const filterSidebar = (role: number) => {
   if (role === 1) return sidebarGroups;
 
