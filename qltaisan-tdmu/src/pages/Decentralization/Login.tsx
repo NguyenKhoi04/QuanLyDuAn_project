@@ -62,7 +62,7 @@ const Login = () => {
       // Redirect theo role 
       // //số 4 Kỹ thuật viên chỉ lấy file quản lý bảo trì (gồm file /bao-tri, file /ke-hoach-bao-tri-dinh-ky, 
       // file /su-co-tai-san, file /phan-cong-sua-chua, file /lich-su-bao-tri), 
-      // số 2 (file /su-co-tai-san, /assets,/kiem-ke,/vi-tri-tai-san,/dieu-chuyen-tai-san)
+      // số 2 là nhân viên (file /su-co-tai-san, /assets,/kiem-ke,/vi-tri-tai-san,/dieu-chuyen-tai-san)
       const role = data.mavaitro ?? data.MaVaiTro ?? 0;
       switch (role) {
         case 1:
