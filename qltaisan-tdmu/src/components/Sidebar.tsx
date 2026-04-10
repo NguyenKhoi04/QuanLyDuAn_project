@@ -114,55 +114,47 @@ const AppSidebar = () => {
   useEffect(() => {
   const getSession = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    const currentUser = session?.user ?? null;
+    const currentUser = session?.user;
 
-    //Bọc logic lấy user từ DB vào đây để đảm bảo có user rồi mới truy vấn DB
     if (!currentUser) {
-    setUser(null);
-    setLoading(false);
-    return;
-  }
-    //setUser(currentUser);
-    // Lấy user từ DB
-        const { data: dbUser } = await supabase
-          .from("nguoidung")
-          .select("*")
-          .eq("email", currentUser.email)
-          .single();
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
-        if (dbUser) {
-          setUser(dbUser); // 👉 dùng user từ DB
-          localStorage.setItem("user", JSON.stringify(dbUser));
-        }
+    // 👉 Kiểm tra user trong DB
+    let { data: dbUser } = await supabase
+      .from("nguoidung")
+      .select("*")
+      .eq("email", currentUser.email)
+      .single();
 
-    if (currentUser) {
-      // 👉 Kiểm tra đã có user chưa
-      const { data: existingUser } = await supabase
+    // 👉 Nếu chưa có thì tạo mới
+    if (!dbUser) {
+      const { data: newUser, error } = await supabase
         .from("nguoidung")
-        .select("*")
-        .eq("email", currentUser.email)
-        .single();
-
-      if (!existingUser) {
-        // 👉 Nếu chưa có thì thêm mới
-        const { error } = await supabase.from("nguoidung").insert({
+        .insert({
           tendangnhap: currentUser.email,
           matkhau: "google_login",
           hoten: currentUser.user_metadata?.full_name || "Người dùng",
           email: currentUser.email,
-          mavaitro: 5, // mặc định Sinh viên
-          trangthai: 1
-        });
+          mavaitro: 5,
+          trangthai: 1,
+        })
+        .select()
+        .single();
 
-        if (error) {
-          console.error(" Lỗi insert:", error);
-        } else {
-          console.log(" Đã tạo user mới");
-        }
+      if (error) {
+        console.error("Lỗi insert:", error);
       } else {
-        // 👉 Lưu vào localStorage để phân quyền
-        localStorage.setItem("user", JSON.stringify(existingUser));
+        dbUser = newUser;
       }
+    }
+
+    // 👉 SET USER DUY NHẤT Ở ĐÂY
+    if (dbUser) {
+      setUser(dbUser);
+      localStorage.setItem("user", JSON.stringify(dbUser));
     }
 
     setLoading(false);
@@ -170,27 +162,29 @@ const AppSidebar = () => {
 
   getSession();
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        const currentUser = session?.user ?? null;
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (_event, session) => {
+      const currentUser = session?.user;
 
-        if (!currentUser) {
-          setUser(null);
-          return;
-        }
-
-        const { data: dbUser } = await supabase
-          .from("nguoidung")
-          .select("*")
-          .eq("email", currentUser.email)
-          .single();
-
-        setUser(dbUser);
+      if (!currentUser) {
+        setUser(null);
+        return;
       }
-    );
+
+      const { data: dbUser } = await supabase
+        .from("nguoidung")
+        .select("*")
+        .eq("email", currentUser.email)
+        .single();
+
+      setUser(dbUser);
+    }
+  );
 
   return () => subscription.unsubscribe();
 }, []);
+
+
   // useEffect(() => {
   //   const getSession = async () => {
   // const { data: { session } } = await supabase.auth.getSession();
