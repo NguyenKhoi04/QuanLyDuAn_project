@@ -285,7 +285,7 @@ function AssetList() {
     const [loai, phong, vitri, ncc] = await Promise.all([
       supabase.from("loaitaisan").select("maloai, tenloai"),
       supabase.from("phongban").select("maphongban, tenphongban"),
-      supabase.from("vitri").select("mavitri, tenvitri"),
+      supabase.from("vitri").select("mavitri, phong"),
       supabase.from("nhacungcap").select("manhacungcap, tennhacungcap"),
     ]);
 
@@ -572,7 +572,7 @@ function AssetList() {
                     <SelectContent>
                       {viTriList.map((vt) => (
                         <SelectItem key={vt.mavitri} value={String(vt.mavitri)}>
-                          {vt.tenvitri}
+                          {vt.phong}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -712,7 +712,7 @@ function AssetList() {
                   </TableCell>
                   <TableCell>
                     {viTriList.find((v) => v.mavitri === ts.mavitri)
-                      ?.tenvitri || "—"}
+                      ?.phong || "—"}
                   </TableCell>
                   <TableCell>
                     {ts.manhacungcap
