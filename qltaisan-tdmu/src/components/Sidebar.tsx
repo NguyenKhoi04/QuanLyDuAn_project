@@ -44,10 +44,18 @@ const sidebarGroups: SidebarGroup[] = [
     title: "Bảo trì",
     links: [
       { label: "Dashboard", icon: ClipboardCheck, path: "/bao-tri" },
-      { label: "Kế hoạch định kỳ", icon: Wrench, path: "/ke-hoach-bao-tri-dinh-ky" },
+      {
+        label: "Kế hoạch định kỳ",
+        icon: Wrench,
+        path: "/ke-hoach-bao-tri-dinh-ky",
+      },
       { label: "Sự cố", icon: AlertTriangle, path: "/su-co-tai-san" },
       { label: "Phân công", icon: UserCheck, path: "/phan-cong-sua-chua" },
-      { label: "Sử dụng bảo trì", icon: ClipboardCheck, path: "/su-dung-bao-tri" },
+      {
+        label: "Sử dụng bảo trì",
+        icon: ClipboardCheck,
+        path: "/su-dung-bao-tri",
+      },
       { label: "Lịch sử", icon: Clock, path: "/lich-su-bao-tri" },
     ],
   },
@@ -73,7 +81,7 @@ const filterSidebar = (role: number) => {
       "/assets",
       "/kiem-ke",
       "/vi-tri-tai-san",
-      "/dieu-chuyen-tai-san"
+      "/dieu-chuyen-tai-san",
     ];
   }
 
@@ -83,7 +91,7 @@ const filterSidebar = (role: number) => {
       "/ke-hoach-bao-tri-dinh-ky",
       "/su-co-tai-san",
       "/phan-cong-sua-chua",
-      "/lich-su-bao-tri"
+      "/lich-su-bao-tri",
     ];
   }
 
@@ -92,9 +100,9 @@ const filterSidebar = (role: number) => {
   //   links: group.links.filter(link => allowed.includes(link.path))
   // }));
 
-  return sidebarGroups.map(group => ({
+  return sidebarGroups.map((group) => ({
     ...group,
-    links: group.links.filter(link => allowed.includes(link.path))
+    links: group.links.filter((link) => allowed.includes(link.path)),
   }));
 };
 
@@ -103,7 +111,7 @@ const SCROLL_STEP = 120;
 const AppSidebar = () => {
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
-  const [user, setUser] = useState<any>(null); 
+  const [user, setUser] = useState<any>(null);
   // Lưu thông tin user
   const [loading, setLoading] = useState(true);
 
@@ -112,78 +120,81 @@ const AppSidebar = () => {
 
   // 1. Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
-  const getSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const currentUser = session?.user;
-
-    if (!currentUser) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
-    // 👉 Kiểm tra user trong DB
-    let { data: dbUser } = await supabase
-      .from("nguoidung")
-      .select("*")
-      .eq("email", currentUser.email)
-      .single();
-
-    // 👉 Nếu chưa có thì tạo mới
-    if (!dbUser) {
-      const { data: newUser, error } = await supabase
-        .from("nguoidung")
-        .insert({
-          tendangnhap: currentUser.email,
-          matkhau: "google_login",
-          hoten: currentUser.user_metadata?.full_name || "Người dùng",
-          email: currentUser.email,
-          mavaitro: 5,
-          trangthai: 1,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Lỗi insert:", error);
-      } else {
-        dbUser = newUser;
-      }
-    }
-
-    // 👉 SET USER DUY NHẤT Ở ĐÂY
-    if (dbUser) {
-      setUser(dbUser);
-      localStorage.setItem("user", JSON.stringify(dbUser));
-    }
-
-    setLoading(false);
-  };
-
-  getSession();
-
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (_event, session) => {
-      const currentUser = session?.user;
-
+    const fetchUserData = async (currentUser: any) => {
       if (!currentUser) {
         setUser(null);
+        localStorage.removeItem("user");
         return;
       }
 
-      const { data: dbUser } = await supabase
+      // Lấy data từ DB
+      let { data: dbUser, error } = await supabase
         .from("nguoidung")
         .select("*")
         .eq("email", currentUser.email)
         .single();
 
-      setUser(dbUser);
-    }
-  );
+      // 👉 Nếu chưa có thì tạo mới
+      if (!dbUser) {
+        const { data: newUser, error } = await supabase
+          .from("nguoidung")
+          .insert({
+            tendangnhap: currentUser.email,
+            matkhau: "google_login",
+            hoten: currentUser.user_metadata?.full_name || "Người dùng",
+            email: currentUser.email,
+            mavaitro: 5,
+            trangthai: 1,
+          })
+          .select()
+          .single();
 
-  return () => subscription.unsubscribe();
-}, []);
+        if (error) {
+          console.error("Lỗi insert:", error);
+        } else {
+          dbUser = newUser;
+        }
+      }
 
+      // 👉 SET USER DUY NHẤT Ở ĐÂY
+      if (dbUser) {
+        setUser(dbUser);
+        localStorage.setItem("user", JSON.stringify(dbUser));
+      } else {
+        // Nếu không có trong DB, sử dụng thông tin từ Google Metadata tạm thời
+        const fallbackUser = {
+          hoten: currentUser.user_metadata?.full_name || "Người dùng",
+          email: currentUser.email,
+          mavaitro: 5,
+        };
+        setUser(fallbackUser);
+      }
+      setLoading(false);
+    };
+
+    // Kiểm tra session hiện tại
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchUserData(session.user);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Lắng nghe thay đổi (Login/Logout)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        await fetchUserData(session.user);
+      } else {
+        setUser(null);
+        localStorage.removeItem("user");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // useEffect(() => {
   //   const getSession = async () => {
@@ -258,58 +269,59 @@ const AppSidebar = () => {
   if (loading) return <aside className="w-65 bg-sidebar border-r h-full" />;
 
   const formatFullName = (fullName: string | undefined) => {
-  if (!fullName) return "Người dùng TDMU";
-  
-  const parts = fullName.trim().split(" ");
-  if (parts.length < 2) return fullName;
+    if (!fullName) return "Người dùng TDMU";
 
-  // Lấy từ cuối cùng làm Tên (firstName)
-  const firstName = parts[parts.length - 1];
-  // Lấy các từ còn lại làm Họ và chữ lót (lastName)
-  const lastName = parts.slice(0, parts.length - 1).join(" ");
-  
-  // Trả về định dạng: Họ và tên lót + Tên
-  return `${lastName} ${firstName}`;
-};
-  
+    const parts = fullName.trim().split(" ");
+    if (parts.length < 2) return fullName;
+
+    // Lấy từ cuối cùng làm Tên (firstName)
+    const firstName = parts[parts.length - 1];
+    // Lấy các từ còn lại làm Họ và chữ lót (lastName)
+    const lastName = parts.slice(0, parts.length - 1).join(" ");
+
+    // Trả về định dạng: Họ và tên lót + Tên
+    return `${lastName} ${firstName}`;
+  };
+
   return (
     <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col min-h-0 h-full py-4 px-3 shrink-0 overflow-hidden">
-  
-        {!user ? (
-          <button
-            className="shrink-0 w-full mx-auto bg-login-btn text-login-btn-foreground font-bold text-xs py-2.5 px-4 
+      {!user ? (
+        <button
+          className="shrink-0 w-full mx-auto bg-login-btn text-login-btn-foreground font-bold text-xs py-2.5 px-4 
             rounded-md border-2 border-login-btn mb-4 hover:opacity-90 transition-opacity shadow-sm"
-            onClick={() => navigate("/login")}
-          >
-            Đăng nhập bằng tài khoản Google
-          </button>
-        ) : (
-          <div className="mb-4 flex flex-col gap-2 w-full">
-              {/* Ô thông tin: Dùng w-full nhưng thêm padding và căn chỉnh text */}
-              <div className="px-3 py-3 bg-blue-50 border border-blue-100 rounded-lg shadow-sm">
-                  <p className="text-[9px] text-blue-600 font-bold uppercase tracking-tighter mb-1">Thành viên</p>
-                  
-                  <p className="text-sm font-bold text-slate-800 leading-tight break-words">
-                      {user?.hoten 
-                        ? user.hoten 
-                        : formatFullName(user?.user_metadata?.full_name)}
-                    </p>
-                  
-                  <p className="text-[10px] truncate text-slate-500 mt-1 italic">
-                    {user.email}
-                  </p>
-              </div>
-              
-              <button
-                className="w-full flex items-center justify-center gap-2 bg-white text-red-600 font-bold text-[11px] py-1.5 px-3 
-                rounded-md border border-red-200 hover:bg-red-50 transition-all shadow-sm"
-                onClick={handleLogout}
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                Đăng xuất
-              </button>
+          onClick={() => navigate("/login")}
+        >
+          Đăng nhập bằng tài khoản Google
+        </button>
+      ) : (
+        <div className="mb-4 flex flex-col gap-2 w-full">
+          {/* Ô thông tin: Dùng w-full nhưng thêm padding và căn chỉnh text */}
+          <div className="px-3 py-3 bg-blue-50 border border-blue-100 rounded-lg shadow-sm">
+            <p className="text-[9px] text-blue-600 font-bold uppercase tracking-tighter mb-1">
+              Thành viên
+            </p>
+
+            <p className="text-sm font-bold text-slate-800 leading-tight break-words">
+              {user?.hoten
+                ? user.hoten
+                : formatFullName(user?.user_metadata?.full_name)}
+            </p>
+
+            <p className="text-[10px] truncate text-slate-500 mt-1 italic">
+              {user.email}
+            </p>
           </div>
-        )}
+
+          <button
+            className="w-full flex items-center justify-center gap-2 bg-white text-red-600 font-bold text-[11px] py-1.5 px-3 
+                rounded-md border border-red-200 hover:bg-red-50 transition-all shadow-sm"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Đăng xuất
+          </button>
+        </div>
+      )}
 
       {/* Navigation: Chỉ hiển thị khi đã đăng nhập */}
       <div className="flex min-h-0 flex-1 min-w-0 gap-0">
@@ -350,11 +362,11 @@ const AppSidebar = () => {
       {/* Logo TDMU */}
       <div className="shrink-0 p-2 mt-auto border-t border-sidebar-border flex items-center justify-center">
         <div className="bg-white/50 p-2 rounded-lg w-full flex justify-center">
-            <img
-              src="/images/logo_DHTDMU.png"
-              alt="Logo TDMU"
-              className="w-full h-auto max-w-[140px] object-contain mix-blend-multiply" 
-            />
+          <img
+            src="/images/logo_DHTDMU.png"
+            alt="Logo TDMU"
+            className="w-full h-auto max-w-[140px] object-contain mix-blend-multiply"
+          />
         </div>
       </div>
     </aside>
