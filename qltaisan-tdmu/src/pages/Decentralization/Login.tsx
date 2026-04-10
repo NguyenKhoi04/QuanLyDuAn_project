@@ -40,6 +40,48 @@ const Login = () => {
     }
   };
 
+
+  const handleLogin = async () => {
+  try {
+    setError("");
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("NguoiDung")
+      .select("*")
+      .eq("TenDangNhap", username)
+      .eq("MatKhau", password)
+      .single();
+
+    if (error || !data) {
+      setError("Sai tài khoản hoặc mật khẩu!");
+      setLoading(false);
+      return;
+    }
+
+    // 👉 Lưu user vào localStorage (hoặc state global)
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // 👉 Phân quyền điều hướng
+    const role = data.MaVaiTro;
+
+    if (role === 1) {
+      navigate("/dashboard"); // Admin
+    } else if (role === 2) {
+      navigate("/assets"); // Nhân viên quản lý tài sản
+    } else if (role === 4) {
+      navigate("/bao-tri"); // Kỹ thuật viên
+    } else {
+      setError("Bạn không có quyền truy cập hệ thống!");
+    }
+
+  } catch (err: any) {
+    setError("Lỗi: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
   // Cần một useEffect để kiểm tra domain sau khi redirect về (Double Check)
   useEffect(() => {
     const checkUser = async () => {
@@ -93,10 +135,16 @@ const Login = () => {
             </p>
           )}
 
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex flex-col gap-4"
-          >
+          {/* <form
+            onSubmit={(e) => e.preventDefault(); handleLogin(); }
+            className="flex flex-col gap-4" }
+          > */}
+
+          <form  className="flex flex-col gap-4"
+          onSubmit={(e) => { e.preventDefault();
+             handleLogin();
+}}
+>
             {/* Username */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="username">Tên người dùng</Label>

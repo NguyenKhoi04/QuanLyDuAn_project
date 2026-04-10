@@ -62,6 +62,42 @@ const sidebarGroups: SidebarGroup[] = [
   },
 ];
 
+const filterSidebar = (role: number) => {
+  if (role === 1) return sidebarGroups;
+
+  let allowed: string[] = [];
+
+  if (role === 2) {
+    allowed = [
+      "/su-co-tai-san",
+      "/assets",
+      "/kiem-ke",
+      "/vi-tri-tai-san",
+      "/dieu-chuyen-tai-san"
+    ];
+  }
+
+  if (role === 4) {
+    allowed = [
+      "/bao-tri",
+      "/ke-hoach-bao-tri-dinh-ky",
+      "/su-co-tai-san",
+      "/phan-cong-sua-chua",
+      "/lich-su-bao-tri"
+    ];
+  }
+
+  // return sidebarGroups.map(group => ({
+  //   ...group,
+  //   links: group.links.filter(link => allowed.includes(link.path))
+  // }));
+
+  return filterSidebar(role).map(group => ({
+    ...group,
+    links: group.links.filter(link => allowed.includes(link.path))
+  }));
+};
+
 const SCROLL_STEP = 120;
 
 const AppSidebar = () => {
@@ -70,65 +106,119 @@ const AppSidebar = () => {
   const [user, setUser] = useState<any>(null); // Lưu thông tin user
   const [loading, setLoading] = useState(true);
 
+  const localUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const role = localUser?.MaVaiTro;
+
   // 1. Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
-    const getSession = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  const currentUser = session?.user ?? null;
+  const getSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const currentUser = session?.user ?? null;
 
-  setUser(currentUser);
+    setUser(currentUser);
 
-  if (currentUser) {
-    const { error } = await supabase.from("NguoiDung").upsert({
-      auth_id: currentUser.id,
-      HoTen: currentUser.user_metadata?.full_name || "Người dùng",
-      Email: currentUser.email,
-      MaVaiTro: 1,
-      TrangThai: 1
-    }, {
-      onConflict: 'auth_id'
-    });
+    if (currentUser) {
+      // 👉 Kiểm tra đã có user chưa
+      const { data: existingUser } = await supabase
+        .from("NguoiDung")
+        .select("*")
+        .eq("Email", currentUser.email)
+        .single();
 
-    if (error) {
-      console.error("🔥 Lỗi lưu người dùng:", error);
-    } else {
-      console.log("✅ Đã lưu user vào DB");
+      if (!existingUser) {
+        // 👉 Nếu chưa có thì thêm mới
+        const { error } = await supabase.from("NguoiDung").insert({
+          TenDangNhap: currentUser.email,
+          MatKhau: "google_login",
+          HoTen: currentUser.user_metadata?.full_name || "Người dùng",
+          Email: currentUser.email,
+          MaVaiTro: 5, // mặc định Sinh viên
+          TrangThai: 1
+        });
+
+        if (error) {
+          console.error("🔥 Lỗi insert:", error);
+        } else {
+          console.log("✅ Đã tạo user mới");
+        }
+      } else {
+        // 👉 Lưu vào localStorage để phân quyền
+        localStorage.setItem("user", JSON.stringify(existingUser));
+      }
     }
-  }
 
-      // const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      //   async (_event, session) => {
-      //     const currentUser = session?.user ?? null;
-      //     setUser(currentUser);
+    setLoading(false);
+  };
 
-      //     if (currentUser) {
-      //       const { error } = await supabase.from("NguoiDung").upsert({
-      //         MaNguoiDung: currentUser.id,
-      //         HoTen: currentUser.user_metadata?.full_name || "Người dùng",
-      //         Email: currentUser.email,
-      //         MaVaiTro: 1,
-      //         TrangThai: 1
-      //       });
+  getSession();
 
-      //       if (error) {
-      //         console.error("Lỗi lưu người dùng:", error.message);
-      //       }
-      //     }
-      //   }
-      // );
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+    }
+  );
 
-  setLoading(false);
-    };
+  return () => subscription.unsubscribe();
+}, []);
+  // useEffect(() => {
+  //   const getSession = async () => {
+  // const { data: { session } } = await supabase.auth.getSession();
+  // const currentUser = session?.user ?? null;
 
-    getSession();
+  // setUser(currentUser);
 
-    // Lắng nghe thay đổi trạng thái auth (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+  // if (currentUser) {
+  //   const { error } = await supabase.from("NguoiDung").upsert({
+  //     auth_id: currentUser.id,
+  //     HoTen: currentUser.user_metadata?.full_name || "Người dùng",
+  //     Email: currentUser.email,
+  //     MaVaiTro: 1,
+  //     TrangThai: 1
+  //   }, {
+  //     onConflict: 'auth_id'
+  //   });
 
-    return () => subscription.unsubscribe();
-  }, []);
+  //   if (error) {
+  //     console.error("🔥 Lỗi lưu người dùng:", error);
+  //   } else {
+  //     console.log("✅ Đã lưu user vào DB");
+  //   }
+  // }
+
+  //     // const { data: { subscription } } = supabase.auth.onAuthStateChange(
+  //     //   async (_event, session) => {
+  //     //     const currentUser = session?.user ?? null;
+  //     //     setUser(currentUser);
+
+  //     //     if (currentUser) {
+  //     //       const { error } = await supabase.from("NguoiDung").upsert({
+  //     //         MaNguoiDung: currentUser.id,
+  //     //         HoTen: currentUser.user_metadata?.full_name || "Người dùng",
+  //     //         Email: currentUser.email,
+  //     //         MaVaiTro: 1,
+  //     //         TrangThai: 1
+  //     //       });
+
+  //     //       if (error) {
+  //     //         console.error("Lỗi lưu người dùng:", error.message);
+  //     //       }
+  //     //     }
+  //     //   }
+  //     // );
+
+  // setLoading(false);
+  //   };
+
+  //   getSession();
+
+  //   // Lắng nghe thay đổi trạng thái auth (login/logout)
+  //   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+  //     setUser(session?.user ?? null);
+  //   });
+
+  //   return () => subscription.unsubscribe();
+  // }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
