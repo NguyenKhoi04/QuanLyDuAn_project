@@ -92,8 +92,7 @@ const trangThaiMap: Record<
 };
 
 interface TaiSan {
-  mataisan: number;
-  mats: string;
+  macode: string;
   tentaisan: string;
   maloai: number;
   maphongban: number;
@@ -105,8 +104,8 @@ interface TaiSan {
 
 // const initialData: TaiSan[] = [
 //   {
-//     mataisan: 1,
-//     mats: "TS001",
+//     macode: 1,
+//     macode: "TS001",
 //     TenTaiSan: "Máy tính Dell Vostro 3510",
 //     MaLoai: 1,
 //     MaPhongBan: 1,
@@ -116,8 +115,8 @@ interface TaiSan {
 //     TrangThai: 1,
 //   },
 //   {
-//     mataisan: 2,
-//     mats: "TS002",
+//     macode: 2,
+//     macode: "TS002",
 //     TenTaiSan: "Máy tính HP ProBook 450",
 //     MaLoai: 1,
 //     MaPhongBan: 4,
@@ -127,8 +126,8 @@ interface TaiSan {
 //     TrangThai: 1,
 //   },
 //   {
-//     mataisan: 3,
-//     mats: "TS003",
+//     macode: 3,
+//     macode: "TS003",
 //     TenTaiSan: "Bàn làm việc 1m2",
 //     MaLoai: 2,
 //     MaPhongBan: 2,
@@ -138,8 +137,8 @@ interface TaiSan {
 //     TrangThai: 1,
 //   },
 //   {
-//     mataisan: 4,
-//     mats: "TS004",
+//     macode: 4,
+//     macode: "TS004",
 //     TenTaiSan: "Ghế xoay văn phòng",
 //     MaLoai: 2,
 //     MaPhongBan: 3,
@@ -149,8 +148,8 @@ interface TaiSan {
 //     TrangThai: 2,
 //   },
 //   {
-//     mataisan: 5,
-//     mats: "TS005",
+//     macode: 5,
+//     macode: "TS005",
 //     TenTaiSan: "Máy chiếu Epson EB-X51",
 //     MaLoai: 3,
 //     MaPhongBan: 4,
@@ -160,8 +159,8 @@ interface TaiSan {
 //     TrangThai: 1,
 //   },
 //   {
-//     mataisan: 6,
-//     mats: "TS006",
+//     macode: 6,
+//     macode: "TS006",
 //     TenTaiSan: "Switch Cisco 24 port",
 //     MaLoai: 4,
 //     MaPhongBan: 1,
@@ -171,8 +170,8 @@ interface TaiSan {
 //     TrangThai: 3,
 //   },
 //   {
-//     mataisan: 7,
-//     mats: "TS007",
+//     macode: 7,
+//     macode: "TS007",
 //     TenTaiSan: "Điều hòa Daikin 12000BTU",
 //     MaLoai: 5,
 //     MaPhongBan: 5,
@@ -182,8 +181,8 @@ interface TaiSan {
 //     TrangThai: 4,
 //   },
 //   {
-//     mataisan: 8,
-//     mats: "TS008",
+//     macode: 8,
+//     macode: "TS008",
 //     TenTaiSan: "Máy tính Lenovo ThinkPad",
 //     MaLoai: 1,
 //     MaPhongBan: 2,
@@ -193,8 +192,8 @@ interface TaiSan {
 //     TrangThai: 2,
 //   },
 //   {
-//     mataisan: 9,
-//     mats: "TS009",
+//     macode: 9,
+//     macode: "TS009",
 //     TenTaiSan: "Router WiFi TP-Link",
 //     MaLoai: 4,
 //     MaPhongBan: 1,
@@ -204,8 +203,8 @@ interface TaiSan {
 //     TrangThai: 1,
 //   },
 //   {
-//     mataisan: 10,
-//     mats: "TS010",
+//     macode: 10,
+//     macode: "TS010",
 //     TenTaiSan: "Máy chiếu BenQ MH560",
 //     MaLoai: 3,
 //     MaPhongBan: 5,
@@ -238,7 +237,7 @@ function AssetList() {
   const [nhaCungCapList, setNhaCungCapList] = useState<any[]>([]);
 
   const emptyForm = {
-    mats: "",
+    macode: "",
     tentaisan: "",
     maloai: "",
     maphongban: "",
@@ -284,7 +283,7 @@ function AssetList() {
     const { data: taiSanData, error } = await supabase
       .from("taisan")
       .select("*")
-      .order("mataisan", { ascending: true });
+      .order("macode", { ascending: true });
 
     if (error) {
       console.error("Lỗi lấy tài sản:", error);
@@ -292,8 +291,8 @@ function AssetList() {
       setData([]);
     } else {
       const normalized = (taiSanData || []).map((item: any) => ({
-        mataisan: item.mataisan ?? item.mataisan,
-        mats: item.mats ?? item.mats ?? "",
+       // macode: item.macode ?? item.macode,
+        macode: item.macode ?? item.macode ?? "",
         tentaisan: item.tentaisan ?? item.TenTaiSan ?? "",
         maloai: item.maloai ?? item.MaLoai,
         maphongban: item.maphongban ?? item.MaPhongBan,
@@ -331,13 +330,13 @@ function AssetList() {
   const filtered = data.filter(
     (ts) =>
       ts.tentaisan?.toLowerCase().includes(search.toLowerCase()) ||
-      ts.mats?.toLowerCase().includes(search.toLowerCase()),
+      ts.macode?.toLowerCase().includes(search.toLowerCase()),
   );
 
   // const filtered = data.filter(
   //   (ts) =>
   //     ts.TenTaiSan.toLowerCase().includes(search.toLowerCase()) ||
-  //     ts.mats.toLowerCase().includes(search.toLowerCase()),
+  //     ts.macode.toLowerCase().includes(search.toLowerCase()),
   // );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
@@ -358,7 +357,7 @@ function AssetList() {
     setFormError("");
 
     if (
-      !form.mats.trim() ||
+      !form.macode.trim() ||
       !form.tentaisan.trim() ||
       !form.maloai ||
       !form.maphongban ||
@@ -370,10 +369,10 @@ function AssetList() {
     }
 
     // const item: TaiSan = {
-    //   mataisan: editingItem
-    //     ? editingItem.mataisan
-    //     : Math.max(...data.map((d) => d.mataisan), 0) + 1,
-    //   mats: form.mats.trim(),
+    //   macode: editingItem
+    //     ? editingItem.macode
+    //     : Math.max(...data.map((d) => d.macode), 0) + 1,
+    //   macode: form.macode.trim(),
     //   TenTaiSan: form.TenTaiSan.trim(),
     //   MaLoai: Number(form.MaLoai),
     //   MaPhongBan: Number(form.MaPhongBan),
@@ -384,7 +383,7 @@ function AssetList() {
     // };
 
     const newAsset = {
-      mats: form.mats.trim(),
+      macode: form.macode.trim(),
       tentaisan: form.tentaisan.trim(),
       maloai: Number(form.maloai),
       maphongban: Number(form.maphongban),
@@ -398,7 +397,7 @@ function AssetList() {
       const { error } = await supabase
         .from("taisan")
         .update(newAsset)
-        .eq("mataisan", editingItem.mataisan);
+        .eq("macode", editingItem.macode);
       if (error) console.error(error);
     } else {
       const { error } = await supabase.from("taisan").insert([newAsset]);
@@ -415,7 +414,7 @@ function AssetList() {
     fetchAssets(); // Refresh data before editing
 
     setForm({
-      mats: ts.mats,
+      macode: ts.macode,
       tentaisan: ts.tentaisan,
       maloai: String(ts.maloai),
       maphongban: String(ts.maphongban),
@@ -429,7 +428,7 @@ function AssetList() {
   };
   // const handleDelete = () => {
   //   if (deleteItem) {
-  //     setData(data.filter((d) => d.mataisan !== deleteItem.mataisan));
+  //     setData(data.filter((d) => d.macode !== deleteItem.macode));
   //     setDeleteItem(null);
   //   }
   // };
@@ -439,7 +438,7 @@ function AssetList() {
     const { error } = await supabase
       .from("taisan")
       .delete()
-      .eq("mataisan", deleteItem.mataisan);
+      .eq("macode", deleteItem.macode);
 
     if (error) console.error("Lỗi xóa:", error);
 
@@ -505,8 +504,8 @@ function AssetList() {
                 <div className="space-y-2">
                   <Label>Mã Tài sản *</Label>
                   <Input
-                    value={form.mats}
-                    onChange={(e) => setForm({ ...form, mats: e.target.value })}
+                    value={form.macode}
+                    onChange={(e) => setForm({ ...form, macode: e.target.value })}
                     placeholder="VD: TS011"
                     maxLength={50}
                   />
@@ -784,12 +783,12 @@ function AssetList() {
             {paged.map((ts, idx) => {
               const tt = trangThaiMap[ts.trangthai];
               return (
-                <TableRow key={ts.mataisan}>
+                <TableRow key={ts.macode}>
                   <TableCell>
                     {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                   </TableCell>
                   <TableCell className="font-mono text-xs">
-                    {ts.mataisan}
+                    {ts.macode}
                   </TableCell>
                   <TableCell className="font-medium">{ts.tentaisan}</TableCell>
                   {/* <TableCell>{loaitaisan[ts.maloai]}</TableCell>
@@ -912,7 +911,7 @@ function AssetList() {
             <AlertDialogTitle>Xác nhận xóa tài sản</AlertDialogTitle>
             <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa tài sản{" "}
-              <strong>{deleteItem?.tentaisan}</strong> ({deleteItem?.mataisan}
+              <strong>{deleteItem?.tentaisan}</strong> ({deleteItem?.macode}
               )? Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
