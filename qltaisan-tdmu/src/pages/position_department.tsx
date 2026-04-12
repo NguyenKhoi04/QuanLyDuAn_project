@@ -30,7 +30,7 @@ type PositionDepartment = {
 
 
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 20;
 
 function PositionDepartment() {
   const [data, setData] = useState<PositionDepartment[]>([]);
@@ -122,12 +122,6 @@ function PositionDepartment() {
       ts.tang?.toLowerCase().includes(search.toLowerCase()) ||
       ts.phong?.toLowerCase().includes(search.toLowerCase()),
   );
-
-  // const filtered = data.filter(
-  //   (ts) =>
-  //     ts.TenTaiSan.toLowerCase().includes(search.toLowerCase()) ||
-  //     ts.macode.toLowerCase().includes(search.toLowerCase()),
-  // );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice(
