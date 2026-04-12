@@ -232,6 +232,7 @@ function PositionDepartment() {
   }, [search]);
 
 
+
   return (
     <AppShell>
       <div className="flex items-center justify-between mb-6">
@@ -417,6 +418,7 @@ function PositionDepartment() {
                 </TableRow>
               ))}
             </TableBody>
+          </Table>
         </div>
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-border">
