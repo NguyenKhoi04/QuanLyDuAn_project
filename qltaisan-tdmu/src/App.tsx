@@ -24,6 +24,7 @@ import FloatingAIChat from "@/components/FloatingAIChat";
 import KiemKe from "./pages/KiemKe";
 import AssetLocationTracking from "./pages/AssetLocationTracking";
 import AssetTransferManagement from "./pages/AssetTransferManagement";
+import PositionDepartment from "./pages/position_department";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ function App() {
             <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
             <Route path="/lich-su-bao-tri" element={<MaintenanceHistory />} />
             <Route path="/vi-tri-tai-san" element={<AssetLocationTracking />} />
+              <Route path="/vi-tri-phong-ban" element={<PositionDepartment />} />
               <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
