@@ -21,7 +21,8 @@ interface LichSuBaoTri {
   macode: string;           // từ taisan
   tentaisan: string;        // từ taisan
   ngaysua: string;
-  nguoisua: string;         // hoten từ nguoidung
+  nguoisua: string; 
+  hoten: string;            // hoten từ nguoidung
   ketqua: string;
   chiphi: number;
 }
@@ -42,7 +43,7 @@ function toCsv(rows: LichSuBaoTri[]) {
         String(r.mataisan),
         escape(r.tentaisan),
         escape(r.ngaysua),
-        escape(r.nguoisua),
+        escape(r.hoten),
         escape(r.ketqua),
         String(r.chiphi ?? 0),
       ].join(",")
@@ -82,6 +83,9 @@ function MaintenanceHistory() {
         taisan (
           macode,
           tentaisan
+        ),
+        nguoidung (
+          hoten
         )
       `)
       .order("ngaysua", { ascending: false });
@@ -96,6 +100,7 @@ function MaintenanceHistory() {
         tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
         ngaysua: item.ngaysua,
         nguoisua: item.nguoisua,
+        hoten: item.nguoidung?.hoten || "Không rõ", // Lấy tên người sửa từ bảng nguoidung
         ketqua: item.ketqua,
         chiphi: item.chiphi || 0,
       })) || [];
@@ -116,7 +121,8 @@ function MaintenanceHistory() {
         h.macode.toLowerCase().includes(q) ||
         String(h.mataisan).includes(q) ||
         h.tentaisan.toLowerCase().includes(q) ||
-        h.nguoisua.toLowerCase().includes(q) ||
+       // h.nguoisua.toLowerCase().includes(q) ||
+        h.hoten.toLowerCase().includes(q) ||
         h.ketqua.toLowerCase().includes(q) ||
         h.ngaysua.includes(q)
       );
@@ -201,7 +207,7 @@ function MaintenanceHistory() {
                       <span>{item.ngaysua}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{item.nguoisua}</TableCell>
+                  <TableCell className="font-medium">{item.hoten}</TableCell>
                   <TableCell className="text-emerald-600 dark:text-emerald-400">
                     {item.ketqua}
                   </TableCell>
