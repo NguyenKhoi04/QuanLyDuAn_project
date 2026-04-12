@@ -389,7 +389,18 @@ function PeriodicMaintenancePlanning() {
 
       {/* AlertDialog xóa giữ nguyên */}
       <AlertDialog open={!!deleteItem} onOpenChange={() => setDeleteItem(null)}>
-        {/* ... giữ nguyên như code cũ của bạn */}
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xoa kế hoạch bảo trì</AlertDialogTitle>
+            <AlertDialogDescription>Bạn có chắc muốn xóa kế hoạch bảo trì cho tài sản "{deleteItem?.tentaisan}" không? Hành động này không thể hoàn tác.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={handleDelete}>
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     </AppShell>
   );
