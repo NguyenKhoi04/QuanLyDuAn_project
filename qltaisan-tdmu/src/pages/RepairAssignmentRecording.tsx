@@ -1,3 +1,5 @@
+"use client";
+
 import AppShell from "@/components/AppShell";
 import {
   AlertDialog,
@@ -47,49 +49,33 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 type TrangThaiPhanCong = "Đang chờ" | "Đang sửa" | "Hoàn thành" | "Hủy";
 
 interface PhanCongSuaChua {
-  MaPhanCong: number;
-  MaTaiSan: number;
-  MaNguoiSua: number;
-  TenNguoiSua?: string;
-  NgayDuKienHoanThanh: string; // yyyy-mm-dd
-  TrangThai: TrangThaiPhanCong;
+  maphancong: number;
+  mataisan: number;
+  macode: string;           // từ taisan
+  tentaisan: string;        // từ taisan
+  manguoisua: number;
+  hoten: string;            // từ nguoidung
+  ngaydukienhoanthanh: string;
+  trangthai: TrangThaiPhanCong;
 }
 
-const nguoiSuaMau = [
-  { id: 1, name: "Phan Nguyễn Ngọc Khôi" },
-  { id: 2, name: "Phạm Huỳnh Ngọc Sơn" },
-  { id: 3, name: "Cao Niên Trường Sơn" },
-];
-
-const initialData: PhanCongSuaChua[] = [
-  {
-    MaPhanCong: 1,
-    MaTaiSan: 101,
-    MaNguoiSua: 1,
-    TenNguoiSua: "Phan Nguyễn Ngọc Khôi",
-    NgayDuKienHoanThanh: "2026-04-10",
-    TrangThai: "Đang chờ",
-  },
-];
-
-const trangThaiVariant: Record<
-  TrangThaiPhanCong,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
+const trangThaiVariant: Record<TrangThaiPhanCong, "default" | "secondary" | "destructive" | "outline"> = {
   "Đang chờ": "outline",
   "Đang sửa": "secondary",
   "Hoàn thành": "default",
-  Hủy: "destructive",
+  "Hủy": "destructive",
 };
 
 const ITEMS_PER_PAGE = 5;
 
 function RepairAssignmentRecording() {
-  const [data, setData] = useState<PhanCongSuaChua[]>(initialData);
+  const [data, setData] = useState<PhanCongSuaChua[]>([]);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -101,31 +87,75 @@ function RepairAssignmentRecording() {
 
   const emptyForm = useMemo(
     () => ({
-      MaTaiSan: "",
-      MaNguoiSua: "",
-      NgayDuKienHoanThanh: "",
-      TrangThai: "Đang chờ" as TrangThaiPhanCong,
+      mataisan: "",
+      manguoisua: "",
+      ngaydukienhoanthanh: "",
+      trangthai: "Đang chờ" as TrangThaiPhanCong,
     }),
-    [],
+    []
   );
 
   const [form, setForm] = useState(emptyForm);
 
+  // ====================== FETCH DATA ======================
+  const fetchPhanCong = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("phancongsuachua")
+      .select(`
+        maphancong,
+        mataisan,
+        manguoisua,
+        ngaydukienhoanthanh,
+        trangthai,
+        taisan (
+          macode,
+          tentaisan
+        ),
+        nguoidung (
+          hoten
+        )
+      `)
+      .order("ngaydukienhoanthanh", { ascending: false });
+
+    if (error) {
+      console.error("Lỗi lấy phân công:", error);
+    } else {
+      const mapped = data?.map((item: any) => ({
+        maphancong: item.maphancong,
+        mataisan: item.mataisan,
+        macode: item.taisan?.macode || "N/A",
+        tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
+        manguoisua: item.manguoisua,
+        hoten: item.nguoidung?.hoten || "Không rõ",
+        ngaydukienhoanthanh: item.ngaydukienhoanthanh,
+        trangthai: item.trangthai,
+      })) || [];
+      setData(mapped);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchPhanCong();
+  }, []);
+
+  // ====================== FILTER ======================
   const filtered = data.filter((a) => {
     const q = search.toLowerCase();
     return (
-      String(a.MaTaiSan).includes(q) ||
-      String(a.MaNguoiSua).includes(q) ||
-      (a.TenNguoiSua ?? "").toLowerCase().includes(q) ||
-      a.TrangThai.toLowerCase().includes(q) ||
-      a.NgayDuKienHoanThanh.toLowerCase().includes(q)
+      a.macode.toLowerCase().includes(q) ||
+      a.tentaisan.toLowerCase().includes(q) ||
+      a.hoten.toLowerCase().includes(q) ||
+      a.trangthai.toLowerCase().includes(q) ||
+      a.ngaydukienhoanthanh.includes(q)
     );
   });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
   const handlePageChange = (page: number) => {
@@ -134,77 +164,48 @@ function RepairAssignmentRecording() {
 
   const resetForm = () => setForm(emptyForm);
 
-  const openCreate = () => {
-    setEditingItem(null);
+  // ====================== CRUD ======================
+  const handleSubmit = async () => {
+    if (!form.mataisan || !form.manguoisua || !form.ngaydukienhoanthanh) {
+      setFormError("Vui lòng điền đầy đủ thông tin bắt buộc.");
+      return;
+    }
+
+    const payload = {
+      mataisan: Number(form.mataisan),
+      manguoisua: Number(form.manguoisua),
+      ngaydukienhoanthanh: form.ngaydukienhoanthanh,
+      trangthai: form.trangthai,
+    };
+
+    if (editingItem) {
+      await supabase.from("phancongsuachua").update(payload).eq("maphancong", editingItem.maphancong);
+    } else {
+      await supabase.from("phancongsuachua").insert([payload]);
+    }
+
     resetForm();
-    setFormError("");
-    setDialogOpen(true);
+    setDialogOpen(false);
+    setEditingItem(null);
+    fetchPhanCong();
   };
 
   const handleEdit = (item: PhanCongSuaChua) => {
     setEditingItem(item);
     setForm({
-      MaTaiSan: String(item.MaTaiSan),
-      MaNguoiSua: String(item.MaNguoiSua),
-      NgayDuKienHoanThanh: item.NgayDuKienHoanThanh,
-      TrangThai: item.TrangThai,
+      mataisan: String(item.mataisan),
+      manguoisua: String(item.manguoisua),
+      ngaydukienhoanthanh: item.ngaydukienhoanthanh,
+      trangthai: item.trangthai,
     });
-    setFormError("");
     setDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !String(form.MaTaiSan).trim() ||
-      !String(form.MaNguoiSua).trim() ||
-      !form.NgayDuKienHoanThanh ||
-      !form.TrangThai
-    ) {
-      setFormError("Vui lòng điền đầy đủ các trường bắt buộc (*)");
-      return;
-    }
-
-    const maNguoiSuaNum = Number(form.MaNguoiSua);
-    const tenNguoiSua =
-      nguoiSuaMau.find((u) => u.id === maNguoiSuaNum)?.name ?? undefined;
-
-    const item: PhanCongSuaChua = {
-      MaPhanCong: editingItem
-        ? editingItem.MaPhanCong
-        : Math.max(...data.map((d) => d.MaPhanCong), 0) + 1,
-      MaTaiSan: Number(form.MaTaiSan),
-      MaNguoiSua: maNguoiSuaNum,
-      TenNguoiSua: tenNguoiSua,
-      NgayDuKienHoanThanh: form.NgayDuKienHoanThanh,
-      TrangThai: form.TrangThai,
-    };
-
-    if (editingItem) {
-      setData(data.map((d) => (d.MaPhanCong === item.MaPhanCong ? item : d)));
-      void axios
-        .put(`http://localhost:3000/phanCongSuaChua/${item.MaPhanCong}`, item)
-        .catch(() => {});
-    } else {
-      setData([...data, item]);
-      setCurrentPage(1);
-      void axios
-        .post("http://localhost:3000/phanCongSuaChua", item)
-        .catch(() => {});
-    }
-
-    resetForm();
-    setDialogOpen(false);
-  };
-
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteItem) return;
-    const toDelete = deleteItem;
-    setData(data.filter((d) => d.MaPhanCong !== toDelete.MaPhanCong));
+    await supabase.from("phancongsuachua").delete().eq("maphancong", deleteItem.maphancong);
     setDeleteItem(null);
-    void axios
-      .delete(`http://localhost:3000/phanCongSuaChua/${toDelete.MaPhanCong}`)
-      .catch(() => {});
+    fetchPhanCong();
   };
 
   const handleSearch = (val: string) => {
@@ -225,298 +226,187 @@ function RepairAssignmentRecording() {
 
   return (
     <AppShell>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-emerald-500" />
-                Ghi nhận đảm nhận sửa chữa
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Phân công người sửa chữa cho tài sản và theo dõi tiến độ
-              </p>
-            </div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <UserCheck className="h-5 w-5 text-emerald-500" />
+            Ghi nhận đảm nhận sửa chữa
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Phân công người sửa chữa cho tài sản và theo dõi tiến độ
+          </p>
+        </div>
 
-            <Dialog
-              open={dialogOpen}
-              onOpenChange={(open) => {
-                setDialogOpen(open);
-                if (!open) {
-                  setEditingItem(null);
-                  resetForm();
-                  setFormError("");
-                }
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  onClick={openCreate}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
-                >
-                  <Plus className="h-4 w-4" /> Phân công mới
-                </Button>
-              </DialogTrigger>
+        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { resetForm(); setEditingItem(null); } }}>
+          <DialogTrigger asChild>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+              <Plus className="h-4 w-4" /> Phân công mới
+            </Button>
+          </DialogTrigger>
 
-              <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingItem ? "Chỉnh sửa phân công" : "Phân công sửa chữa"}
-                  </DialogTitle>
-                </DialogHeader>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{editingItem ? "Chỉnh sửa phân công" : "Phân công sửa chữa"}</DialogTitle>
+            </DialogHeader>
 
-                <div className="grid gap-4 py-4">
-                  {formError && (
-                    <p className="text-sm text-destructive">{formError}</p>
-                  )}
+            <div className="grid gap-4 py-4">
+              {formError && <p className="text-sm text-destructive">{formError}</p>}
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Mã tài sản *</Label>
-                      <Input
-                        type="number"
-                        placeholder="VD: 101"
-                        value={form.MaTaiSan}
-                        onChange={(e) =>
-                          setForm({ ...form, MaTaiSan: e.target.value })
-                        }
-                        inputMode="numeric"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Người sửa *</Label>
-                      <Select
-                        value={form.MaNguoiSua}
-                        onValueChange={(v) =>
-                          setForm({ ...form, MaNguoiSua: v })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn người sửa" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {nguoiSuaMau.map((u) => (
-                            <SelectItem key={u.id} value={String(u.id)}>
-                              {u.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Ngày dự kiến hoàn thành *</Label>
-                      <Input
-                        type="date"
-                        value={form.NgayDuKienHoanThanh}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            NgayDuKienHoanThanh: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Trạng thái *</Label>
-                      <Select
-                        value={form.TrangThai}
-                        onValueChange={(v) =>
-                          setForm({
-                            ...form,
-                            TrangThai: v as TrangThaiPhanCong,
-                          })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn trạng thái" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(
-                            ["Đang chờ", "Đang sửa", "Hoàn thành", "Hủy"] as const
-                          ).map((v) => (
-                            <SelectItem key={v} value={v}>
-                              {v}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Mã tài sản *</Label>
+                  <Input
+                    type="number"
+                    placeholder="VD: 101"
+                    value={form.mataisan}
+                    onChange={(e) => setForm({ ...form, mataisan: e.target.value })}
+                  />
                 </div>
 
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      resetForm();
-                      setDialogOpen(false);
-                    }}
-                  >
-                    Hủy
-                  </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                  >
-                    {editingItem ? "Lưu thay đổi" : "Phân công"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+                <div className="space-y-2">
+                  <Label>Mã người sửa *</Label>
+                  <Input
+                    type="number"
+                    placeholder="VD: 1"
+                    value={form.manguoisua}
+                    onChange={(e) => setForm({ ...form, manguoisua: e.target.value })}
+                  />
+                </div>
+              </div>
 
-          <div className="relative mb-4 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Tìm theo mã tài sản, người sửa, trạng thái, ngày..."
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          <div className="bg-card border border-border rounded-lg shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16">STT</TableHead>
-                  <TableHead className="w-28">Mã TS</TableHead>
-                  <TableHead className="w-32">Mã người sửa</TableHead>
-                  <TableHead>Người sửa</TableHead>
-                  <TableHead className="w-44">Dự kiến hoàn thành</TableHead>
-                  <TableHead className="w-32">Trạng thái</TableHead>
-                  <TableHead className="text-center w-24">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paged.map((item, idx) => (
-                  <TableRow key={item.MaPhanCong}>
-                    <TableCell>
-                      {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      #{item.MaTaiSan}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {item.MaNguoiSua}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {item.TenNguoiSua ?? "—"}
-                    </TableCell>
-                    <TableCell>{item.NgayDuKienHoanThanh}</TableCell>
-                    <TableCell>
-                      <Badge variant={trangThaiVariant[item.TrangThai]}>
-                        {item.TrangThai}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => handleEdit(item)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive"
-                          onClick={() => setDeleteItem(item)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-
-                {paged.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center py-8 text-muted-foreground"
-                    >
-                      Không tìm thấy phân công nào
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-              <p className="text-sm text-muted-foreground">
-                Hiển thị{" "}
-                {paged.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}–
-                {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} /{" "}
-                {filtered.length} phân công
-              </p>
-
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  disabled={currentPage === 1}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <Button
-                      key={page}
-                      variant={page === currentPage ? "default" : "outline"}
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handlePageChange(page)}
-                    >
-                      {page}
-                    </Button>
-                  ),
-                )}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  disabled={currentPage === totalPages}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Ngày dự kiến hoàn thành *</Label>
+                  <Input
+                    type="date"
+                    value={form.ngaydukienhoanthanh}
+                    onChange={(e) => setForm({ ...form, ngaydukienhoanthanh: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Trạng thái *</Label>
+                  <Select value={form.trangthai} onValueChange={(v) => setForm({ ...form, trangthai: v as TrangThaiPhanCong })}>
+                    <SelectTrigger><SelectValue placeholder="Chọn trạng thái" /></SelectTrigger>
+                    <SelectContent>
+                      {["Đang chờ", "Đang sửa", "Hoàn thành", "Hủy"].map((v) => (
+                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-          </div>
 
-          <AlertDialog
-            open={!!deleteItem}
-            onOpenChange={(open) => {
-              if (!open) setDeleteItem(null);
-            }}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Xác nhận xóa phân công</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Bạn có chắc chắn muốn xóa phân công sửa chữa cho tài sản{" "}
-                  <strong>#{deleteItem?.MaTaiSan}</strong>? Hành động này không
-                  thể hoàn tác.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Hủy</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  Xóa
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => { resetForm(); setDialogOpen(false); }}>Hủy</Button>
+              <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSubmit}>
+                {editingItem ? "Lưu thay đổi" : "Phân công"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-4 max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Tìm theo mã tài sản, người sửa, trạng thái..."
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
+      <div className="bg-card border border-border rounded-lg shadow-sm">
+        {loading ? (
+          <p className="text-center py-12">Đang tải dữ liệu...</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-16">STT</TableHead>
+                <TableHead className="w-28">Mã Code</TableHead>
+                <TableHead className="w-28">Mã TS</TableHead>
+                <TableHead>Tên tài sản</TableHead>
+                <TableHead>Mã người sửa</TableHead>
+                <TableHead>Người sửa</TableHead>
+                <TableHead className="w-44">Dự kiến hoàn thành</TableHead>
+                <TableHead className="w-32">Trạng thái</TableHead>
+                <TableHead className="text-center w-24">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paged.map((item, idx) => (
+                <TableRow key={item.maphancong}>
+                  <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
+                  <TableCell className="font-mono font-medium">{item.macode}</TableCell>
+                  <TableCell className="font-mono">#{item.mataisan}</TableCell>
+                  <TableCell className="font-medium">{item.tentaisan}</TableCell>
+                  <TableCell className="font-mono">{item.manguoisua}</TableCell>
+                  <TableCell className="font-medium">{item.hoten}</TableCell>
+                  <TableCell>{item.ngaydukienhoanthanh}</TableCell>
+                  <TableCell>
+                    <Badge variant={trangThaiVariant[item.trangthai]}>{item.trangthai}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-center gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteItem(item)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+
+              {paged.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
+                    Không tìm thấy phân công nào
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            Hiển thị {paged.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} / {filtered.length} phân công
+          </p>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* AlertDialog xóa */}
+      <AlertDialog open={!!deleteItem} onOpenChange={() => setDeleteItem(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa phân công</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa phân công cho tài sản{" "}
+              <strong>{deleteItem?.tentaisan}</strong> (Mã TS: #{deleteItem?.mataisan})? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-white" onClick={handleDelete}>
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 }
