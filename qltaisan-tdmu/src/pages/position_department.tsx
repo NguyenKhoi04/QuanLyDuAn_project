@@ -279,69 +279,28 @@ function PositionDepartment() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Tầng *</Label>
+                        {/* Tầng */}
+                        <div className="space-y-2">
+                            <Label>Tầng *</Label>
+                            <Input
+                            type="text"
+                            placeholder="Ví dụ: 3"
+                            value={form.tang}
+                            onChange={(e) => setForm({ ...form, tang: e.target.value })}
+                            />
+                        </div>
 
-                  <Select
-                    value={form.tang}
-                    onValueChange={(v) => setForm({ ...form, tang: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn tầng" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tangList.map((item) => (
-                        <SelectItem
-                          key={item.tang}
-                          value={String(item.tang)}
-                        >
-                          {item.tang}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Phòng ban *</Label>
-                    <Select
-                      value={form.phong}
-                      onValueChange={(v) => setForm({ ...form, phong: v })}
-
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn phòng ban" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {phongList.map((item) => (
-                            <SelectItem
-                              key={item.phong}                              value={String(item.phong)}
-                            >
-                              {item.phong}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                </div>
-              </div>
-                <div className="space-y-2">
-                  <Label>Phòng ban *</Label>
-                  <Select
-                    value={form.phong}
-                    onValueChange={(v) => setForm({ ...form, phong: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn phòng ban" />
-                    </SelectTrigger>
-                    {phongList.map((item) => (
-                        <SelectItem
-                          key={item.phong}
-                          value={String(item.phong)}
-                        >
-                          {item.phong}
-                        </SelectItem>
-                      ))}
-                  </Select>
-                </div>
+                        {/* Phòng ban */}
+                        <div className="space-y-2">
+                            <Label>Phòng ban *</Label>
+                            <Input
+                            type="text"
+                            placeholder="Ví dụ: Viện CNTT & Chuyển đổi số"
+                            value={form.phong}
+                            onChange={(e) => setForm({ ...form, phong: e.target.value })}
+                            />
+                        </div>
+                        </div>
              
             </div>
 
