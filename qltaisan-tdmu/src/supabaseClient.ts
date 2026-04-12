@@ -3,7 +3,7 @@ import type { Database } from "../../database.types"; // File bạn vừa gen l�
 import * as dotenv from "dotenv";
 
 // Nạp các biến từ file .env
-//dotenv.config();
+dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
