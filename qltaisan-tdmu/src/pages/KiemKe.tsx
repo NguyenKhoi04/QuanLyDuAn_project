@@ -127,9 +127,9 @@ export default function KiemKe() {
       .select(`
         makiemke,
         mataisan,
-        TaiSan (tentaisan),
+        taisan (tentaisan),
         nguoikiemke,
-        NguoiDung (hoten),
+        nguoidung (hoten),
         ngaykiemke,
         trangthai
       `);
@@ -139,16 +139,18 @@ export default function KiemKe() {
       return;
     }
 
-    const mapped = data.map((item: any) => ({
-      makiemke: item.makiemke,
-      mataisan: item.mataisan,
-      tentaisan: item.TaiSan?.tentaisan || "",
-      nguoikiemke: item.nguoikiemke,
-      tennguoikiemke: item.NguoiDung?.hoten || "",
-      ngaykiemke: item.ngaykiemke,
-      trangthai: item.trangthai,
-      KetQua: "", // nếu chưa có trong DB
-    }));
+    if (!data) return;
+
+      const mapped = data.map((item: any) => ({
+        makiemke: item.makiemke,
+        mataisan: item.mataisan,
+        tentaisan: item.taisan?.tentaisan || "",
+        nguoikiemke: item.nguoikiemke,
+        tennguoikiemke: item.nguoidung?.hoten || "",
+        ngaykiemke: item.ngaykiemke,
+        trangthai: item.trangthai,
+        KetQua: item.KetQua || "",
+      }));
 
     setKiemKeList(mapped);
   }
