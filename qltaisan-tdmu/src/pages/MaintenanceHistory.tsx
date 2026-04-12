@@ -145,8 +145,7 @@ function MaintenanceHistory() {
     setCurrentPage(1);
   };
 
- const handleExport = () => {
-  // Dữ liệu với tên cột rõ ràng
+  const handleExport = () => {
   const exportData = filtered.map((item, index) => ({
     "STT": index + 1,
     "Mã Code": item.macode,
@@ -161,17 +160,12 @@ function MaintenanceHistory() {
   // Tính tổng chi phí
   const totalChiPhi = filtered.reduce((sum, item) => sum + Number(item.chiphi ?? 0), 0);
 
-  // Tạo worksheet
-  const ws = XLSX.utils.json_to_sheet(exportData, { skipHeader: false }); // Đảm bảo có header
+  // Tạo worksheet với header rõ ràng
+  const ws = XLSX.utils.json_to_sheet(exportData);
 
-  // ==================== TIÊU ĐỀ BÁO CÁO ====================
+  // ==================== THÊM TIÊU ĐỀ BÁO CÁO ====================
   XLSX.utils.sheet_add_aoa(ws, [["LỊCH SỬ BẢO TRÌ & SỬA CHỮA"]], { origin: "A1" });
-  
-  const today = new Date().toLocaleDateString('vi-VN', { 
-    day: '2-digit', month: '2-digit', year: 'numeric' 
-  });
-
-  XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${today}`]], { origin: "A2" });
+  XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${new Date().toLocaleDateString('vi-VN')}`]], { origin: "A2" });
   XLSX.utils.sheet_add_aoa(ws, [[`Người xuất báo cáo: Quản trị viên`]], { origin: "A3" });
 
   // Merge tiêu đề
@@ -184,19 +178,22 @@ function MaintenanceHistory() {
   // Style tiêu đề
   if (ws['A1']) ws['A1'].s = { 
     font: { bold: true, sz: 18, color: { rgb: "1e40af" } }, 
-    alignment: { horizontal: "center", vertical: "center" } 
+    alignment: { horizontal: "center" } 
   };
 
   // Dòng tổng chi phí
-  const lastRow = exportData.length + 5;
+  const lastDataRow = exportData.length + 4; // +4 vì có 3 dòng tiêu đề
   XLSX.utils.sheet_add_aoa(ws, [[
     "", "", "", "", "", "", "TỔNG CHI PHÍ:", 
     Number(totalChiPhi).toLocaleString('vi-VN')
-  ]], { origin: `A${lastRow}` });
+  ]], { origin: `A${lastDataRow}` });
 
   // Style dòng tổng
-  if (ws[`G${lastRow}`]) ws[`G${lastRow}`].s = { font: { bold: true } };
-  if (ws[`H${lastRow}`]) ws[`H${lastRow}`].s = { font: { bold: true }, alignment: { horizontal: "right" } };
+  if (ws[`G${lastDataRow}`]) ws[`G${lastDataRow}`].s = { font: { bold: true } };
+  if (ws[`H${lastDataRow}`]) ws[`H${lastDataRow}`].s = { 
+    font: { bold: true }, 
+    alignment: { horizontal: "right" } 
+  };
 
   // Độ rộng cột
   ws['!cols'] = [
@@ -204,12 +201,12 @@ function MaintenanceHistory() {
     { wch: 15 }, { wch: 28 }, { wch: 22 }, { wch: 22 }
   ];
 
-  // Tạo file
+  // Tạo và xuất file
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử Bảo Trì");
 
-  const todayStr = today.replace(/\//g, '-');
-  XLSX.writeFile(wb, `Lich_Su_Bao_Tri_${todayStr}.xlsx`);
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `Lich_Su_Bao_Tri_${today}.xlsx`);
 };
 
   return (
