@@ -24,39 +24,39 @@ import { useMemo, useState } from "react";
 
 // Theo dõi chuyển giao tài sản giữa các phòng ban
 type DieuChuyenTaiSan = {
-  MaDieuChuyen: number;
-  MaTaiSan: number;
-  TenTaiSan: string;
-  TuPhongBan: string;
-  DenPhongBan: string;
-  NgayChuyen: string; // yyyy-mm-dd
+  madieuchuyen: number;
+  mataisan: number;
+  tentaisan: string;
+  tuphongban: string;
+  denphongban: string;
+  ngaychuyen: string; // yyyy-mm-dd
 };
 
-const initialTransfers: DieuChuyenTaiSan[] = [
-  {
-    MaDieuChuyen: 1,
-    MaTaiSan: 101,
-    TenTaiSan: "Máy tính Dell",
-    TuPhongBan: "Thực hành Máy tính - Dãy C",
-    DenPhongBan: "Thực hành máy tính - Dãy I2",
-    NgayChuyen: "2026-03-28",
-  },
-];
+// const initialTransfers: DieuChuyenTaiSan[] = [
+//   {
+//     MaDieuChuyen: 1,
+//     mataisan: 101,
+//    tentaisan: "Máy tính Dell",
+//     tuphongban: "Thực hành Máy tính - Dãy C",
+//     denphongban: "Thực hành máy tính - Dãy I2",
+//     ngaychuyen: "2026-03-28",
+//   },
+// ];
 
 export default function AssetTransferManagement() {
   const [transfers, setTransfers] = useState<DieuChuyenTaiSan[]>(
-    initialTransfers,
+    []
   );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formError, setFormError] = useState("");
 
   const emptyForm = useMemo(
     () => ({
-      MaTaiSan: "",
-      TenTaiSan: "",
-      TuPhongBan: "",
-      DenPhongBan: "",
-      NgayChuyen: "",
+      mataisan: "",
+     tentaisan: "",
+      tuphongban: "",
+      denphongban: "",
+      ngaychuyen: "",
     }),
     [],
   );
@@ -69,27 +69,27 @@ export default function AssetTransferManagement() {
   }
 
   function handleCreate() {
-    const maTaiSan = Number(form.MaTaiSan);
-    const tenTaiSan = form.TenTaiSan.trim();
-    const tuPhongBan = form.TuPhongBan.trim();
-    const denPhongBan = form.DenPhongBan.trim();
-    const ngayChuyen = form.NgayChuyen;
+    const mataisan = Number(form.mataisan);
+    const tentaisan = form.tentaisan.trim();
+    const tuphongban = form.tuphongban.trim();
+    const denphongban = form.denphongban.trim();
+    const ngaychuyen = form.ngaychuyen;
 
-    if (!maTaiSan || !tenTaiSan || !tuPhongBan || !denPhongBan || !ngayChuyen) {
+    if (!mataisan || !tentaisan || !tuphongban || !denphongban || !ngaychuyen) {
       setFormError("Vui lòng điền đầy đủ thông tin chuyển giao.");
       return;
     }
 
     const nextId =
-      transfers.reduce((max, t) => Math.max(max, t.MaDieuChuyen), 0) + 1;
+      transfers.reduce((max, t) => Math.max(max, t.madieuchuyen), 0) + 1;
 
     const newTransfer: DieuChuyenTaiSan = {
-      MaDieuChuyen: nextId,
-      MaTaiSan: maTaiSan,
-      TenTaiSan: tenTaiSan,
-      TuPhongBan: tuPhongBan,
-      DenPhongBan: denPhongBan,
-      NgayChuyen: ngayChuyen,
+      madieuchuyen: nextId,
+      mataisan: mataisan,
+     tentaisan:tentaisan,
+      tuphongban: tuphongban,
+      denphongban: denphongban,
+      ngaychuyen: ngaychuyen,
     };
 
     setTransfers((prev) => [newTransfer, ...prev]);
@@ -141,9 +141,9 @@ export default function AssetTransferManagement() {
                         type="number"
                         inputMode="numeric"
                         placeholder="VD: 101"
-                        value={form.MaTaiSan}
+                        value={form.mataisan}
                         onChange={(e) =>
-                          setForm({ ...form, MaTaiSan: e.target.value })
+                          setForm({ ...form, mataisan: e.target.value })
                         }
                       />
                     </div>
@@ -151,9 +151,9 @@ export default function AssetTransferManagement() {
                       <Label>Ngày chuyển *</Label>
                       <Input
                         type="date"
-                        value={form.NgayChuyen}
+                        value={form.ngaychuyen}
                         onChange={(e) =>
-                          setForm({ ...form, NgayChuyen: e.target.value })
+                          setForm({ ...form, ngaychuyen: e.target.value })
                         }
                       />
                     </div>
@@ -163,9 +163,9 @@ export default function AssetTransferManagement() {
                     <Label>Tên tài sản *</Label>
                     <Input
                       placeholder="VD: Máy tính Dell"
-                      value={form.TenTaiSan}
+                      value={form.tentaisan}
                       onChange={(e) =>
-                        setForm({ ...form, TenTaiSan: e.target.value })
+                        setForm({ ...form,tentaisan: e.target.value })
                       }
                     />
                   </div>
@@ -175,9 +175,9 @@ export default function AssetTransferManagement() {
                       <Label>Từ phòng ban *</Label>
                       <Input
                         placeholder="VD: Khoa CNTT"
-                        value={form.TuPhongBan}
+                        value={form.tuphongban}
                         onChange={(e) =>
-                          setForm({ ...form, TuPhongBan: e.target.value })
+                          setForm({ ...form, tuphongban: e.target.value })
                         }
                       />
                     </div>
@@ -185,9 +185,9 @@ export default function AssetTransferManagement() {
                       <Label>Đến phòng ban *</Label>
                       <Input
                         placeholder="VD: Phòng Thí nghiệm"
-                        value={form.DenPhongBan}
+                        value={form.denphongban}
                         onChange={(e) =>
-                          setForm({ ...form, DenPhongBan: e.target.value })
+                          setForm({ ...form, denphongban: e.target.value })
                         }
                       />
                     </div>
@@ -228,21 +228,21 @@ export default function AssetTransferManagement() {
               </TableHeader>
               <TableBody>
                 {transfers.map((t) => (
-                  <TableRow key={t.MaDieuChuyen}>
+                  <TableRow key={t.madieuchuyen}>
                     <TableCell className="font-mono text-xs">
-                      #{t.MaTaiSan}
+                      #{t.mataisan}
                     </TableCell>
-                    <TableCell className="font-medium">{t.TenTaiSan}</TableCell>
+                    <TableCell className="font-medium">{t.tentaisan}</TableCell>
                     <TableCell className="text-destructive/90">
-                      {t.TuPhongBan}
+                      {t.tuphongban}
                     </TableCell>
                     <TableCell className="text-emerald-600 dark:text-emerald-400">
-                      {t.DenPhongBan}
+                      {t.denphongban}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        {t.NgayChuyen}
+                        {t.ngaychuyen}
                       </div>
                     </TableCell>
                   </TableRow>

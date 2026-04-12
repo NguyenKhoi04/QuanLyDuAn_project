@@ -73,7 +73,7 @@ export default function KiemKe() {
 
   const emptyForm = useMemo(
     () => ({
-      MaTaiSan: "",
+      mataisan: "",
       TenTaiSan: "",
       NgayKiemKe: "",
       TrangThai: "Đã kiểm kê",
@@ -90,13 +90,13 @@ export default function KiemKe() {
   }
 
   async function handleCreate() {
-    const maTaiSan = Number(form.MaTaiSan);
+    const mataisan = Number(form.mataisan);
     const tenTaiSan = form.TenTaiSan.trim();
     const ngayKiemKe = form.NgayKiemKe;
     const trangThai = form.TrangThai;
     const KetQua = form.KetQua.trim();
 
-    if (!maTaiSan || !tenTaiSan || !ngayKiemKe || !trangThai || !KetQua) {
+    if (!mataisan || !tenTaiSan || !ngayKiemKe || !trangThai || !KetQua) {
       setFormError("Vui lòng điền đầy đủ thông tin kiểm kê.");
       return;
     }
@@ -106,7 +106,7 @@ export default function KiemKe() {
 
     const newItem: KiemKeTaiSan = {
       makiemke: nextId,
-      mataisan: maTaiSan,
+      mataisan: mataisan,
       tentaisan: tenTaiSan,
       nguoikiemke: 0,
       tennguoikiemke: "",
@@ -196,9 +196,9 @@ export default function KiemKe() {
                     type="number"
                     inputMode="numeric"
                     placeholder="VD: 101"
-                    value={form.MaTaiSan}
+                    value={form.mataisan}
                     onChange={(e) =>
-                      setForm({ ...form, MaTaiSan: e.target.value })
+                      setForm({ ...form, mataisan: e.target.value })
                     }
                   />
                 </div>

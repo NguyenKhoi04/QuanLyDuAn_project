@@ -1,12 +1,30 @@
 import AppShell from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent }
-    from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 
 import { supabase } from "@/lib/supabaseClient";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -17,9 +35,24 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { Label} from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type PositionDepartment = {
   mavitri: number;
@@ -36,7 +69,9 @@ function PositionDepartment() {
   const [data, setData] = useState<PositionDepartment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<PositionDepartment | null>(null);
+  const [editingItem, setEditingItem] = useState<PositionDepartment | null>(
+    null,
+  );
   const [deleteItem, setDeleteItem] = useState<PositionDepartment | null>(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,8 +79,8 @@ function PositionDepartment() {
   // Danh mục
   const [phongBanList, setPhongBanList] = useState<any[]>([]);
   const [toanhaList, setToanhaList] = useState<any[]>([]);
- const [tangList, setTangList] = useState<any[]>([]);
- const [phongList, setPhongList] = useState<any[]>([]);
+  const [tangList, setTangList] = useState<any[]>([]);
+  const [phongList, setPhongList] = useState<any[]>([]);
 
   const emptyForm = {
     mavitri: 0,
@@ -58,7 +93,10 @@ function PositionDepartment() {
   const [formError, setFormError] = useState("");
   const tableRef = useRef<HTMLTableElement>(null);
 
-  const handleResize = (e: ReactMouseEvent<HTMLTableHeaderCellElement>, columnIndex: number) => {
+  const handleResize = (
+    e: ReactMouseEvent<HTMLTableHeaderCellElement>,
+    columnIndex: number,
+  ) => {
     e.preventDefault();
     const th = e.currentTarget;
     const startX = e.pageX;
@@ -98,7 +136,7 @@ function PositionDepartment() {
       setData([]);
     } else {
       const normalized = (taiSanData || []).map((item: any) => ({
-       // macode: item.macode ?? item.macode,
+        // macode: item.macode ?? item.macode,
         mavitri: item.mavitri ?? item.mavitri ?? 0,
         toanha: item.toanha ?? item.Toanha ?? "",
         tang: item.tang ?? item.Tang ?? "",
@@ -110,7 +148,6 @@ function PositionDepartment() {
     setLoading(false);
   };
 
-  
   useEffect(() => {
     fetchAssets();
   }, []);
@@ -150,12 +187,11 @@ function PositionDepartment() {
       return;
     }
 
-  
     const newAsset = {
-        mavitri: form.mavitri,
-        toanha: form.toanha,
-        tang: form.tang,
-        phong: form.phong,
+      mavitri: form.mavitri,
+      toanha: form.toanha,
+      tang: form.tang,
+      phong: form.phong,
     };
 
     if (editingItem) {
@@ -179,10 +215,10 @@ function PositionDepartment() {
     fetchAssets(); // Refresh data before editing
 
     setForm({
-        mavitri: vt.mavitri || 0,
-        toanha: vt.toanha || "",
-        tang: vt.tang || "",
-        phong: vt.phong || "",
+      mavitri: vt.mavitri || 0,
+      toanha: vt.toanha || "",
+      tang: vt.tang || "",
+      phong: vt.phong || "",
     });
     setFormError("");
     setDialogOpen(true);
@@ -261,7 +297,9 @@ function PositionDepartment() {
                   <Label>Mã Vị trí *</Label>
                   <Input
                     value={form.mavitri}
-                    onChange={(e) => setForm({ ...form, mavitri: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setForm({ ...form, mavitri: Number(e.target.value) })
+                    }
                     placeholder="VD: VT001"
                     maxLength={50}
                   />
@@ -279,29 +317,30 @@ function PositionDepartment() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                        {/* Tầng */}
-                        <div className="space-y-2">
-                            <Label>Tầng *</Label>
-                            <Input
-                            type="text"
-                            placeholder="Ví dụ: 3"
-                            value={form.tang}
-                            onChange={(e) => setForm({ ...form, tang: e.target.value })}
-                            />
-                        </div>
+                {/* Tầng */}
+                <div className="space-y-2">
+                  <Label>Tầng *</Label>
+                  <Input
+                    type="text"
+                    placeholder="Ví dụ: 3"
+                    value={form.tang}
+                    onChange={(e) => setForm({ ...form, tang: e.target.value })}
+                  />
+                </div>
 
-                        {/* Phòng ban */}
-                        <div className="space-y-2">
-                            <Label>Phòng ban *</Label>
-                            <Input
-                            type="text"
-                            placeholder="Ví dụ: Viện CNTT & Chuyển đổi số"
-                            value={form.phong}
-                            onChange={(e) => setForm({ ...form, phong: e.target.value })}
-                            />
-                        </div>
-                        </div>
-             
+                {/* Phòng ban */}
+                <div className="space-y-2">
+                  <Label>Phòng ban *</Label>
+                  <Input
+                    type="text"
+                    placeholder="Ví dụ: Viện Công nghệ số"
+                    value={form.phong}
+                    onChange={(e) =>
+                      setForm({ ...form, phong: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
             </div>
 
 
@@ -335,14 +374,39 @@ function PositionDepartment() {
 
       <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-       <Table ref={tableRef} className="table-fixed w-full">
+          <Table ref={tableRef} className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead onMouseDown={(e) => handleResize(e, 0)} className="w-24 cursor-col-resize">Mã Vị trí</TableHead>
-                <TableHead onMouseDown={(e) => handleResize(e, 1)} className="w-1/4 cursor-col-resize">Tòa nhà</TableHead>
-                <TableHead onMouseDown={(e) => handleResize(e, 2)} className="w-1/4 cursor-col-resize">Tầng</TableHead>
-                <TableHead onMouseDown={(e) => handleResize(e, 3)} className="w-1/4 cursor-col-resize">Phòng ban</TableHead>
-                <TableHead onMouseDown={(e) => handleResize(e, 4)} className="w-1/4 cursor-col-resize">Thao tác</TableHead>
+                <TableHead
+                  onMouseDown={(e) => handleResize(e, 0)}
+                  className="w-24 cursor-col-resize"
+                >
+                  Mã Vị trí
+                </TableHead>
+                <TableHead
+                  onMouseDown={(e) => handleResize(e, 1)}
+                  className="w-1/4 cursor-col-resize"
+                >
+                  Tòa nhà
+                </TableHead>
+                <TableHead
+                  onMouseDown={(e) => handleResize(e, 2)}
+                  className="w-1/4 cursor-col-resize"
+                >
+                  Tầng
+                </TableHead>
+                <TableHead
+                  onMouseDown={(e) => handleResize(e, 3)}
+                  className="w-1/4 cursor-col-resize"
+                >
+                  Phòng ban
+                </TableHead>
+                <TableHead
+                  onMouseDown={(e) => handleResize(e, 4)}
+                  className="w-1/4 cursor-col-resize"
+                >
+                  Thao tác
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -355,17 +419,17 @@ function PositionDepartment() {
                   <TableCell>
                     <Button
                       variant="outline"
-                      size="icon"   
-                     onClick={() => handleEdit(vt)}
+                      size="icon"
+                      onClick={() => handleEdit(vt)}
                     >
-                        <Edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="icon"
-                        onClick={() => setDeleteItem(vt)}
+                      onClick={() => setDeleteItem(vt)}
                     >
-                        <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
