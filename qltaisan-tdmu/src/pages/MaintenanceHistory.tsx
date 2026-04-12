@@ -147,6 +147,13 @@ function MaintenanceHistory() {
 
   const handleExport = () => {
   const today = new Date();
+  const dateStr = today.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+
+  // Dữ liệu
   const exportData = filtered.map((item, index) => ({
     "STT": index + 1,
     "Mã Code": item.macode,
@@ -158,48 +165,56 @@ function MaintenanceHistory() {
     "Chi Phí (VND)": Number(item.chiphi ?? 0),
   }));
 
-  // Tính tổng chi phí
   const totalChiPhi = filtered.reduce((sum, item) => sum + Number(item.chiphi ?? 0), 0);
 
-  // Tạo worksheet với header rõ ràng
+  // Tạo worksheet
   const ws = XLSX.utils.json_to_sheet(exportData);
 
-  // ==================== THÊM TIÊU ĐỀ BÁO CÁO ====================
+  // ==================== TIÊU ĐỀ BÁO CÁO ====================
   XLSX.utils.sheet_add_aoa(ws, [["TRƯỜNG ĐẠI HỌC THỦ DẦU MỘT"]], { origin: "A1" });
-  XLSX.utils.sheet_add_aoa(ws, [["QUAN LÝ TÀI SẢN TRƯỜNG ĐẠI HỌC THỦ DẦU MỘT"]], { origin: "A2" });
-  XLSX.utils.sheet_add_aoa(ws, [["LỊCH SỬ BẢO TRÌ & SỬA CHỮA TÀI SẢN TRƯỜNG ĐẠI HỌC THỦ DẦU MỘT"]], { origin: "A3" });
-  XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${new Date().toLocaleDateString('vi-VN')}`]], { origin: "A4" });
+  XLSX.utils.sheet_add_aoa(ws, [["QUẢN LÝ TÀI SẢN"]], { origin: "A2" });
+  XLSX.utils.sheet_add_aoa(ws, [["LỊCH SỬ BẢO TRÌ & SỬA CHỮA"]], { origin: "A3" });
+  XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${dateStr}`]], { origin: "A4" });
   XLSX.utils.sheet_add_aoa(ws, [[`Người xuất báo cáo: Quản trị viên`]], { origin: "A5" });
 
-//Thêm cột gồm STT, mã code, mã tài sản, tên tài sản, ngày sửa, người sửa, kết quả, chi phí, mỗi cột có header rõ ràng, căn giữa, in đậm. 
-
-  XLSX.utils.sheet_add_aoa(ws, [[
-    "STT", "Mã Code", "Mã tài sản", "Tên Tài Sản", "Ngày Sửa", "Người Sửa", "Kết Quả", "Chi Phí (VND)"
-  ]], { origin: "A6" });
-
-// Dòng header có màu nền khác biệt. Dòng tổng chi phí ở cuối có chữ "TỔNG CHI PHÍ:" 
-// và giá trị tổng chi phí, in đậm, căn phải.
-  
   // Merge tiêu đề
   ws['!merges'] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
     { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
     { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
+    { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } },
+    { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } },
   ];
 
   // Style tiêu đề
-  if (ws['A1']) ws['A1'].s = { 
-    font: { bold: true, sz: 18, color: { rgb: "1e40af" } }, 
-    alignment: { horizontal: "center" } 
-  };
+  if (ws['A1']) ws['A1'].s = { font: { bold: true, sz: 16, color: { rgb: "1e40af" } }, alignment: { horizontal: "center" } };
+  if (ws['A3']) ws['A3'].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
 
-  // ==================== ĐÓNG KHUNG BẢNG (ALL BORDERS) ====================
+  // ==================== HEADER CỘT (DÒNG 6) ====================
+  XLSX.utils.sheet_add_aoa(ws, [[
+    "STT", "Mã Code", "Mã TS", "Tên Tài Sản", "Ngày Sửa", "Người Sửa", "Kết Quả", "Chi Phí (VND)"
+  ]], { origin: "A6" });
+
+  // Style header cột
+  const headerRow = 6;
+  for (let col = 0; col <= 7; col++) {
+    const cell = ws[XLSX.utils.encode_cell({ r: headerRow - 1, c: col })]; // headerRow bắt đầu từ 0
+    if (cell) {
+      cell.s = {
+        font: { bold: true, color: { rgb: "ffffff" } },
+        fill: { fgColor: { rgb: "1e40af" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } }
+      };
+    }
+  }
+
+  // ==================== ĐÓNG KHUNG TOÀN BẢNG ====================
   const range = XLSX.utils.decode_range(ws['!ref'] || "A1");
   for (let R = range.s.r; R <= range.e.r; R++) {
     for (let C = range.s.c; C <= range.e.c; C++) {
       const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
       if (!ws[cellAddress]) ws[cellAddress] = { v: "", t: "s" };
-      
       ws[cellAddress].s = ws[cellAddress].s || {};
       ws[cellAddress].s.border = {
         top: { style: "thin" },
@@ -211,20 +226,20 @@ function MaintenanceHistory() {
   }
 
   // ==================== DÒNG TỔNG CHI PHÍ ====================
-  const lastRow = exportData.length + 4;
+  const lastDataRow = exportData.length + 6;
   XLSX.utils.sheet_add_aoa(ws, [[
     "", "", "", "", "", "", "TỔNG CHI PHÍ:", 
     Number(totalChiPhi).toLocaleString('vi-VN')
-  ]], { origin: `A${lastRow}` });
+  ]], { origin: `A${lastDataRow}` });
 
   // ==================== CHÂN BÁO CÁO ====================
-  const footerRow = lastRow + 3;
+  const footerRow = lastDataRow + 3;
   XLSX.utils.sheet_add_aoa(ws, [[`TP. HCM, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`]], 
     { origin: `F${footerRow}` });
   
   XLSX.utils.sheet_add_aoa(ws, [["Người lập bảng"]], { origin: `F${footerRow + 2}` });
 
-  // Style
+  // Style footer
   if (ws[`F${footerRow}`]) ws[`F${footerRow}`].s = { alignment: { horizontal: "right" } };
   if (ws[`F${footerRow + 2}`]) ws[`F${footerRow + 2}`].s = { font: { bold: true }, alignment: { horizontal: "center" } };
 
@@ -234,12 +249,12 @@ function MaintenanceHistory() {
     { wch: 15 }, { wch: 28 }, { wch: 22 }, { wch: 22 }
   ];
 
-  // Tạo và xuất file
+  // Xuất file
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử Bảo Trì");
 
-  const dateString = today.toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `Lich_Su_Bao_Tri_${dateString}.xlsx`);
+  const fileName = `Lich_Su_Bao_Tri_${today.toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb, fileName);
 };
 
   return (
