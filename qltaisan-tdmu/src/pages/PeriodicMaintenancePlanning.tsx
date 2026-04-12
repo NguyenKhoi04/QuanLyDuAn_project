@@ -68,7 +68,7 @@ interface KeHoachBaoTri {
   tentaisan: string;        // từ taisan
   ngaybaotri: string;
   chuky: ChuKyBaoTri;
-  manguoiphutrach: number;  // ID người phụ trách
+  nguoiphutrach: number;  // ID người phụ trách
   hoten: string;            // hoten từ nguoidung
   trangthai: TrangThaiKeHoach;
 }
@@ -100,7 +100,7 @@ function PeriodicMaintenancePlanning() {
       mataisan: "",
       ngaybaotri: "",
       chuky: "" as ChuKyBaoTri,
-      manguoiphutrach: "",
+      nguoiphutrach: "",
       trangthai: "" as TrangThaiKeHoach,
     }),
     []
@@ -118,7 +118,7 @@ function PeriodicMaintenancePlanning() {
         mataisan,
         ngaybaotri,
         chuky,
-        manguoiphutrach,
+        nguoiphutrach,
         trangthai,
         taisan (
           macode,
@@ -140,7 +140,7 @@ function PeriodicMaintenancePlanning() {
         tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
         ngaybaotri: item.ngaybaotri,
         chuky: item.chuky,
-        manguoiphutrach: item.manguoiphutrach,
+        nguoiphutrach: item.nguoiphutrach,
         hoten: item.nguoidung?.hoten || "Không rõ",
         trangthai: item.trangthai,
       })) || [];
@@ -178,7 +178,7 @@ function PeriodicMaintenancePlanning() {
 
   // ====================== CRUD ======================
   const handleSubmit = async () => {
-    if (!form.mataisan || !form.ngaybaotri || !form.chuky || !form.manguoiphutrach || !form.trangthai) {
+    if (!form.mataisan || !form.ngaybaotri || !form.chuky || !form.nguoiphutrach || !form.trangthai) {
       setFormError("Vui lòng điền đầy đủ thông tin bắt buộc.");
       return;
     }
@@ -187,7 +187,7 @@ function PeriodicMaintenancePlanning() {
       mataisan: Number(form.mataisan),
       ngaybaotri: form.ngaybaotri,
       chuky: form.chuky,
-      manguoiphutrach: Number(form.manguoiphutrach),
+      nguoiphutrach: Number(form.nguoiphutrach),
       trangthai: form.trangthai,
     };
 
@@ -209,7 +209,7 @@ function PeriodicMaintenancePlanning() {
       mataisan: String(item.mataisan),
       ngaybaotri: item.ngaybaotri,
       chuky: item.chuky,
-      manguoiphutrach: String(item.manguoiphutrach),
+      nguoiphutrach: String(item.nguoiphutrach),
       trangthai: item.trangthai,
     });
     setFormError("");
@@ -286,8 +286,8 @@ function PeriodicMaintenancePlanning() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Mã người phụ trách *</Label>
-                  <Input value={form.manguoiphutrach} onChange={(e) => setForm({ ...form, manguoiphutrach: e.target.value })} placeholder="VD: 5" />
+                  <Label>Người phụ trách *</Label>
+                  <Input value={form.nguoiphutrach} onChange={(e) => setForm({ ...form, nguoiphutrach: e.target.value })} placeholder="VD: 5" />
                 </div>
               </div>
 
