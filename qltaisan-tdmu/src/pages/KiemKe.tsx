@@ -131,7 +131,8 @@ export default function KiemKe() {
         nguoikiemke,
         nguoidung (hoten),
         ngaykiemke,
-        trangthai
+        trangthai,
+        KetQua
       `);
 
     if (error) {
