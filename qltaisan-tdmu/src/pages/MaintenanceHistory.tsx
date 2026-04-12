@@ -171,9 +171,9 @@ function MaintenanceHistory() {
 //Thêm cột gồm STT, mã code, mã tài sản, tên tài sản, ngày sửa, người sửa, kết quả, chi phí, mỗi cột có header rõ ràng, căn giữa, in đậm. 
 
   XLSX.utils.sheet_add_aoa(ws, [[
-    "STT", "Mã Code", "Mã TS", "Tên Tài Sản", "Ngày Sửa", "Người Sửa", "Kết Quả", "Chi Phí (VND)"
+    "STT", "Mã Code", "Mã tài sản", "Tên Tài Sản", "Ngày Sửa", "Người Sửa", "Kết Quả", "Chi Phí (VND)"
   ]], { origin: "A4" });
-  
+
 // Dòng header có màu nền khác biệt. Dòng tổng chi phí ở cuối có chữ "TỔNG CHI PHÍ:" 
 // và giá trị tổng chi phí, in đậm, căn phải.
   
@@ -269,7 +269,7 @@ function MaintenanceHistory() {
                 <TableRow key={item.malichsu}>
                   <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
                   <TableCell className="font-mono font-medium">{item.macode}</TableCell>
-                  <TableCell className="font-mono">#{item.mataisan}</TableCell>
+                  <TableCell className="font-mono">{item.mataisan}</TableCell>
                   <TableCell className="font-medium">{item.tentaisan}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
