@@ -48,3 +48,13 @@ Render <FloatingAIChat /> ngay trong BrowserRouter (ngoài Routes) nên đi đâ
 tải biểu đồ trong MaintenaceDashboard từ dòng  266
 
 sử dụng recharts: $ npm install recharts react-is
+
+
+
+cách xuất file Excel (.xlsx) chuyên nghiệp, có tiêu đề, định dạng cột, số tiền có dấu chấm, ngày tháng đẹp, và dễ đọc hơn.
+1. Cài thư viện 
+npm install xlsx
+# hoặc
+yarn add xlsx
+
+vào file maintenacehistory-> bắt đầu import * as XLSX from 'xlsx';

@@ -14,6 +14,7 @@ import {
 import { ChevronLeft, ChevronRight, Clock, Download, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import * as XLSX from 'xlsx';
 
 interface LichSuBaoTri {
   malichsu: number;
@@ -145,10 +146,76 @@ function MaintenanceHistory() {
   };
 
   const handleExport = () => {
-    const csv = toCsv(filtered);
-    const today = new Date().toISOString().slice(0, 10);
-    downloadTextFile(`lich-su-bao-tri_${today}.csv`, csv, "text/csv;charset=utf-8");
-  };
+  // Chuẩn bị dữ liệu
+  const exportData = filtered.map((item, index) => ({
+    "STT": index + 1,
+    "Mã Code": item.macode,
+    "Mã tài sản": item.mataisan,
+    "Tên Tài Sản": item.tentaisan,
+    "Ngày Sửa": item.ngaysua,
+    "Người Sửa": item.hoten,
+    "Kết Quả": item.ketqua,
+    "Chi Phí (VND)": Number(item.chiphi ?? 0),
+  }));
+
+  // Tính tổng chi phí
+  const totalChiPhi = filtered.reduce((sum, item) => sum + Number(item.chiphi ?? 0), 0);
+
+  // Tạo worksheet
+  const ws = XLSX.utils.json_to_sheet(exportData);
+
+  // ==================== THÊM TIÊU ĐỀ VÀ THÔNG TIN ====================
+  XLSX.utils.sheet_add_aoa(ws, [["LỊCH SỬ BẢO TRÌ & SỬA CHỮA TÀI SẢN TRƯỜNG THỦ DẦU MỘT"]], { origin: "A1" });
+  
+  const today = new Date().toLocaleDateString('vi-VN', { 
+    day: '2-digit', month: '2-digit', year: 'numeric' 
+  });
+
+  XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${today}`]], { origin: "A2" });
+  XLSX.utils.sheet_add_aoa(ws, [[`Người xuất báo cáo: ${"Quản trị viên"}`]], { origin: "A3" }); // Có thể thay bằng tên user thật sau
+
+  // Thêm dòng tổng chi phí
+  XLSX.utils.sheet_add_aoa(ws, [[
+    "", "", "", "", "", "", "TỔNG CHI PHÍ:", 
+    Number(totalChiPhi).toLocaleString('vi-VN')
+  ]], { origin: `A${exportData.length + 5}` });
+
+  // Merge cells cho tiêu đề
+  ws['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Tiêu đề chính
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }, // Ngày xuất
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }, // Người xuất
+  ];
+
+  // Style tiêu đề
+  if (ws['A1']) ws['A1'].s = { font: { bold: true, sz: 18, color: { rgb: "1e40af" } }, alignment: { horizontal: "center" } };
+  if (ws['A2']) ws['A2'].s = { font: { sz: 11, italic: true }, alignment: { horizontal: "center" } };
+  if (ws['A3']) ws['A3'].s = { font: { sz: 11 }, alignment: { horizontal: "center" } };
+
+  // Style dòng tổng
+  const totalRow = exportData.length + 5;
+  if (ws[`G${totalRow}`]) ws[`G${totalRow}`].s = { font: { bold: true } };
+  if (ws[`H${totalRow}`]) ws[`H${totalRow}`].s = { font: { bold: true }, alignment: { horizontal: "right" } };
+
+  // Độ rộng cột
+  ws['!cols'] = [
+    { wch: 6 },   // STT
+    { wch: 15 },  // Mã Code
+    { wch: 12 },  // Mã TS
+    { wch: 45 },  // Tên Tài Sản
+    { wch: 15 },  // Ngày Sửa
+    { wch: 28 },  // Người Sửa
+    { wch: 22 },  // Kết Quả
+    { wch: 22 },  // Chi Phí
+  ];
+
+  // Tạo và xuất file
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử Bảo Trì");
+
+  const fileName = `Lich_Su_Bao_Tri_${today.replace(/\//g, '-')}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+};
 
   return (
     <AppShell>
@@ -163,7 +230,7 @@ function MaintenanceHistory() {
         </div>
 
         <Button variant="outline" onClick={handleExport} className="gap-2">
-          <Download className="h-4 w-4" /> Xuất báo cáo (CSV)
+          <Download className="h-4 w-4" /> Xuất báo cáo (Excel)
         </Button>
       </div>
 
