@@ -24,6 +24,7 @@ import { ClipboardList, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/supabaseClient";
+import { useEffect } from "react";
 
 type KiemKeTaiSan = {
   makiemke: number;
@@ -114,20 +115,46 @@ export default function KiemKe() {
       KetQua: KetQua,
     };
 
-    const { data } = await supabase.from("kiemketaisan").select(`
-    makiemke,
-    mataisan,
-    TaiSan (tentaisan),
-    nguoikiemke,
-    NguoiDung (HoTen),
-    NgayKiemKe,
-    TrangThai
-  `);
-
     setKiemKeList((prev) => [newItem, ...prev]);
     setDialogOpen(false);
     resetForm();
   }
+
+  useEffect(() => {
+  async function fetchData() {
+    const { data, error } = await supabase
+      .from("kiemketaisan")
+      .select(`
+        makiemke,
+        mataisan,
+        TaiSan (tentaisan),
+        nguoikiemke,
+        NguoiDung (hoten),
+        ngaykiemke,
+        trangthai
+      `);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const mapped = data.map((item: any) => ({
+      makiemke: item.makiemke,
+      mataisan: item.mataisan,
+      tentaisan: item.TaiSan?.tentaisan || "",
+      nguoikiemke: item.nguoikiemke,
+      tennguoikiemke: item.NguoiDung?.hoten || "",
+      ngaykiemke: item.ngaykiemke,
+      trangthai: item.trangthai,
+      KetQua: "", // nếu chưa có trong DB
+    }));
+
+    setKiemKeList(mapped);
+  }
+
+  fetchData();
+}, []);
 
   return (
     <AppShell>
