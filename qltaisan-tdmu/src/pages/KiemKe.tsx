@@ -293,7 +293,7 @@ export default function KiemKe() {
             {kiemKeList.map((item) => (
               <TableRow key={item.makiemke}>
                 <TableCell className="font-mono text-xs">
-                  #{item.mataisan}
+                  {item.mataisan}
                 </TableCell>
                 <TableCell className="font-medium">{item.tentaisan}</TableCell>
                 <TableCell>{item.tennguoikiemke}</TableCell>
