@@ -54,13 +54,14 @@ import axios from "axios";
 
 type ChuKyBaoTri = "Hàng tuần" | "Hàng tháng" | "Hàng quý" | "Hàng năm";
 
-type TrangThaiKeHoach =
-  | "Đang lên kế hoạch"
-  | "Sẵn sàng"
-  | "Đang thực hiện"
-  | "Hoàn thành"
-  | "Tạm hoãn";
-
+// ====================== TRẠNG THÁI (SỐ → CHỮ) ======================
+const trangThaiMap: Record<number, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  1: { label: "Đang lên kế hoạch", variant: "outline" },
+  2: { label: "Sẵn sàng", variant: "default" },
+  3: { label: "Đang thực hiện", variant: "secondary" },
+  4: { label: "Hoàn thành", variant: "default" },
+  5: { label: "Tạm hoãn", variant: "destructive" },
+};
 interface KeHoachBaoTri {
   makehoach: number;
   mataisan: number;
@@ -70,15 +71,15 @@ interface KeHoachBaoTri {
   chuky: ChuKyBaoTri;
   nguoiphutrach: number;  // ID người phụ trách
   hoten: string;            // hoten từ nguoidung
-  trangthai: TrangThaiKeHoach;
+  trangthai: number;        // ID trạng thái
 }
 
-const trangThaiVariant: Record<TrangThaiKeHoach, "default" | "secondary" | "destructive" | "outline"> = {
-  "Đang lên kế hoạch": "outline",
-  "Sẵn sàng": "default",
-  "Đang thực hiện": "secondary",
-  "Hoàn thành": "default",
-  "Tạm hoãn": "destructive",
+const trangThaiVariant: Record<number, "default" | "secondary" | "destructive" | "outline"> = {
+  1: "outline",
+  2: "default",
+  3: "secondary",
+  4: "default",
+  5: "destructive",
 };
 
 const ITEMS_PER_PAGE = 5;
@@ -101,7 +102,7 @@ function PeriodicMaintenancePlanning() {
       ngaybaotri: "",
       chuky: "" as ChuKyBaoTri,
       nguoiphutrach: "",
-      trangthai: "" as TrangThaiKeHoach,
+      trangthai: "",
     }),
     []
   );
@@ -160,7 +161,7 @@ function PeriodicMaintenancePlanning() {
       p.macode.toLowerCase().includes(q) ||
       p.tentaisan.toLowerCase().includes(q) ||
       p.hoten.toLowerCase().includes(q) ||
-      p.trangthai.toLowerCase().includes(q)
+      String(p.trangthai).includes(q)
     );
   });
 
@@ -210,7 +211,7 @@ function PeriodicMaintenancePlanning() {
       ngaybaotri: item.ngaybaotri,
       chuky: item.chuky,
       nguoiphutrach: String(item.nguoiphutrach),
-      trangthai: item.trangthai,
+      trangthai: String(item.trangthai),
     });
     setFormError("");
     setDialogOpen(true);
@@ -293,11 +294,11 @@ function PeriodicMaintenancePlanning() {
 
               <div className="space-y-2">
                 <Label>Trạng thái *</Label>
-                <Select value={form.trangthai} onValueChange={(v) => setForm({ ...form, trangthai: v as TrangThaiKeHoach })}>
+                <Select value={form.trangthai} onValueChange={(v) => setForm({ ...form, trangthai: v as string })}>
                   <SelectTrigger><SelectValue placeholder="Chọn trạng thái" /></SelectTrigger>
                   <SelectContent>
-                    {["Đang lên kế hoạch", "Sẵn sàng", "Đang thực hiện", "Hoàn thành", "Tạm hoãn"].map((v) => (
-                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    {Object.values(trangThaiMap).map((v) => (
+                      <SelectItem key={v.label} value={v.label}>{v.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -352,8 +353,14 @@ function PeriodicMaintenancePlanning() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={trangThaiVariant[p.trangthai]}>{p.trangthai}</Badge>
-                  </TableCell>
+                  {trangThaiMap[p.trangthai] ? (
+                    <Badge variant={trangThaiMap[p.trangthai].variant}>
+                      {trangThaiMap[p.trangthai].label}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline">Không xác định</Badge>
+                  )}
+                </TableCell>
                   <TableCell>
                     <div className="flex justify-center gap-1">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}>
