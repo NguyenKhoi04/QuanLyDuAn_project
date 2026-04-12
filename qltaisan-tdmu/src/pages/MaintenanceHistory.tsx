@@ -21,7 +21,7 @@ interface LichSuBaoTri {
   macode: string;           // từ taisan
   tentaisan: string;        // từ taisan
   ngaysua: string;
-  ngsuasua: string;         // hoten từ nguoidung
+  nguoisua: string;         // hoten từ nguoidung
   ketqua: string;
   chiphi: number;
 }
@@ -42,7 +42,7 @@ function toCsv(rows: LichSuBaoTri[]) {
         String(r.mataisan),
         escape(r.tentaisan),
         escape(r.ngaysua),
-        escape(r.ngsuasua),
+        escape(r.nguoisua),
         escape(r.ketqua),
         String(r.chiphi ?? 0),
       ].join(",")
@@ -76,7 +76,7 @@ function MaintenanceHistory() {
         malichsu,
         mataisan,
         ngaysua,
-        ngsuasua,
+        nguoisua,
         ketqua,
         chiphi,
         taisan (
@@ -95,7 +95,7 @@ function MaintenanceHistory() {
         macode: item.taisan?.macode || "N/A",
         tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
         ngaysua: item.ngaysua,
-        ngsuasua: item.ngsuasua,
+        nguoisua: item.nguoisua,
         ketqua: item.ketqua,
         chiphi: item.chiphi || 0,
       })) || [];
@@ -116,7 +116,7 @@ function MaintenanceHistory() {
         h.macode.toLowerCase().includes(q) ||
         String(h.mataisan).includes(q) ||
         h.tentaisan.toLowerCase().includes(q) ||
-        h.ngsuasua.toLowerCase().includes(q) ||
+        h.nguoisua.toLowerCase().includes(q) ||
         h.ketqua.toLowerCase().includes(q) ||
         h.ngaysua.includes(q)
       );
@@ -201,7 +201,7 @@ function MaintenanceHistory() {
                       <span>{item.ngaysua}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{item.ngsuasua}</TableCell>
+                  <TableCell className="font-medium">{item.nguoisua}</TableCell>
                   <TableCell className="text-emerald-600 dark:text-emerald-400">
                     {item.ketqua}
                   </TableCell>
