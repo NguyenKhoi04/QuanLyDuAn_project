@@ -145,12 +145,12 @@ function MaintenanceHistory() {
     setCurrentPage(1);
   };
 
-  const handleExport = () => {
-  // Chuẩn bị dữ liệu
+ const handleExport = () => {
+  // Dữ liệu với tên cột rõ ràng
   const exportData = filtered.map((item, index) => ({
     "STT": index + 1,
     "Mã Code": item.macode,
-    "Mã tài sản": item.mataisan,
+    "Mã TS": item.mataisan,
     "Tên Tài Sản": item.tentaisan,
     "Ngày Sửa": item.ngaysua,
     "Người Sửa": item.hoten,
@@ -162,59 +162,54 @@ function MaintenanceHistory() {
   const totalChiPhi = filtered.reduce((sum, item) => sum + Number(item.chiphi ?? 0), 0);
 
   // Tạo worksheet
-  const ws = XLSX.utils.json_to_sheet(exportData);
+  const ws = XLSX.utils.json_to_sheet(exportData, { skipHeader: false }); // Đảm bảo có header
 
-  // ==================== THÊM TIÊU ĐỀ VÀ THÔNG TIN ====================
-  XLSX.utils.sheet_add_aoa(ws, [["LỊCH SỬ BẢO TRÌ & SỬA CHỮA TÀI SẢN TRƯỜNG THỦ DẦU MỘT"]], { origin: "A1" });
+  // ==================== TIÊU ĐỀ BÁO CÁO ====================
+  XLSX.utils.sheet_add_aoa(ws, [["LỊCH SỬ BẢO TRÌ & SỬA CHỮA"]], { origin: "A1" });
   
   const today = new Date().toLocaleDateString('vi-VN', { 
     day: '2-digit', month: '2-digit', year: 'numeric' 
   });
 
   XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${today}`]], { origin: "A2" });
-  XLSX.utils.sheet_add_aoa(ws, [[`Người xuất báo cáo: ${"Quản trị viên"}`]], { origin: "A3" }); // Có thể thay bằng tên user thật sau
+  XLSX.utils.sheet_add_aoa(ws, [[`Người xuất báo cáo: Quản trị viên`]], { origin: "A3" });
 
-  // Thêm dòng tổng chi phí
-  XLSX.utils.sheet_add_aoa(ws, [[
-    "", "", "", "", "", "", "TỔNG CHI PHÍ:", 
-    Number(totalChiPhi).toLocaleString('vi-VN')
-  ]], { origin: `A${exportData.length + 5}` });
-
-  // Merge cells cho tiêu đề
+  // Merge tiêu đề
   ws['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Tiêu đề chính
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }, // Ngày xuất
-    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }, // Người xuất
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
   ];
 
   // Style tiêu đề
-  if (ws['A1']) ws['A1'].s = { font: { bold: true, sz: 18, color: { rgb: "1e40af" } }, alignment: { horizontal: "center" } };
-  if (ws['A2']) ws['A2'].s = { font: { sz: 11, italic: true }, alignment: { horizontal: "center" } };
-  if (ws['A3']) ws['A3'].s = { font: { sz: 11 }, alignment: { horizontal: "center" } };
+  if (ws['A1']) ws['A1'].s = { 
+    font: { bold: true, sz: 18, color: { rgb: "1e40af" } }, 
+    alignment: { horizontal: "center", vertical: "center" } 
+  };
+
+  // Dòng tổng chi phí
+  const lastRow = exportData.length + 5;
+  XLSX.utils.sheet_add_aoa(ws, [[
+    "", "", "", "", "", "", "TỔNG CHI PHÍ:", 
+    Number(totalChiPhi).toLocaleString('vi-VN')
+  ]], { origin: `A${lastRow}` });
 
   // Style dòng tổng
-  const totalRow = exportData.length + 5;
-  if (ws[`G${totalRow}`]) ws[`G${totalRow}`].s = { font: { bold: true } };
-  if (ws[`H${totalRow}`]) ws[`H${totalRow}`].s = { font: { bold: true }, alignment: { horizontal: "right" } };
+  if (ws[`G${lastRow}`]) ws[`G${lastRow}`].s = { font: { bold: true } };
+  if (ws[`H${lastRow}`]) ws[`H${lastRow}`].s = { font: { bold: true }, alignment: { horizontal: "right" } };
 
   // Độ rộng cột
   ws['!cols'] = [
-    { wch: 6 },   // STT
-    { wch: 15 },  // Mã Code
-    { wch: 12 },  // Mã TS
-    { wch: 45 },  // Tên Tài Sản
-    { wch: 15 },  // Ngày Sửa
-    { wch: 28 },  // Người Sửa
-    { wch: 22 },  // Kết Quả
-    { wch: 22 },  // Chi Phí
+    { wch: 6 }, { wch: 15 }, { wch: 12 }, { wch: 45 },
+    { wch: 15 }, { wch: 28 }, { wch: 22 }, { wch: 22 }
   ];
 
-  // Tạo và xuất file
+  // Tạo file
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử Bảo Trì");
 
-  const fileName = `Lich_Su_Bao_Tri_${today.replace(/\//g, '-')}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+  const todayStr = today.replace(/\//g, '-');
+  XLSX.writeFile(wb, `Lich_Su_Bao_Tri_${todayStr}.xlsx`);
 };
 
   return (
