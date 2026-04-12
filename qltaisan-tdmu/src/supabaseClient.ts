@@ -1,17 +1,30 @@
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "../../database.types";
-
-
-// ✅ KHÔNG dùng dotenv
+import { createClient } from '@supabase/supabase-js';
 
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey
-);
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Thiếu biến môi trường Supabase. Kiểm tra file .env.local");
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+
+// import { createClient } from "@supabase/supabase-js";
+// import type { Database } from "../../database.types";
+
+
+// // ✅ KHÔNG dùng dotenv
+
+
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// export const supabase = createClient<Database>(
+//   supabaseUrl,
+//   supabaseAnonKey
+// );
 
 
 

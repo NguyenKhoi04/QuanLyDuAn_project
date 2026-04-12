@@ -23,7 +23,7 @@ import {
 import { ClipboardList, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
 
 type KiemKeTaiSan = {
