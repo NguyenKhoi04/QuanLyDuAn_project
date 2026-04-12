@@ -168,6 +168,17 @@ function MaintenanceHistory() {
   XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${new Date().toLocaleDateString('vi-VN')}`]], { origin: "A2" });
   XLSX.utils.sheet_add_aoa(ws, [[`Người xuất báo cáo: Quản trị viên`]], { origin: "A3" });
 
+//Thêm cột gồm STT, mã code, mã tài sản, tên tài sản, ngày sửa, người sửa, kết quả, chi phí, mỗi cột có header rõ ràng, căn giữa, in đậm. 
+
+  XLSX.utils.sheet_add_aoa(ws, [[
+    "STT", "Mã Code", "Mã TS", "Tên Tài Sản", "Ngày Sửa", "Người Sửa", "Kết Quả", "Chi Phí (VND)"
+  ]], { origin: "A4" });
+  
+// Dòng header có màu nền khác biệt. Dòng tổng chi phí ở cuối có chữ "TỔNG CHI PHÍ:" 
+// và giá trị tổng chi phí, in đậm, căn phải.
+  
+
+
   // Merge tiêu đề
   ws['!merges'] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
