@@ -229,7 +229,7 @@ function MaintenanceHistory() {
   const lastDataRow = exportData.length + 6;
   XLSX.utils.sheet_add_aoa(ws, [[
     "", "", "", "", "", "", "TỔNG CHI PHÍ:", 
-    Number(totalChiPhi).toLocaleString('vi-VN')
+    Number(totalChiPhi).toLocaleString('vi-VN') + " VND"
   ]], { origin: `A${lastDataRow}` });
 
   // ==================== CHÂN BÁO CÁO ====================
