@@ -25,6 +25,7 @@ import KiemKe from "./pages/KiemKe";
 import AssetLocationTracking from "./pages/AssetLocationTracking";
 import AssetTransferManagement from "./pages/AssetTransferManagement";
 import PositionDepartment from "./pages/position_department";
+import MaintenanceUsage from "./pages/MaintenanceUsage";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ function App() {
             <Route path="/vi-tri-tai-san" element={<AssetLocationTracking />} />
               <Route path="/vi-tri-phong-ban" element={<PositionDepartment />} />
               <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
+              <Route path="/su-dung-bao-tri" element={<MaintenanceUsage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

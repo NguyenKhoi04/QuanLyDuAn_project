@@ -34,7 +34,6 @@ const sidebarGroups: SidebarGroup[] = [
     title: "Tài sản",
     links: [
       { label: "Danh sách", icon: Package, path: "/assets" },
-      { label: "Nhập / Xuất", icon: ClipboardList, path: "/nhap-xuat" },
       { label: "Kiểm kê", icon: FileText, path: "/kiem-ke" },
       { label: "Vị trí tài sản", icon: MapPin, path: "/vi-tri-tai-san" },
       { label: "Vị trí phòng ban", icon: MapPin, path: "/vi-tri-phong-ban" },
