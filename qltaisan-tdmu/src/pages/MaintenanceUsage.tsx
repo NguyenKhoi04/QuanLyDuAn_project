@@ -85,7 +85,7 @@ export default function MaintenanceUsage () {
   const fetchSuDung = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("MaintenanceUsage ")
+      .from("sudungbaotri")
       .select(`
         masudung,
         mataisan,
