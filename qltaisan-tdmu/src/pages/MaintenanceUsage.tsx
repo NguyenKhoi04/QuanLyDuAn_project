@@ -238,7 +238,7 @@ export default function MaintenanceUsage () {
           <TableBody>
             {filtered.map((item) => (
               <TableRow key={item.masudung}>
-                <TableCell className="font-mono">#{item.mataisan}</TableCell>
+                <TableCell className="font-mono">{item.mataisan}</TableCell>
                 <TableCell className="font-medium">{item.tentaisan}</TableCell>
                 <TableCell>{item.hoten}</TableCell>
                 <TableCell>{item.phongban}</TableCell>
