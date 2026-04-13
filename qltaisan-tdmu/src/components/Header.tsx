@@ -53,10 +53,10 @@ const AppHeader = () => {
 
           {/* Theme toggle */}
           {/*Thông báo */}
-          <div className="w-9 h-9 bg-muted rounded-2xl border border-border" />
+        
            <NotificationSystem />
             {/* Thông tin cá nhân */}
-           <div className="w-9 h-9 bg-muted rounded-2xl border border-border" />
+    
 
           <div className="flex items-center">
             <ThemeToggle />
