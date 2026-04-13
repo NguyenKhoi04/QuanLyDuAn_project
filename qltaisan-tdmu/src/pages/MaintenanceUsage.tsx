@@ -84,8 +84,9 @@ export default function MaintenanceUsage () {
   // Fetch dữ liệu (kết hợp số lần bảo trì)
   const fetchSuDung = async () => {
   setLoading(true);
-  
-  const { data, error } = await supabase
+
+  // 1. Lấy danh sách sử dụng bảo trì
+  const { data: suDungData, error } = await supabase
     .from("sudungbaotri")
     .select(`
       masudung,
@@ -94,46 +95,58 @@ export default function MaintenanceUsage () {
       ngayketthuc,
       trangthai,
       ghichu,
-      taisan (
-        macode,
-        tentaisan
-      ),
+      taisan (macode, tentaisan),
       nguoidung (
         hoten,
-        phongban (
-          tenphongban
-        )
-      ),
-      solanbaotri:lichsubaotri(count)
+        phongban (tenphongban)
+      )
     `)
     .order("ngaybatdau", { ascending: false });
 
-      if (error) {
-        console.error("Lỗi fetch sử dụng bảo trì:", error);
-      } else {
-        const mapped = data?.map((item: any) => ({
-          masudung: item.masudung,
-          mataisan: item.mataisan,
-          macode: item.taisan?.macode || "N/A",
-          tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
-          manguoisudung: item.manguoisudung,
-          hoten: item.nguoidung?.hoten || "Không rõ",
-          phongban: item.nguoidung?.phongban?.tenphongban || "Không rõ",
-          ngaybatdau: item.ngaybatdau,
-          ngayketthuc: item.ngayketthuc,
-          trangthai: item.trangthai,
-          ghichu: item.ghichu,
-          solanbaotri: item.solanbaotri || 0,
-        })) || [];
-        setData(mapped);
-      }
-      
-      setLoading(false);
-    };
+  if (error) {
+    console.error("Lỗi fetch sudungbaotri:", error);
+    setData([]);
+    setLoading(false);
+    return;
+  }
 
-      useEffect(() => {
-        fetchSuDung();
-  }, []);
+  // 2. Lấy số lần bảo trì cho từng mataisan
+  const mataisanList = suDungData.map(item => item.mataisan).filter(Boolean);
+
+  let countMap = new Map<number, number>();
+
+  if (mataisanList.length > 0) {
+    const { data: lichsuData } = await supabase
+      .from("lichsubaotri")
+      .select("mataisan")
+      .in("mataisan", mataisanList);
+
+    // Đếm thủ công
+    countMap = lichsuData?.reduce((acc, item) => {
+      acc.set(item.mataisan, (acc.get(item.mataisan) || 0) + 1);
+      return acc;
+    }, new Map<number, number>()) || new Map();
+  }
+
+  // 3. Kết hợp dữ liệu
+  const mapped = suDungData.map((item: any) => ({
+    masudung: item.masudung,
+    mataisan: item.mataisan,
+    macode: item.taisan?.macode || "N/A",
+    tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
+    manguoisudung: item.manguoisudung,
+    hoten: item.nguoidung?.hoten || "Không rõ",
+    phongban: item.nguoidung?.phongban?.tenphongban || "Không rõ",
+    ngaybatdau: item.ngaybatdau,
+    ngayketthuc: item.ngayketthuc,
+    trangthai: item.trangthai,
+    ghichu: item.ghichu,
+    solanbaotri: countMap.get(item.mataisan) || 0,
+  }));
+
+  setData(mapped);
+  setLoading(false);
+};
 
   const filtered = data.filter((item) => {
     const q = searchTerm.toLowerCase();
