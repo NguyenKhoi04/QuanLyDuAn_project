@@ -64,7 +64,7 @@ function Dashboard() {
             </div>
             <div className="flex items-center gap-3">
               <NotificationSystem />
-              <div className="w-9 h-9 bg-muted rounded-2xl border border-border" />
+              {/* <div className="w-9 h-9 bg-muted rounded-2xl border border-border" /> */}
             </div>
           </div>
 
