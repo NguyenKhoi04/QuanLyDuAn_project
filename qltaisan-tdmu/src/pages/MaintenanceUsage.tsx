@@ -83,46 +83,56 @@ export default function MaintenanceUsage () {
 
   // Fetch dữ liệu (kết hợp số lần bảo trì)
   const fetchSuDung = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("sudungbaotri")
-      .select(`
-        masudung,
-        mataisan,
-        ngaybatdau,
-        ngayketthuc,
-        trangthai,
-        ghichu,
-        taisan (macode, tentaisan),
-        nguoidung (hoten),
-        phongban (tenphongban),
-        solanbaotri:lichsubaotri(count)
-      `)
-      .order("ngaybatdau", { ascending: false });
+  setLoading(true);
+  
+  const { data, error } = await supabase
+    .from("sudungbaotri")
+    .select(`
+      masudung,
+      mataisan,
+      ngaybatdau,
+      ngayketthuc,
+      trangthai,
+      ghichu,
+      taisan (
+        macode,
+        tentaisan
+      ),
+      nguoidung (
+        hoten,
+        phongban (
+          tenphongban
+        )
+      ),
+      solanbaotri:lichsubaotri(count)
+    `)
+    .order("ngaybatdau", { ascending: false });
 
-    if (error) console.error(error);
-    else {
-      const mapped = data?.map((item: any) => ({
-        masudung: item.masudung,
-        mataisan: item.mataisan,
-        macode: item.taisan?.macode || "N/A",
-        tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
-        manguoisudung: item.manguoisudung,
-        hoten: item.nguoidung?.hoten || "Không rõ",
-        phongban: item.phongban?.tenphongban || "Không rõ",
-        ngaybatdau: item.ngaybatdau,
-        ngayketthuc: item.ngayketthuc,
-        trangthai: item.trangthai,
-        ghichu: item.ghichu,
-        solanbaotri: item.solanbaotri || 0,
-      })) || [];
-      setData(mapped);
-    }
-    setLoading(false);
-  };
+      if (error) {
+        console.error("Lỗi fetch sử dụng bảo trì:", error);
+      } else {
+        const mapped = data?.map((item: any) => ({
+          masudung: item.masudung,
+          mataisan: item.mataisan,
+          macode: item.taisan?.macode || "N/A",
+          tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
+          manguoisudung: item.manguoisudung,
+          hoten: item.nguoidung?.hoten || "Không rõ",
+          phongban: item.nguoidung?.phongban?.tenphongban || "Không rõ",
+          ngaybatdau: item.ngaybatdau,
+          ngayketthuc: item.ngayketthuc,
+          trangthai: item.trangthai,
+          ghichu: item.ghichu,
+          solanbaotri: item.solanbaotri || 0,
+        })) || [];
+        setData(mapped);
+      }
+      
+      setLoading(false);
+    };
 
-  useEffect(() => {
-    fetchSuDung();
+      useEffect(() => {
+        fetchSuDung();
   }, []);
 
   const filtered = data.filter((item) => {
