@@ -48,7 +48,7 @@ interface ViTriTaiSan {
   macode: string;
   tentaisan: string;
   vitrihientai: number;
-  tenvitri: string;
+  phong: string;
   trangthai: number;
   ghichu?: string;
   ngaycapnhat: string;
@@ -82,7 +82,7 @@ function AssetLocationTracking() {
         ghichu,
         ngaycapnhat,
         taisan (macode, tentaisan),
-        vitri (tenvitri)
+        vitri (phong)
       `)
       .order("ngaycapnhat", { ascending: false });
 
@@ -94,7 +94,7 @@ function AssetLocationTracking() {
         macode: item.taisan?.macode || "N/A",
         tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
         vitrihientai: item.vitrihientai,
-        tenvitri: item.vitri?.tenvitri || "Không xác định",
+        phong: item.vitri?.phong || "Không xác định",
         trangthai: item.trangthai,
         ghichu: item.ghichu,
         ngaycapnhat: item.ngaycapnhat,
@@ -115,7 +115,7 @@ function AssetLocationTracking() {
       (a) =>
         a.tentaisan.toLowerCase().includes(q) ||
         a.macode.toLowerCase().includes(q) ||
-        a.tenvitri.toLowerCase().includes(q)
+        a.phong.toLowerCase().includes(q)
     );
   }, [data, searchTerm]);
 
@@ -281,7 +281,7 @@ function AssetLocationTracking() {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-blue-500" />
-                    <span>{asset.tenvitri}</span>
+                    <span>{asset.phong}</span>
                   </div>
                 </TableCell>
                 <TableCell>
