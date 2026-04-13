@@ -12,6 +12,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -20,47 +27,38 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowRightLeft, Calendar, Plus } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 // Theo dõi chuyển giao tài sản giữa các phòng ban
 type DieuChuyenTaiSan = {
   madieuchuyen: number;
   mataisan: number;
-  macode: string;        // từ bảng taisan
-  tentaisan: string;     // từ bảng taisan
-  tuphongban: string;
-  denphongban: string;
+  macode: string;
+  tentaisan: string;
+  tuphongban: string;        // Tên phòng ban "Từ"
+  denphongban: string;       // Tên phòng ban "Đến"
   ngaychuyen: string;
 };
 
-// const initialTransfers: DieuChuyenTaiSan[] = [
-//   {
-//     MaDieuChuyen: 1,
-//     mataisan: 101,
-//    tentaisan: "Máy tính Dell",
-//     tuphongban: "Thực hành Máy tính - Dãy C",
-//     denphongban: "Thực hành máy tính - Dãy I2",
-//     ngaychuyen: "2026-03-28",
-//   },
-// ];
+type PhongBan = {
+  maphongban: number;
+  tenphongban: string;
+};
 
 export default function AssetTransferManagement() {
-  const [transfers, setTransfers] = useState<DieuChuyenTaiSan[]>([]);
+  const [transfers, setTransfers] = useState<DieuChuyenTaiSan[]>([]); // Danh sách phòng ban
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formError, setFormError] = useState("");
+  const [phongBanList, setPhongBanList] = useState<{ maphongban: number; tenphongban: string }[]>([]);
 
-  const emptyForm = useMemo(
-    () => ({
-      mataisan: "",
-      tentaisan: "",
-      tuphongban: "",
-      denphongban: "",
-      ngaychuyen: "",
-    }),
-    []
-  );
+  const emptyForm = {
+    mataisan: "",
+    tuphongban: "",     // ID
+    denphongban: "",    // ID
+    ngaychuyen: "",
+  };
 
   const [form, setForm] = useState(emptyForm);
 
@@ -69,7 +67,7 @@ export default function AssetTransferManagement() {
     setFormError("");
   };
 
-  // ====================== FETCH DATA ======================
+  // Fetch danh sách chuyển giao
   const fetchTransfers = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -80,24 +78,21 @@ export default function AssetTransferManagement() {
         tuphongban,
         denphongban,
         ngaychuyen,
-        taisan (
-          macode,
-          tentaisan
-        )
+        taisan (macode, tentaisan),
+        phongban_tu:phongban!dieuchuyentaisan_tuphongban_fkey (tenphongban),
+        phongban_den:phongban!dieuchuyentaisan_denphongban_fkey (tenphongban)
       `)
       .order("ngaychuyen", { ascending: false });
 
-    if (error) {
-      console.error("Lỗi lấy chuyển giao:", error);
-      setTransfers([]);
-    } else {
+    if (error) console.error(error);
+    else {
       const mapped = data?.map((item: any) => ({
         madieuchuyen: item.madieuchuyen,
         mataisan: item.mataisan,
         macode: item.taisan?.macode || "N/A",
         tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
-        tuphongban: item.tuphongban,
-        denphongban: item.denphongban,
+        tuphongban: item.phongban_tu?.tenphongban || "Không rõ",
+        denphongban: item.phongban_den?.tenphongban || "Không rõ",
         ngaychuyen: item.ngaychuyen,
       })) || [];
       setTransfers(mapped);
@@ -105,13 +100,24 @@ export default function AssetTransferManagement() {
     setLoading(false);
   };
 
+  // Fetch danh sách phòng ban để dùng trong Select
+  const fetchPhongBan = async () => {
+    const { data, error } = await supabase
+      .from("phongban")
+      .select("maphongban, tenphongban")
+      .order("tenphongban");
+
+    if (!error && data) setPhongBanList(data);
+  };
+
   useEffect(() => {
     fetchTransfers();
+    fetchPhongBan();
   }, []);
 
   // ====================== CREATE ======================
   const handleCreate = async () => {
-    const { mataisan, tentaisan, tuphongban, denphongban, ngaychuyen } = form;
+    const { mataisan, tuphongban, denphongban, ngaychuyen } = form;
 
     if (!mataisan || !tuphongban || !denphongban || !ngaychuyen) {
       setFormError("Vui lòng điền đầy đủ thông tin bắt buộc.");
@@ -121,19 +127,18 @@ export default function AssetTransferManagement() {
     const { error } = await supabase.from("dieuchuyentaisan").insert([
       {
         mataisan: Number(mataisan),
-        tuphongban,
-        denphongban,
+        tuphongban: Number(tuphongban),
+        denphongban: Number(denphongban),
         ngaychuyen,
       },
     ]);
 
     if (error) {
-      console.error(error);
-      setFormError("Lỗi khi tạo chuyển giao: " + error.message);
+      setFormError("Lỗi: " + error.message);
     } else {
       resetForm();
       setDialogOpen(false);
-      fetchTransfers(); // Refresh danh sách
+      fetchTransfers();
     }
   };
 
@@ -151,13 +156,14 @@ export default function AssetTransferManagement() {
         </div>
 
         <Button
-          className="gap-2 bg-violet-600 hover:bg-violet-700 text-white shrink-0"
+          className="gap-2 bg-violet-600 hover:bg-violet-700 text-white"
           onClick={() => setDialogOpen(true)}
         >
           <Plus className="h-4 w-4" /> Chuyển giao mới
         </Button>
       </div>
 
+      {/* Bảng hiển thị */}
       <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
         {loading ? (
           <p className="text-center py-8">Đang tải dữ liệu...</p>
@@ -179,10 +185,8 @@ export default function AssetTransferManagement() {
                   <TableCell className="font-mono font-medium">{t.macode}</TableCell>
                   <TableCell className="font-mono text-xs">#{t.mataisan}</TableCell>
                   <TableCell className="font-medium">{t.tentaisan}</TableCell>
-                  <TableCell className="text-destructive/90">{t.tuphongban}</TableCell>
-                  <TableCell className="text-emerald-600 dark:text-emerald-400">
-                    {t.denphongban}
-                  </TableCell>
+                  <TableCell className="text-orange-600">{t.tuphongban}</TableCell>
+                  <TableCell className="text-emerald-600">{t.denphongban}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
@@ -194,10 +198,7 @@ export default function AssetTransferManagement() {
 
               {transfers.length === 0 && (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-10 text-muted-foreground"
-                  >
+                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
                     Chưa có dữ liệu chuyển giao
                   </TableCell>
                 </TableRow>
@@ -207,14 +208,8 @@ export default function AssetTransferManagement() {
         )}
       </div>
 
-      {/* Dialog Tạo chuyển giao */}
-      <Dialog
-        open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) resetForm();
-        }}
-      >
+      {/* Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Chuyển giao tài sản mới</DialogTitle>
@@ -243,31 +238,37 @@ export default function AssetTransferManagement() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Tên tài sản (tham khảo)</Label>
-              <Input
-                placeholder="Tự động lấy từ mã tài sản (nếu có)"
-                value={form.tentaisan}
-                onChange={(e) => setForm({ ...form, tentaisan: e.target.value })}
-              />
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Từ phòng ban *</Label>
-                <Input
-                  placeholder="VD: Khoa CNTT"
-                  value={form.tuphongban}
-                  onChange={(e) => setForm({ ...form, tuphongban: e.target.value })}
-                />
+                <Select value={form.tuphongban} onValueChange={(v) => setForm({ ...form, tuphongban: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn phòng ban" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {phongBanList.map((pb) => (
+                      <SelectItem key={pb.maphongban} value={String(pb.maphongban)}>
+                        {pb.tenphongban}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
               <div className="space-y-2">
                 <Label>Đến phòng ban *</Label>
-                <Input
-                  placeholder="VD: Phòng Thí nghiệm"
-                  value={form.denphongban}
-                  onChange={(e) => setForm({ ...form, denphongban: e.target.value })}
-                />
+                <Select value={form.denphongban} onValueChange={(v) => setForm({ ...form, denphongban: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn phòng ban" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {phongBanList.map((pb) => (
+                      <SelectItem key={pb.maphongban} value={String(pb.maphongban)}>
+                        {pb.tenphongban}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
