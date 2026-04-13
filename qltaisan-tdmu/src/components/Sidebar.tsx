@@ -51,11 +51,11 @@ const sidebarGroups: SidebarGroup[] = [
       },
       { label: "Sự cố", icon: AlertTriangle, path: "/su-co-tai-san" },
       { label: "Phân công", icon: UserCheck, path: "/phan-cong-sua-chua" },
-      {
-        label: "Sử dụng bảo trì",
-        icon: ClipboardCheck,
-        path: "/su-dung-bao-tri",
-      },
+      // {
+      //   label: "Sử dụng bảo trì",
+      //   icon: ClipboardCheck,
+      //   path: "/su-dung-bao-tri",
+      // },
       { label: "Lịch sử", icon: Clock, path: "/lich-su-bao-tri" },
     ],
   },
