@@ -226,7 +226,8 @@ export default function MaintenanceUsage () {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-24">Mã TS</TableHead>
+              <TableHead className="w-24">Mã Sử dụng</TableHead>
+              <TableHead>Mã Người sử dụng</TableHead>
               <TableHead>Tên tài sản</TableHead>
               <TableHead>Người sử dụng</TableHead>
               <TableHead>Phòng ban</TableHead>
@@ -239,8 +240,10 @@ export default function MaintenanceUsage () {
           <TableBody>
             {filtered.map((item) => (
               <TableRow key={item.masudung}>
-                <TableCell className="font-mono">{item.mataisan}</TableCell>
-                <TableCell className="font-medium">{item.tentaisan}</TableCell>
+
+                <TableCell className="font-mono">{item.masudung}</TableCell>
+                <TableCell className="font-medium">{item.manguoisudung}</TableCell>
+                <TableCell>{item.tentaisan}</TableCell>
                 <TableCell>{item.hoten}</TableCell>
                 <TableCell>{item.phongban}</TableCell>
                 <TableCell>{item.ngaybatdau}</TableCell>
