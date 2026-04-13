@@ -91,6 +91,7 @@ export default function MaintenanceUsage () {
     .select(`
       masudung,
       mataisan,
+      manguoisudung,
       ngaybatdau,
       ngayketthuc,
       trangthai,
