@@ -276,7 +276,7 @@ function AssetLocationTracking() {
           <TableBody>
             {filtered.map((asset) => (
               <TableRow key={asset.mavtts}>
-                <TableCell className="font-mono">#{asset.mataisan}</TableCell>
+                <TableCell className="font-mono">{asset.mataisan}</TableCell>
                 <TableCell className="font-medium">{asset.tentaisan}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">

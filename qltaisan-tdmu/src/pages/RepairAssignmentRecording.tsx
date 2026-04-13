@@ -341,7 +341,7 @@ function RepairAssignmentRecording() {
                 <TableRow key={item.maphancong}>
                   <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
                   <TableCell className="font-mono font-medium">{item.macode}</TableCell>
-                  <TableCell className="font-mono">#{item.mataisan}</TableCell>
+                  <TableCell className="font-mono">{item.mataisan}</TableCell>
                   <TableCell className="font-medium">{item.tentaisan}</TableCell>
                   <TableCell className="font-mono">{item.manguoisua}</TableCell>
                   <TableCell className="font-medium">{item.hoten}</TableCell>
@@ -396,7 +396,7 @@ function RepairAssignmentRecording() {
             <AlertDialogTitle>Xác nhận xóa phân công</AlertDialogTitle>
             <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa phân công cho tài sản{" "}
-              <strong>{deleteItem?.tentaisan}</strong> (Mã TS: #{deleteItem?.mataisan})? Hành động này không thể hoàn tác.
+              <strong>{deleteItem?.tentaisan}</strong> (Mã TS: {deleteItem?.mataisan})? Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

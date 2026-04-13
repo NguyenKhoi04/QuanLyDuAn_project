@@ -348,7 +348,7 @@ function AssetIncidentRecording() {
                 <TableRow key={item.masuco}>
                   <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
                   <TableCell className="font-mono font-medium">{item.macode}</TableCell>
-                  <TableCell className="font-mono">#{item.mataisan}</TableCell>
+                  <TableCell className="font-mono">{item.mataisan}</TableCell>
                   <TableCell className="font-medium">{item.tentaisan}</TableCell>
                   <TableCell>
                     <Badge variant={mucDoVariant[item.mucdo]}>{item.mucdo}</Badge>

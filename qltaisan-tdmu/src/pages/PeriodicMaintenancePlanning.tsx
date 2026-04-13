@@ -342,7 +342,7 @@ function PeriodicMaintenancePlanning() {
                 <TableRow key={p.makehoach}>
                   <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
                   <TableCell className="font-mono font-medium">{p.macode}</TableCell>
-                  <TableCell className="font-mono">#{p.mataisan}</TableCell>
+                  <TableCell className="font-mono">{p.mataisan}</TableCell>
                   <TableCell className="font-medium">{p.tentaisan}</TableCell>
                   <TableCell>{p.ngaybaotri}</TableCell>
                   <TableCell>{p.chuky}</TableCell>

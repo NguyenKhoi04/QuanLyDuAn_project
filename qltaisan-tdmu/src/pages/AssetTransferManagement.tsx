@@ -183,7 +183,7 @@ export default function AssetTransferManagement() {
               {transfers.map((t) => (
                 <TableRow key={t.madieuchuyen}>
                   <TableCell className="font-mono font-medium">{t.macode}</TableCell>
-                  <TableCell className="font-mono text-xs">#{t.mataisan}</TableCell>
+                  <TableCell className="font-mono text-xs">{t.mataisan}</TableCell>
                   <TableCell className="font-medium">{t.tentaisan}</TableCell>
                   <TableCell className="text-orange-600">{t.tuphongban}</TableCell>
                   <TableCell className="text-emerald-600">{t.denphongban}</TableCell>
