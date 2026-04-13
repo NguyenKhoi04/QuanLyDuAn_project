@@ -100,7 +100,7 @@ export default function MaintenanceUsage () {
         phongban (tenphongban)
       )
     `)
-    .order("ngaytao", { ascending: false });
+    .order("masudung", { ascending: false });
 
   if (error) {
     console.error("Lỗi fetch sudungbaotri:", error);
@@ -109,25 +109,6 @@ export default function MaintenanceUsage () {
     return;
   }
 
-  // 2. Lấy số lần bảo trì cho từng mataisan
-  const mataisanList = suDungData.map(item => item.mataisan).filter(Boolean);
-
-  let countMap = new Map<number, number>();
-
-  if (mataisanList.length > 0) {
-    const { data: lichsuData } = await supabase
-      .from("lichsubaotri")
-      .select("mataisan")
-      .in("mataisan", mataisanList);
-
-    // Đếm thủ công
-    countMap = lichsuData?.reduce((acc, item) => {
-      acc.set(item.mataisan, (acc.get(item.mataisan) || 0) + 1);
-      return acc;
-    }, new Map<number, number>()) || new Map();
-  }
-
-  // 3. Kết hợp dữ liệu
   const mapped = suDungData.map((item: any) => ({
     masudung: item.masudung,
     mataisan: item.mataisan,
@@ -140,7 +121,6 @@ export default function MaintenanceUsage () {
     ngaycapnhat: item.ngaycapnhat,
     trangthai: item.trangthai,
     ghichu: item.ghichu,
-    solanbaotri: countMap.get(item.mataisan) || 0,
   }));
 
   setData(mapped);
