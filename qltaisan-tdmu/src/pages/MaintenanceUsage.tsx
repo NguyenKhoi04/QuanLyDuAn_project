@@ -50,8 +50,8 @@ type MaintenanceUsage  = {
   manguoisudung: number;
   hoten: string;
   phongban: string;
-  ngaybatdau: string;
-  ngayketthuc?: string;
+  ngaytao: string;
+  ngaycapnhat?: string;
   trangthai: string;
   ghichu?: string;
   solanbaotri: number;           // ← Số lần bảo trì
@@ -76,7 +76,7 @@ export default function MaintenanceUsage () {
   const [form, setForm] = useState({
     mataisan: "",
     manguoisudung: "",
-    ngaybatdau: "",
+    ngaytao: "",
     trangthai: "Đang sử dụng",
     ghichu: "",
   });
@@ -92,8 +92,8 @@ export default function MaintenanceUsage () {
       masudung,
       mataisan,
       manguoisudung,
-      ngaybatdau,
-      ngayketthuc,
+      ngaytao,
+      ngaycapnhat,
       trangthai,
       ghichu,
       taisan (macode, tentaisan),
@@ -102,7 +102,7 @@ export default function MaintenanceUsage () {
         phongban (tenphongban)
       )
     `)
-    .order("ngaybatdau", { ascending: false });
+    .order("ngaytao", { ascending: false });
 
   if (error) {
     console.error("Lỗi fetch sudungbaotri:", error);
@@ -138,8 +138,8 @@ export default function MaintenanceUsage () {
     manguoisudung: item.manguoisudung,
     hoten: item.nguoidung?.hoten || "Không rõ",
     phongban: item.nguoidung?.phongban?.tenphongban || "Không rõ",
-    ngaybatdau: item.ngaybatdau,
-    ngayketthuc: item.ngayketthuc,
+    ngaytao: item.ngaytao,
+    ngaycapnhat: item.ngaycapnhat,
     trangthai: item.trangthai,
     ghichu: item.ghichu,
     solanbaotri: countMap.get(item.mataisan) || 0,
@@ -163,7 +163,7 @@ export default function MaintenanceUsage () {
     setForm({
       mataisan: "",
       manguoisudung: "",
-      ngaybatdau: new Date().toISOString().slice(0, 10),
+      ngaytao: new Date().toISOString().slice(0, 10),
       trangthai: "Đang sử dụng",
       ghichu: "",
     });
@@ -174,7 +174,7 @@ export default function MaintenanceUsage () {
     setForm({
       mataisan: item.mataisan.toString(),
       manguoisudung: item.manguoisudung.toString(),
-      ngaybatdau: item.ngaybatdau,
+      ngaytao: item.ngaytao,
       trangthai: item.trangthai,
       ghichu: item.ghichu || "",
     });
@@ -230,7 +230,8 @@ export default function MaintenanceUsage () {
               <TableHead>Tên tài sản</TableHead>
               <TableHead>Người sử dụng</TableHead>
               <TableHead>Phòng ban</TableHead>
-              <TableHead>Ngày bắt đầu</TableHead>
+              <TableHead>Ngày tạo</TableHead>
+              <TableHead>Ngày cập nhật</TableHead>
               <TableHead>Lịch sử bảo trì</TableHead>     {/* ← Cột mới */}
               <TableHead>Trạng thái</TableHead>
               <TableHead className="text-center w-28">Thao tác</TableHead>
@@ -244,7 +245,8 @@ export default function MaintenanceUsage () {
                 <TableCell>{item.tentaisan}</TableCell>
                 <TableCell>{item.hoten}</TableCell>
                 <TableCell>{item.phongban}</TableCell>
-                <TableCell>{item.ngaybatdau}</TableCell>
+                <TableCell>{item.ngaytao}</TableCell>
+                <TableCell>{item.ngaycapnhat}</TableCell>
 
                 {/* Cột Lịch sử bảo trì mới */}
                 <TableCell>
@@ -297,7 +299,37 @@ export default function MaintenanceUsage () {
       </div>
 
       {/* Dialog và AlertDialog giữ nguyên như trước */}
-      {/* ... */}
+      
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingItem ? "Cập nhật sử dụng bảo trì" : "Ghi nhận sử dụng bảo trì mới"}</DialogTitle>
+          </DialogHeader>
+          {/* Form nội dung */}
+          <div className="grid gap-4 py-2">
+            {/* Mã tài sản */}
+            <div className="space-y-2">
+              <Label htmlFor="masudung">Mã sử dụng</Label>
+              <Input
+                id="masudung"
+                type="text"
+                value={editingItem?.masudung || ""}
+                onChange={(e) => setEditingItem({ ...editingItem, masudung: Number(e.target.value) } as MaintenanceUsage)}
+                disabled
+              />
+            </div>  
+            {/* Các trường khác như trước */}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { resetForm(); setEditingItem(null); setDialogOpen(false); }}>
+              Hủy
+            </Button>
+            <Button onClick={handleSubmit}>
+              {editingItem ? "Cập nhật" : "Tạo mới"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
