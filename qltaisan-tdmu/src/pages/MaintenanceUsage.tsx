@@ -54,8 +54,6 @@ type MaintenanceUsage  = {
   ngaycapnhat?: string;
   trangthai: string;
   ghichu?: string;
-  solanbaotri: number;           // ← Số lần bảo trì
-  lanbaotriganhat?: string;      // ← Lần bảo trì gần nhất
 };
 
 const trangThaiVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -232,7 +230,7 @@ export default function MaintenanceUsage () {
               <TableHead>Phòng ban</TableHead>
               <TableHead>Ngày tạo</TableHead>
               <TableHead>Ngày cập nhật</TableHead>
-              <TableHead>Lịch sử bảo trì</TableHead>     {/* ← Cột mới */}
+              <TableHead>Ghi chú</TableHead>     {/* ← Cột mới */}
               <TableHead>Trạng thái</TableHead>
               <TableHead className="text-center w-28">Thao tác</TableHead>
             </TableRow>
@@ -247,27 +245,7 @@ export default function MaintenanceUsage () {
                 <TableCell>{item.phongban}</TableCell>
                 <TableCell>{item.ngaytao}</TableCell>
                 <TableCell>{item.ngaycapnhat}</TableCell>
-
-                {/* Cột Lịch sử bảo trì mới */}
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="font-mono">
-                      {item.solanbaotri} lần
-                    </Badge>
-                    {item.solanbaotri > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-xs"
-                        onClick={() => alert(`Xem lịch sử bảo trì của tài sản #${item.mataisan}`)}
-                      >
-                        <History className="h-3.5 w-3.5 mr-1" />
-                        Xem
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-
+                <TableCell>{item.ghichu}</TableCell>
                 <TableCell>
                   <Badge variant={trangThaiVariant[item.trangthai] || "outline"}>
                     {item.trangthai}
