@@ -182,7 +182,7 @@ function AssetLocationTracking() {
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { resetForm(); setEditingItem(null); } }}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
-              <Plus className="h-4 w-4" /> Cập nhật vị trí mới
+              <Plus className="h-4 w-4" /> Thêm vị trí tài sản/ Cập nhật vị trí mới
             </Button>
           </DialogTrigger>
 
