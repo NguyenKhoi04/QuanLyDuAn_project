@@ -230,7 +230,7 @@ function RepairAssignmentRecording() {
         <div>
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <UserCheck className="h-5 w-5 text-emerald-500" />
-            Ghi nhận đảm nhận sửa chữa
+            Phân công sửa chữa
           </h2>
           <p className="text-sm text-muted-foreground">
             Phân công người sửa chữa cho tài sản và theo dõi tiến độ
