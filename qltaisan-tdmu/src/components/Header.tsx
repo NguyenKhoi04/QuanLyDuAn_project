@@ -4,13 +4,13 @@ import NotificationSystem from "./NotificationSystem";
 
 const navItems = [
   { label: "Trang chủ", href: "/" },
-  { label: "Tài liệu", href: "#" },
-  { label: "Quy định", href: "#" },
-  { label: "Giới thiệu", href: "#" },
-  { label: "Quản lý tài sản", href: "#" },
-  { label: "Báo cáo", href: "#" },
-  { label: "Hỗ trợ", href: "#" },
-  { label: "Liên hệ", href: "#" },
+  { label: "Quản lý tài liệu", href: "/quản-lý-tài-liệu" },
+  { label: "Quy định", href: "/quy-định" },
+  { label: "Giới thiệu", href: "/giới-thiệu" },
+  { label: "Quản lý tài sản", href: "/quản-lý-tài-sản" },
+  { label: "Báo cáo", href: "/báo-cáo" },
+  { label: "Hỗ trợ", href: "/hỗ-trợ" },
+  { label: "Liên hệ", href: "/liên-hệ" },
 ];
 
 const AppHeader = () => {

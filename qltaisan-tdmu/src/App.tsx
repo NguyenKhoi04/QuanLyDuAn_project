@@ -25,6 +25,7 @@ import KiemKe from "./pages/KiemKe";
 import AssetLocationTracking from "./pages/AssetLocationTracking";
 import AssetTransferManagement from "./pages/AssetTransferManagement";
 import PositionDepartment from "./pages/position_department";
+import DocumentManagement from "./pages/DocumentManagement";
 
 
 const queryClient = new QueryClient();
@@ -42,6 +43,8 @@ function App() {
              <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/assets" element={<AssetList />} />
+            /// Các route khác trong header
+            <Route path="/quản-lý-tài-liệu" element={<DocumentManagement />} />
             <Route
               path="/ke-hoach-bao-tri-dinh-ky"
               element={<PeriodicMaintenancePlanning />}
