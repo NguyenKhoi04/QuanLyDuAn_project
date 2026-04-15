@@ -31,6 +31,10 @@ const NotificationSystem: React.FC<{ manguoidung: number }> = ({ manguoidung }) 
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    fetchNotifications();
+  }, [manguoidung]);
+
   // Lấy danh sách thông báo
   const fetchNotifications = async () => {
     if (!manguoidung) return;
@@ -62,6 +66,25 @@ const NotificationSystem: React.FC<{ manguoidung: number }> = ({ manguoidung }) 
       message.error('Gửi thông báo thất bại');
     }
   }
+
+  // ==================== THÊM ĐOẠN NÀY ====================
+
+const testSendNotification = async () => {
+  const result = await notificationService.sendIncidentAlert(
+    1,                                 // MaNguoiDung (Admin)
+    1,                                 // MaTaiSan (có thể thay số khác)
+    "Máy chiếu phòng A301",            // Tên tài sản
+    "Không bật được, đèn báo lỗi đỏ",  // Mô tả sự cố
+    "admin@tdmu.edu.vn"                // ← THAY BẰNG EMAIL CỦA BẠN
+  );
+
+  if (result) {
+    message.success("✅ Gửi thành công! Kiểm tra email của bạn.");
+  } else {
+    message.error("❌ Gửi thất bại. Xem console để xem lỗi.");
+  }
+};
+// =====================================================
 
   useEffect(() => {
     fetchNotifications();
