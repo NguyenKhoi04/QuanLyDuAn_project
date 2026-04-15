@@ -38,6 +38,9 @@ const sidebarGroups: SidebarGroup[] = [
       { label: "Vị trí tài sản", icon: MapPin, path: "/vi-tri-tai-san" },
       { label: "Vị trí phòng ban", icon: MapPin, path: "/vi-tri-phong-ban" },
       { label: "Điều chuyển", icon: Move, path: "/dieu-chuyen-tai-san" },
+      { label: "Phân loại tài sản", icon: ClipboardList, path: "/phan-loai-tai-san" },
+      { label: "Danh sách nhà cung cấp", icon: ClipboardList, path: "/nha-cung-cap" },
+      { label: "Quản lý Tài liệu", icon: BarChart3, path: "/quản-lý-tài-liệu" },
     ],
   },
   {
@@ -85,6 +88,9 @@ const filterSidebar = (role: number) => {
       "/kiem-ke",
       "/vi-tri-tai-san",
       "/dieu-chuyen-tai-san",
+      "/phan-loai-tai-san",
+      "/nha-cung-cap",
+      "/quản-lý-tài-liệu",
     ];
   }
 
@@ -95,6 +101,7 @@ const filterSidebar = (role: number) => {
       "/su-co-tai-san",
       "/phan-cong-sua-chua",
       "/lich-su-bao-tri",
+      "/quan-lý-tài-liệu",
     ];
   }
 

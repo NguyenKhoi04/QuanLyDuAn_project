@@ -26,6 +26,8 @@ import AssetLocationTracking from "./pages/AssetLocationTracking";
 import AssetTransferManagement from "./pages/AssetTransferManagement";
 import PositionDepartment from "./pages/position_department";
 import DocumentManagement from "./pages/DocumentManagement";
+import AssetClassification from "./pages/AssetClassification";
+import SupplierManagement from "./pages/SupplierManagement";
 
 
 const queryClient = new QueryClient();
@@ -67,6 +69,8 @@ function App() {
             <Route path="/vi-tri-tai-san" element={<AssetLocationTracking />} />
               <Route path="/vi-tri-phong-ban" element={<PositionDepartment />} />
               <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
+              <Route path="/phan-loai-tai-san" element={<AssetClassification/>} />
+              <Route path="/nha-cung-cap" element={<SupplierManagement />} />
               {/* <Route path="/su-dung-bao-tri" element={<MaintenanceUsage />} /> */}
             <Route path="*" element={<NotFound />} />
           </Routes>
