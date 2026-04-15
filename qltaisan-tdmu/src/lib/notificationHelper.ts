@@ -13,11 +13,37 @@ interface SendNotificationParams {
   mataisan?: number;
   noidung: string;
   loaiThongBao: NotificationType;
-  email?: string; // Thêm trường email nếu muốn gửi qua email
+  email?: string;           // Nếu có email thì gửi thêm qua email
 }
 
 /**
- * Gửi thông báo vào database
+ * Gửi email qua API
+ */
+const sendEmail = async (toEmail: string, content: string, type: NotificationType) => {
+  try {
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: toEmail,
+        content: content,
+        type: type,
+      }),
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Gửi email thất bại');
+
+    console.log('✅ Email đã được gửi thành công');
+    return true;
+  } catch (err) {
+    console.error('Gửi email thất bại:', err);
+    return false;
+  }
+};
+
+/**
+ * Gửi thông báo vào Database (và email nếu có)
  */
 export const sendNotification = async ({
   maNguoiDung,
@@ -25,39 +51,35 @@ export const sendNotification = async ({
   noidung,
   loaiThongBao,
   email,
-}: SendNotificationParams) => {
-  const { error } = await supabase.from("thongbao").insert({
-    manguoidung: maNguoiDung,
-    mataisan: mataisan,
-    noidung: noidung,
-    loaithongbao: loaiThongBao,
-  });
+}: SendNotificationParams): Promise<boolean> => {
+  try {
+    // 1. Lưu vào bảng ThongBao
+    const { error } = await supabase.from('thongbao').insert({
+      manguoidung: maNguoiDung,
+      mataisan: mataisan,
+      noidung: noidung,
+      loaithongbao: loaiThongBao,
+    });
 
-  if (error) {
-    console.error("Gửi thông báo thất bại:", error);
+    if (error) {
+      console.error("Lỗi insert thông báo:", error);
+      return false;
+    }
+
+    // 2. Gửi email nếu có địa chỉ email
+    if (email) {
+      await sendEmail(email, noidung, loaiThongBao);
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Gửi thông báo thất bại:", err);
     return false;
   }
-  //Gửi email nếu có trường email (tùy chọn)
-  if (email) {
-    try {
-      await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: email,
-          subject: `Thông báo mới: ${loaiThongBao}`,
-          text: noidung,
-        }),
-      });
-    } catch (emailError) {
-      console.error("Gửi email thất bại:", emailError);
-    }
-  }
-  return true;
 };
 
 /**
- * Các hàm tiện ích gửi thông báo theo chức năng
+ * Các hàm tiện ích theo chức năng
  */
 export const notificationService = {
   // 1. Gửi thông báo lịch bảo trì
@@ -66,12 +88,14 @@ export const notificationService = {
     mataisan: number,
     tenTaiSan: string,
     ngayBaoTri: string,
+    email?: string
   ) {
     return sendNotification({
       maNguoiDung,
       mataisan,
       noidung: `Đến hạn bảo trì tài sản: ${tenTaiSan} vào ngày ${ngayBaoTri}`,
       loaiThongBao: "maintenance",
+      email,
     });
   },
 
@@ -81,12 +105,14 @@ export const notificationService = {
     mataisan: number,
     tenTaiSan: string,
     moTaSuCo: string,
+    email?: string
   ) {
     return sendNotification({
       maNguoiDung,
       mataisan,
       noidung: `🚨 Sự cố mới: ${tenTaiSan} - ${moTaSuCo}`,
       loaiThongBao: "incident",
+      email,
     });
   },
 
@@ -96,21 +122,28 @@ export const notificationService = {
     mataisan: number,
     tenTaiSan: string,
     trangThaiMoi: string,
+    email?: string
   ) {
     return sendNotification({
       maNguoiDung,
       mataisan,
       noidung: `Trạng thái tài sản ${tenTaiSan} đã thay đổi thành: ${trangThaiMoi}`,
       loaiThongBao: "status",
+      email,
     });
   },
 
   // 4. Thông báo chung
-  async sendGeneral(maNguoiDung: number, tieuDe: string) {
+  async sendGeneral(
+    maNguoiDung: number,
+    tieuDe: string,
+    email?: string
+  ) {
     return sendNotification({
       maNguoiDung,
       noidung: tieuDe,
       loaiThongBao: "general",
+      email,
     });
   },
 };
