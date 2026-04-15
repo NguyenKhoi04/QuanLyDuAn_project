@@ -134,12 +134,12 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
       const filePath = `uploads/${fileName}`;
 
       const { data, error } = await supabase.storage
-        .from('TaiLieuDinhKem') // Bucket name
+        .from('duongdan') // Bucket name
         .upload(filePath, file);
 
       if (error) throw error;
 
-      const publicUrl = supabase.storage.from('TaiLieuDinhKem').getPublicUrl(filePath).data.publicUrl;
+      const publicUrl = supabase.storage.from('duongdan').getPublicUrl(filePath).data.publicUrl;
 
       // Insert vào database
       const { error: dbError } = await supabase
