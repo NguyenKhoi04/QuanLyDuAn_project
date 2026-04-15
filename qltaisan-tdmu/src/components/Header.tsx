@@ -50,14 +50,6 @@ const AppHeader = () => {
               </a>
             ))}
           </nav>
-
-          {/* Theme toggle */}
-          {/*Thông báo */}
-        
-           <NotificationSystem />
-            {/* Thông tin cá nhân */}
-    
-
           <div className="flex items-center">
             <ThemeToggle />
           </div>
