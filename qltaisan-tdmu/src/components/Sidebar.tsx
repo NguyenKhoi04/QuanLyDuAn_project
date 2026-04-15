@@ -30,7 +30,7 @@ const sidebarGroups: SidebarGroup[] = [
     title: "Tổng quan",
     links: [{ label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" },
       { label: "Trang quảng lý thông báo ", icon: LayoutDashboard, path: "/notifications" },
-      { label: "Báo cáo giáo viên sinh viên", icon: LayoutDashboard, path: "/bao-cao-giaovien-sinhvien" }
+      { label: "Báo cáo dành cho giáo viên/sinh viên", icon: LayoutDashboard, path: "/bao-cao-giaovien-sinhvien" }
     ],
 
   },
@@ -95,6 +95,14 @@ const filterSidebar = (role: number) => {
       "/phan-loai-tai-san",
       "/nha-cung-cap",
       "/quản-lý-tài-liệu",
+      "/settings",
+    ];
+  }
+
+  if (role === 3 || role === 5) {
+    allowed = [
+     "/bao-cao-giaovien-sinhvien",
+      "/help",
     ];
   }
 
@@ -106,6 +114,7 @@ const filterSidebar = (role: number) => {
       "/phan-cong-sua-chua",
       "/lich-su-bao-tri",
       "/quan-lý-tài-liệu",
+      "/settings",
     ];
   }
 

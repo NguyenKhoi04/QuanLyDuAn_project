@@ -1,4 +1,6 @@
 // app/incident-report/page.tsx   hoặc   components/IncidentReport.tsx
+// Đây là một trang React component cho phép giảng viên và sinh viên báo cáo sự cố tài sản.
+// để xem sau
 'use client';
 
 import React, { useState, useEffect } from 'react';
