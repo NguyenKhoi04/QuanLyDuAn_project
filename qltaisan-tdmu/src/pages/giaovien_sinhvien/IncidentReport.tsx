@@ -12,7 +12,7 @@ import type { ColumnsType } from 'antd/es/table';
 interface TaiSan {
   mataisan: number;
   tentaisan: string;
-  vitrihientai?: string;
+  phong?: string;
 }
 
 interface BaoCao {
@@ -46,7 +46,7 @@ const IncidentReport: React.FC = () => {
   const fetchTaiSan = async () => {
     const { data } = await supabase
       .from('vitritaisan')
-      .select('mataisan, tentaisan, vitrihientai');
+      .select('mataisan, tentaisan, phong');
     setTaiSans(data || []);
   };
 
@@ -130,7 +130,7 @@ const IncidentReport: React.FC = () => {
                 <Select placeholder="Chọn tài sản bị hỏng">
                   {taiSans.map(ts => (
                     <Select.Option key={ts.mataisan} value={ts.mataisan}>
-                      {ts.tentaisan} - ({ts.vitrihientai})
+                      {ts.tentaisan} - ({ts.phong})
                     </Select.Option>
                   ))}
                 </Select>
