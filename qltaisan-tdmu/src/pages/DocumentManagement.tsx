@@ -7,7 +7,7 @@ import {
   DownloadOutlined, EyeOutlined, HistoryOutlined, UploadOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { supabase } from '../supabaseClient'; // ← Import Supabase client của bạn
+import { supabase } from "@/lib/supabaseClient"; // ← Import Supabase client của bạn
 
 const { Title, Text } = Typography;
 
