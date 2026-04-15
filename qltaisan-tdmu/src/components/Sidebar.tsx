@@ -102,7 +102,7 @@ const filterSidebar = (role: number) => {
   if (role === 3 || role === 5) {
     allowed = [
      "/bao-cao-giaovien-sinhvien",
-      "/help",
+     "/settings",
     ];
   }
 
