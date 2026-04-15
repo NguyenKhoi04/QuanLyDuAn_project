@@ -12,7 +12,7 @@ import type { ColumnsType } from 'antd/es/table';
 interface TaiSan {
   mataisan: number;
   tentaisan: string;
-  vitri?: string;
+  vitrihientai?: string;
 }
 
 interface BaoCao {
@@ -130,7 +130,7 @@ const IncidentReport: React.FC = () => {
                 <Select placeholder="Chọn tài sản bị hỏng">
                   {taiSans.map(ts => (
                     <Select.Option key={ts.mataisan} value={ts.mataisan}>
-                      {ts.tentaisan} ({ts.vitri})
+                      {ts.tentaisan} - ({ts.vitrihientai})
                     </Select.Option>
                   ))}
                 </Select>
