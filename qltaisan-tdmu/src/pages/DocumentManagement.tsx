@@ -25,7 +25,7 @@ interface DocumentVersion {
 
 interface Document {
   id: string;
-  maTaiSan: number;
+  mataisan: number;
   documentName: string;
   currentVersion: string;
   totalVersions: number;
@@ -33,14 +33,14 @@ interface Document {
   versions: DocumentVersion[];
 }
 
-const DocumentManagement: React.FC<{ maTaiSan?: number }> = ({ maTaiSan }) => {
+const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  // Fetch tài liệu theo MaTaiSan
+  // Fetch tài liệu theo mataisan
   const fetchDocuments = async () => {
     setLoading(true);
     try {
@@ -49,8 +49,8 @@ const DocumentManagement: React.FC<{ maTaiSan?: number }> = ({ maTaiSan }) => {
         .select('*')
         .order('NgayTaiLen', { ascending: false });
 
-      if (maTaiSan) {
-        query = query.eq('MaTaiSan', maTaiSan);
+      if (mataisan) {
+        query = query.eq('mataisan', mataisan);
       }
 
       const { data, error } = await query;
@@ -63,7 +63,7 @@ const DocumentManagement: React.FC<{ maTaiSan?: number }> = ({ maTaiSan }) => {
         if (!acc[key]) {
           acc[key] = {
             id: key,
-            maTaiSan: item.MaTaiSan,
+            mataisan: item.mataisan,
             documentName: item.TenFile,
             versions: [],
           };
@@ -104,7 +104,7 @@ const DocumentManagement: React.FC<{ maTaiSan?: number }> = ({ maTaiSan }) => {
 
   useEffect(() => {
     fetchDocuments();
-  }, [maTaiSan]);
+  }, [mataisan]);
 
   const handleView = (version: DocumentVersion) => {
     window.open(version.url, '_blank');
@@ -145,7 +145,7 @@ const DocumentManagement: React.FC<{ maTaiSan?: number }> = ({ maTaiSan }) => {
       const { error: dbError } = await supabase
         .from('TepDinhKem')
         .insert({
-          MaTaiSan: maTaiSan || 1,
+          mataisan: mataisan || 1,
           TenFile: file.name,
           DuongDan: publicUrl,
           MaTaiLieu: isNewVersion ? selectedDocument?.id : null,
