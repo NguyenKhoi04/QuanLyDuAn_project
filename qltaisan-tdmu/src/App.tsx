@@ -29,6 +29,7 @@ import DocumentManagement from "./pages/DocumentManagement";
 import AssetClassification from "./pages/AssetClassification";
 import SupplierManagement from "./pages/SupplierManagement";
 import NotificationManagement from "./pages/NotificationManagement";
+import IncidentReport from "./pages/giaovien_sinhvien/IncidentReport";
 
 
 const queryClient = new QueryClient();
@@ -75,6 +76,8 @@ function App() {
               <Route path="/phan-loai-tai-san" element={<AssetClassification/>} />
               <Route path="/nha-cung-cap" element={<SupplierManagement />} />
               {/* <Route path="/su-dung-bao-tri" element={<MaintenanceUsage />} /> */}
+
+              <Route path="/bao-cao-giaovien-sinhvien" element={<IncidentReport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

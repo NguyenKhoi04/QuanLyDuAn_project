@@ -30,6 +30,7 @@ const sidebarGroups: SidebarGroup[] = [
     title: "Tổng quan",
     links: [{ label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" },
       { label: "Trang quảng lý thông báo ", icon: LayoutDashboard, path: "/notifications" },
+      { label: "Báo cáo giáo viên sinh viên", icon: LayoutDashboard, path: "/bao-cao-giaovien-sinhvien" }
     ],
 
   },
