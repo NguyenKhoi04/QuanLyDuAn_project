@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { supabase } from "@/lib/supabaseClient"; // ← Import Supabase client của bạn
+import AppShell from '@/components/AppShell';
 
 const { Title, Text } = Typography;
 
@@ -201,18 +202,24 @@ const DocumentManagement: React.FC<{ maTaiSan?: number }> = ({ maTaiSan }) => {
     },
   ];
 
-  return (
+return (
+  <AppShell>
     <div style={{ padding: 24 }}>
       <Title level={3}>Quản lý tài liệu đính kèm</Title>
+      <Text type="secondary">
+        Xem và tải xuống tài liệu | Quản lý phiên bản tài liệu (lịch sử upload)
+      </Text>
 
-      <Upload
-        showUploadList={false}
-        beforeUpload={(file) => { handleUpload(file, false); return false; }}
-      >
-        <Button type="primary" icon={<UploadOutlined />} size="large" loading={uploading}>
-          Tải lên tài liệu mới
-        </Button>
-      </Upload>
+      <div style={{ marginTop: 24, marginBottom: 16 }}>
+        <Upload
+          showUploadList={false}
+          beforeUpload={(file) => { handleUpload(file, false); return false; }}
+        >
+          <Button type="primary" icon={<UploadOutlined />} size="large" loading={uploading}>
+            Tải lên tài liệu mới
+          </Button>
+        </Upload>
+      </div>
 
       <Table
         columns={columns}
@@ -255,7 +262,8 @@ const DocumentManagement: React.FC<{ maTaiSan?: number }> = ({ maTaiSan }) => {
         )}
       </Modal>
     </div>
-  );
+  </AppShell>
+);
 };
 
 export default DocumentManagement;
