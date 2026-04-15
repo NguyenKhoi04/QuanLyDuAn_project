@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import AppShell from '@/components/AppShell';
 
 const { Title, Text } = Typography;
 
@@ -252,7 +253,7 @@ const DocumentManagement: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <AppShell><div style={{ padding: 24 }}>
       <Title level={3}>Quản lý tài liệu đính kèm</Title>
       <Text type="secondary">
         Xem và tải xuống tài liệu • Quản lý phiên bản tài liệu (lịch sử upload)
@@ -299,6 +300,8 @@ const DocumentManagement: React.FC = () => {
         )}
       </Modal>
     </div>
+</AppShell>
+    
   );
 };
 
