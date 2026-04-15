@@ -28,6 +28,7 @@ import PositionDepartment from "./pages/position_department";
 import DocumentManagement from "./pages/DocumentManagement";
 import AssetClassification from "./pages/AssetClassification";
 import SupplierManagement from "./pages/SupplierManagement";
+import NotificationManagement from "./pages/NotificationManagement";
 
 
 const queryClient = new QueryClient();
@@ -45,6 +46,8 @@ function App() {
              <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/assets" element={<AssetList />} />
+            //Trang quảng lý thông báo 
+            <Route path="/notifications" element={<NotificationManagement />} />
             /// Các route khác trong header
             <Route path="/quản-lý-tài-liệu" element={<DocumentManagement />} />
             <Route

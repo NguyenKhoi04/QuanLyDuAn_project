@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import NotificationSystem from "@/components/NotificationSystem";
 import {
@@ -51,6 +52,15 @@ const pieData = [
 const COLORS = ["#10b981", "#3b82f6", "#ef4444", "#eab308", "#8b5cf6"];
 
 function Dashboard() {
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+
+  useEffect(() => {
+    // TODO: Replace with actual user ID retrieval logic
+    // e.g., from localStorage, context, or API
+    const userId = localStorage.getItem("userId") || "";
+    setCurrentUserId(userId);
+  }, []);
+
   return (
     <AppShell>
           <div className="flex items-start justify-between gap-4 mb-6">
@@ -63,7 +73,10 @@ function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <NotificationSystem />
+              {/* <NotificationSystem /> */}
+
+              <NotificationSystem manguoidung={parseInt(currentUserId) || 0} />
+              
               {/* <div className="w-9 h-9 bg-muted rounded-2xl border border-border" /> */}
             </div>
           </div>

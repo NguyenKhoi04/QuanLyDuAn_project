@@ -28,7 +28,10 @@ type SidebarGroup = { title: string; links: SidebarLink[] };
 const sidebarGroups: SidebarGroup[] = [
   {
     title: "Tổng quan",
-    links: [{ label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" }],
+    links: [{ label: "Tổng quan", icon: LayoutDashboard, path: "/dashboard" },
+      { label: "Trang quảng lý thông báo ", icon: LayoutDashboard, path: "/notifications" },
+    ],
+
   },
   {
     title: "Tài sản",
