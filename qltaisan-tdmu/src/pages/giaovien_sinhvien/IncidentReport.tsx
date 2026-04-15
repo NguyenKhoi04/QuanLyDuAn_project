@@ -46,7 +46,7 @@ const IncidentReport: React.FC = () => {
   const fetchTaiSan = async () => {
     const { data } = await supabase
       .from('vitritaisan')
-      .select('mataisan, tentaisan, vitri');
+      .select('mataisan, tentaisan, vitrihientai');
     setTaiSans(data || []);
   };
 
