@@ -1,13 +1,13 @@
 // DocumentManagement.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  Table, Button, Space, Modal, Typography, Upload, message, Tag, Tooltip,
+  Table, Button, Space, Modal, Typography, Upload, message, Tag,
 } from 'antd';
 import {
   DownloadOutlined, EyeOutlined, HistoryOutlined, UploadOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { supabase } from "@/lib/supabaseClient"; // ← Import Supabase client của bạn
+import { supabase } from "@/lib/supabaseClient";
 import AppShell from '@/components/AppShell';
 
 const { Title, Text } = Typography;
@@ -20,7 +20,7 @@ interface DocumentVersion {
   uploadedBy: string;
   uploadDate: string;
   url: string;
-  maTaiLieu?: string;
+  matailieu?: string;
 }
 
 interface Document {
@@ -40,12 +40,12 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  // Fetch tài liệu theo mataisan
+  // Fetch dữ liệu
   const fetchDocuments = async () => {
     setLoading(true);
     try {
       let query = supabase
-        .from('tepdinhkeem')
+        .from('tepdinhkem')           // ← TÊN BẢNG ĐÃ SỬA
         .select('*')
         .order('ngaytailen', { ascending: false });
 
@@ -57,26 +57,27 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
 
       if (error) throw error;
 
-      // Nhóm theo tài liệu (theo MaTaiLieu hoặc TenFile gốc)
+      // Nhóm theo tài liệu
       const grouped = data.reduce((acc: any, item: any) => {
-        const key = item.MaTaiLieu || item.TenFile;
+        const key = item.matailieu || item.tenfile;
         if (!acc[key]) {
           acc[key] = {
             id: key,
             mataisan: item.mataisan,
-            documentName: item.TenFile,
+            documentName: item.tenfile,
             versions: [],
           };
         }
         acc[key].versions.push({
           id: item.id,
-          version: item.PhienBan || 'v1.0',
-          fileName: item.TenFile,
-          fileSize: item.KichThuoc || '—',
-          uploadedBy: item.NguoiTaiLen || '—',
-          uploadDate: new Date(item.ngaytailen).toLocaleString('vi-VN'),
-          url: item.DuongDan,
-          maTaiLieu: item.MaTaiLieu,
+          version: item.phienban || 'v1.0',
+          fileName: item.tenfile,
+          fileSize: item.kichthuoc || '—',
+          uploadedBy: item.nguoithailen || '—',
+          uploadDate: item.ngaytailen 
+            ? new Date(item.ngaytailen).toLocaleString('vi-VN') 
+            : '',
+          url: item.duongdan,
         });
         return acc;
       }, {});
@@ -96,6 +97,7 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
 
       setDocuments(result);
     } catch (error: any) {
+      console.error(error);
       message.error('Lỗi khi tải danh sách tài liệu: ' + error.message);
     } finally {
       setLoading(false);
@@ -106,9 +108,7 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
     fetchDocuments();
   }, [mataisan]);
 
-  const handleView = (version: DocumentVersion) => {
-    window.open(version.url, '_blank');
-  };
+  const handleView = (url: string) => window.open(url, '_blank');
 
   const handleDownload = (version: DocumentVersion) => {
     const link = document.createElement('a');
@@ -125,7 +125,7 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
     setIsHistoryModalVisible(true);
   };
 
-  // Upload file mới
+  // Upload file
   const handleUpload = async (file: any, isNewVersion: boolean = true) => {
     setUploading(true);
     try {
@@ -133,31 +133,35 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
       const fileName = `${Date.now()}_${file.name}`;
       const filePath = `uploads/${fileName}`;
 
-      const { data, error } = await supabase.storage
-        .from('duongdan') // Bucket name
-        .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage
+        .from('duongdan')                    // Bucket name
+        .upload(filePath, file, { upsert: true });
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
 
-      const publicUrl = supabase.storage.from('duongdan').getPublicUrl(filePath).data.publicUrl;
+      const { data: urlData } = supabase.storage
+        .from('duongdan')
+        .getPublicUrl(filePath);
 
       // Insert vào database
       const { error: dbError } = await supabase
-        .from('tepdinhkeem')
+        .from('tepdinhkem')
         .insert({
           mataisan: mataisan || 1,
-          TenFile: file.name,
-          DuongDan: publicUrl,
-          MaTaiLieu: isNewVersion ? selectedDocument?.id : null,
-          PhienBan: isNewVersion ? `v${(selectedDocument?.totalVersions || 0) + 1}.0` : 'v1.0',
-          KichThuoc: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-          NguoiTaiLen: 'Current User', // Thay bằng auth.user.email sau
+          tenfile: file.name,
+          duongdan: urlData.publicUrl,
+          matailieu: isNewVersion ? selectedDocument?.id : null,
+          phienban: isNewVersion 
+            ? `v${(selectedDocument?.totalVersions || 0) + 1}.0` 
+            : 'v1.0',
+          kichthuoc: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+          nguoithailen: 'Admin', // ← Sau thay bằng tên user thật
         });
 
       if (dbError) throw dbError;
 
       message.success('Tải lên thành công!');
-      fetchDocuments(); // Refresh danh sách
+      fetchDocuments();
     } catch (error: any) {
       message.error('Lỗi upload: ' + error.message);
     } finally {
@@ -171,16 +175,14 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
     { 
       title: 'Phiên bản hiện tại', 
       dataIndex: 'currentVersion', 
-      key: 'currentVersion',
-      render: (v) => <Tag color="blue">{v}</Tag>
+      render: (v) => <Tag color="blue">{v}</Tag> 
     },
     { 
       title: 'Số phiên bản', 
       dataIndex: 'totalVersions', 
-      key: 'totalVersions',
-      render: (v) => `${v} phiên bản`
+      render: (v) => `${v} phiên bản` 
     },
-    { title: 'Cập nhật lần cuối', dataIndex: 'lastUpdated', key: 'lastUpdated' },
+    { title: 'Cập nhật lần cuối', dataIndex: 'lastUpdated' },
     {
       title: 'Thao tác',
       key: 'action',
@@ -189,10 +191,7 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
           <Button icon={<HistoryOutlined />} onClick={() => showHistory(record)}>
             Lịch sử
           </Button>
-          <Upload
-            showUploadList={false}
-            beforeUpload={(file) => { handleUpload(file, true); return false; }}
-          >
+          <Upload showUploadList={false} beforeUpload={(f) => { handleUpload(f, true); return false; }}>
             <Button icon={<UploadOutlined />} type="primary" ghost>
               Phiên bản mới
             </Button>
@@ -202,68 +201,67 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
     },
   ];
 
-return (
-  <AppShell>
-    <div style={{ padding: 24 }}>
-      <Title level={3}>Quản lý tài liệu đính kèm</Title>
-      <Text type="secondary">
-        Xem và tải xuống tài liệu | Quản lý phiên bản tài liệu (lịch sử upload)
-      </Text>
+  return (
+    <AppShell>
+      <div style={{ padding: 24 }}>
+        <Title level={3}>Quản lý tài liệu đính kèm</Title>
+        <Text type="secondary">
+          Xem và tải xuống tài liệu • Quản lý phiên bản (lịch sử upload)
+        </Text>
 
-      <div style={{ marginTop: 24, marginBottom: 16 }}>
-        <Upload
-          showUploadList={false}
-          beforeUpload={(file) => { handleUpload(file, false); return false; }}
+        <div style={{ margin: '24px 0' }}>
+          <Upload
+            showUploadList={false}
+            beforeUpload={(f) => { handleUpload(f, false); return false; }}
+          >
+            <Button type="primary" icon={<UploadOutlined />} size="large" loading={uploading}>
+              Tải lên tài liệu mới
+            </Button>
+          </Upload>
+        </div>
+
+        <Table
+          columns={columns}
+          dataSource={documents}
+          rowKey="id"
+          loading={loading}
+        />
+
+        {/* Modal lịch sử */}
+        <Modal
+          title={selectedDocument ? `Lịch sử phiên bản - ${selectedDocument.documentName}` : ''}
+          open={isHistoryModalVisible}
+          onCancel={() => setIsHistoryModalVisible(false)}
+          width={1100}
+          footer={null}
         >
-          <Button type="primary" icon={<UploadOutlined />} size="large" loading={uploading}>
-            Tải lên tài liệu mới
-          </Button>
-        </Upload>
+          {selectedDocument && (
+            <Table
+              dataSource={selectedDocument.versions}
+              rowKey="id"
+              columns={[
+                { title: 'Phiên bản', dataIndex: 'version', render: (v) => <Tag color="geekblue">{v}</Tag> },
+                { title: 'Tên file', dataIndex: 'fileName' },
+                { title: 'Kích thước', dataIndex: 'fileSize' },
+                { title: 'Người tải', dataIndex: 'uploadedBy' },
+                { title: 'Thời gian', dataIndex: 'uploadDate' },
+                {
+                  title: 'Thao tác',
+                  render: (_, record) => (
+                    <Space>
+                      <Button icon={<EyeOutlined />} onClick={() => handleView(record.url)}>Xem</Button>
+                      <Button icon={<DownloadOutlined />} onClick={() => handleDownload(record)}>Tải xuống</Button>
+                    </Space>
+                  )
+                }
+              ]}
+              pagination={false}
+            />
+          )}
+        </Modal>
       </div>
-
-      <Table
-        columns={columns}
-        dataSource={documents}
-        rowKey="id"
-        loading={loading}
-        style={{ marginTop: 20 }}
-      />
-
-      {/* Modal lịch sử */}
-      <Modal
-        title={selectedDocument ? `Lịch sử - ${selectedDocument.documentName}` : ''}
-        open={isHistoryModalVisible}
-        onCancel={() => setIsHistoryModalVisible(false)}
-        width={1100}
-        footer={null}
-      >
-        {selectedDocument && (
-          <Table
-            dataSource={selectedDocument.versions}
-            rowKey="id"
-            columns={[
-              { title: 'Phiên bản', dataIndex: 'version', render: (v) => <Tag color="geekblue">{v}</Tag> },
-              { title: 'Tên file', dataIndex: 'fileName' },
-              { title: 'Kích thước', dataIndex: 'fileSize' },
-              { title: 'Người tải', dataIndex: 'uploadedBy' },
-              { title: 'Thời gian', dataIndex: 'uploadDate' },
-              {
-                title: 'Thao tác',
-                render: (_, record) => (
-                  <Space>
-                    <Button icon={<EyeOutlined />} onClick={() => handleView(record)}>Xem</Button>
-                    <Button icon={<DownloadOutlined />} onClick={() => handleDownload(record)}>Tải xuống</Button>
-                  </Space>
-                )
-              }
-            ]}
-            pagination={false}
-          />
-        )}
-      </Modal>
-    </div>
-  </AppShell>
-);
+    </AppShell>
+  );
 };
 
 export default DocumentManagement;
