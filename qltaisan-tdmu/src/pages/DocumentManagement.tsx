@@ -45,9 +45,9 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
     setLoading(true);
     try {
       let query = supabase
-        .from('TepDinhKem')
+        .from('tepdinhkeem')
         .select('*')
-        .order('NgayTaiLen', { ascending: false });
+        .order('ngaytailen', { ascending: false });
 
       if (mataisan) {
         query = query.eq('mataisan', mataisan);
@@ -74,7 +74,7 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
           fileName: item.TenFile,
           fileSize: item.KichThuoc || '—',
           uploadedBy: item.NguoiTaiLen || '—',
-          uploadDate: new Date(item.NgayTaiLen).toLocaleString('vi-VN'),
+          uploadDate: new Date(item.ngaytailen).toLocaleString('vi-VN'),
           url: item.DuongDan,
           maTaiLieu: item.MaTaiLieu,
         });
@@ -143,7 +143,7 @@ const DocumentManagement: React.FC<{ mataisan?: number }> = ({ mataisan }) => {
 
       // Insert vào database
       const { error: dbError } = await supabase
-        .from('TepDinhKem')
+        .from('tepdinhkeem')
         .insert({
           mataisan: mataisan || 1,
           TenFile: file.name,
