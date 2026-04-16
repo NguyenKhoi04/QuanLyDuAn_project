@@ -24,51 +24,33 @@ const IncidentReport: React.FC = () => {
   const [myReports, setMyReports] = useState<BaoCao[]>([]);
   const [currentnguoidung, setCurrentnguoidung] = useState<any>(null);
 
- useEffect(() => {
-    const initializenguoidung = async () => {
-      // Giả lập nguoidung (Nên thay bằng auth từ supabase.auth.getSession())
-      const { data: { session } } = await supabase.auth.getSession();
-      const nguoidung = session?.user ? {
-        manguoidung: 1, // Giả định ID người dùng
-        hoten: session.user.email || "Người dùng",
-        email: session.user.email || ""
-      } : null;
+useEffect(() => {
+  // 1. Gọi ngay lập tức, không cần đợi login để kiểm tra xem Supabase có phản hồi không
+  fetchTaiSan();
 
-      if (!nguoidung) {
-        message.error("Vui lòng đăng nhập để sử dụng tính năng này.");
-        return;
+  const initData = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      // 2. Lấy thông tin user
+      const { data: userData, error } = await supabase
+        .from("nguoidung")
+        .select("*")
+        .eq("email", session.user.email)
+        .single();
+
+      if (userData) {
+        setCurrentnguoidung(userData);
+        // 3. Có user rồi mới lấy lịch sử báo cáo của chính họ
+        fetchMyReports(userData.manguoidung);
+      } else {
+        console.error("Email này không có trong bảng nguoidung:", session.user.email);
       }
+    }
+  };
 
-      // Lưu nguoidung vào state để sử dụng trong các hàm khác
-      setCurrentnguoidung(nguoidung);
-      fetchTaiSan();
-      fetchMyReports(nguoidung.manguoidung);
-
-      // Đăng ký lắng nghe thay đổi từ bảng thongbao
-      const channel = supabase
-        .channel('schema-db-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'thongbao',
-            filter: `manguoidung=eq.${nguoidung.manguoidung}`,
-          },
-          (payload) => {
-            // Khi có bất kỳ dòng nào được update, tải lại danh sách
-            fetchMyReports(nguoidung.manguoidung);
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    };
-
-    initializenguoidung();
-  }, []);
+  initData();
+}, []);
 
   const fetchTaiSan = async () => {
     // Join: taisan -> vitri qua mavitri
@@ -174,13 +156,15 @@ const IncidentReport: React.FC = () => {
           <Card title="📋 Gửi yêu cầu" className="shadow">
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
               <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true }]}>
-                <Select showSearch optionFilterProp="children" placeholder="Tìm tài sản hoặc phòng...">
-                  {taiSans.map(ts => (
-                    <Select.Option key={ts.mataisan} value={ts.mataisan}>
-                      {ts.tentaisan} - Phòng: {ts.phong}
-                    </Select.Option>
-                  ))}
-                </Select>
+                <Select
+                    showSearch
+                    placeholder="Tìm tài sản..."
+                    optionFilterProp="label" // Cực kỳ quan trọng để tìm kiếm hoạt động
+                    options={taiSans.map((ts) => ({
+                      value: ts.mataisan,
+                      label: `${ts.tentaisan} (${ts.phong})`, // Đảm bảo key này có dữ liệu
+                    }))}
+                  />
               </Form.Item>
 
               <Form.Item label="Mô tả sự cố" name="noidung" rules={[{ required: true }]}>
