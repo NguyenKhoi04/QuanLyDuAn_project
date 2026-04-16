@@ -59,11 +59,16 @@ const IncidentReport: React.FC = () => {
       .from('taisan')
       .select('mataisan, tentaisan, vitri(phong)');
     
+    // const formatted = data?.map((ts: any) => ({
+    //   value: ts.mataisan,
+    //   label: `${ts.tentaisan} - ${ts.vitri?.phong || 'N/A'}`,
+    //   name: ts.tentaisan
+    // }));
     const formatted = data?.map((ts: any) => ({
-      value: ts.mataisan,
-      label: `${ts.tentaisan} - ${ts.vitri?.phong || 'N/A'}`,
-      name: ts.tentaisan
-    }));
+    mataisan: ts.mataisan,
+    tentaisan: ts.tentaisan,
+    phong: ts.vitri?.phong || 'N/A'
+  }));
     setTaiSans(formatted || []);
   };
 
@@ -147,7 +152,7 @@ const IncidentReport: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="📋 Gửi yêu cầu" className="shadow">
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
-              <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true }]}>
+              {/* <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true }]}>
                 <Select showSearch optionFilterProp="children" placeholder="Tìm tài sản hoặc phòng...">
                   {taiSans.map(ts => (
                     <Select.Option key={ts.mataisan} value={ts.mataisan}>
@@ -155,7 +160,25 @@ const IncidentReport: React.FC = () => {
                     </Select.Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Form.Item> */}
+
+              
+              <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true }]}>
+                  <Select 
+                      showSearch 
+                      placeholder="Tìm tài sản hoặc phòng..."
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                      }
+                    >
+                    {taiSans.map(ts => (
+                      <Select.Option key={ts.mataisan} value={ts.mataisan}>
+                        {ts.tentaisan} - Phòng: {ts.phong}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
 
               <Form.Item label="Mô tả sự cố" name="noidung" rules={[{ required: true }]}>
                 <Input.TextArea rows={4} placeholder="Ví dụ: Máy chiếu không lên nguồn..." />
