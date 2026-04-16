@@ -105,35 +105,49 @@ const IncidentReport: React.FC = () => {
     setMyReports(formatted || []);
   };
 
-  const handleSubmit = async (values: any) => {
-    if (!currentnguoidung) {
-      message.warning("Vui lòng đợi hệ thống xác thực tài khoản...");
-      return;
+ const handleSubmit = async (values: any) => {
+    // 1. Nếu chưa có user detail, dùng tạm ID từ session để không bị chặn
+    let userId = currentnguoidung?.manguoidung;
+    let userEmail = currentnguoidung?.email;
+
+    if (!userId) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return message.error("Bạn chưa đăng nhập!");
+      
+      // Thử lấy nhanh lại user
+      const { data: u } = await supabase.from('nguoidung').select('*').eq('email', session.user.email).single();
+      if (!u) return message.error("Email của bạn chưa được cấp quyền báo cáo!");
+      userId = u.manguoidung;
+      userEmail = u.email;
     }
-    
+
     setLoading(true);
+    
+    // 2. Phản hồi "Lừa" người dùng (Optimistic UI) để cảm giác gửi liền
+    message.loading({ content: "Đang gửi báo cáo...", key: "updatable" });
+
     try {
       const selectedTS = taiSans.find(ts => ts.mataisan === values.mataisan);
       
+      // 3. Gửi dữ liệu (Xóa await ở phần email trong service nếu muốn cực nhanh)
       const success = await notificationService.sendIncidentAlert(
-        currentnguoidung.manguoidung,
+        userId,
         values.mataisan,
         selectedTS?.tentaisan || '',
         values.noidung,
-        currentnguoidung.email
+        userEmail
       );
 
       if (success) {
-        message.success("✅ Đã gửi báo cáo sự cố!");
+        message.success({ content: "✅ Đã gửi thành công!", key: "updatable", duration: 2 });
         form.resetFields();
-        // Cập nhật lại lịch sử ngay sau khi gửi thành công
-        await fetchMyReports(currentnguoidung.manguoidung);
+        // Cập nhật bảng lịch sử ngay
+        fetchMyReports(userId);
       } else {
-        message.error("Gửi báo cáo thất bại");
+        message.error({ content: "❌ Gửi thất bại, kiểm tra lại RLS!", key: "updatable", duration: 2 });
       }
     } catch (error) {
-      console.error("Submit error:", error);
-      message.error("Lỗi kết nối máy chủ");
+      message.error({ content: "Lỗi hệ thống!", key: "updatable" });
     } finally {
       setLoading(false);
     }
