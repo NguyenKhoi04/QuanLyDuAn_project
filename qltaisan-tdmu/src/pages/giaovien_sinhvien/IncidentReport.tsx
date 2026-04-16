@@ -64,7 +64,7 @@ const IncidentReport: React.FC = () => {
     setCurrentUser(user);
     fetchTaiSan();
     fetchMyReports(user.manguoidung);
-  }, [currentUser?.manguoidung]);
+  }, []);
 
   const fetchTaiSan = async () => {
     // Join: taisan -> vitri qua mavitri
