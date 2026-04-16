@@ -57,7 +57,8 @@ const IncidentReport: React.FC = () => {
     const formatted = data?.map((ts: any) => ({
       mataisan: ts.mataisan,
       tentaisan: ts.tentaisan,
-      phong: ts.vitri?.phong || 'N/A'
+      phong: ts.vitri?.phong || 'N/A',
+      isread: false
     }));
     setTaiSans(formatted || []);
   };
