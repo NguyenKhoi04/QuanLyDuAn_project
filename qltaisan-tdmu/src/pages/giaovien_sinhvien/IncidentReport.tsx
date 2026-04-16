@@ -17,13 +17,9 @@ const IncidentReport: React.FC = () => {
 
   useEffect(() => {
     const initData = async () => {
-      // 1. Lấy user đang đăng nhập từ Session
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (session?.user) {
-        // Lấy thông tin chi tiết (hoten, manguoidung) từ bảng nguoidung
         const { data: userData } = await supabase
           .from("nguoidung")
           .select("*")
@@ -35,7 +31,6 @@ const IncidentReport: React.FC = () => {
           fetchTaiSan();
           fetchMyReports(userData.manguoidung);
 
-          // 2. Đăng ký Realtime: Admin đọc là cập nhật ngay
           const channel = supabase
             .channel("user-notis")
             .on(
@@ -47,8 +42,8 @@ const IncidentReport: React.FC = () => {
                 filter: `manguoidung=eq.${userData.manguoidung}`,
               },
               () => {
-                fetchMyReports(userData.manguoidung); // Load lại khi admin update isread
-              },
+                fetchMyReports(userData.manguoidung);
+              }
             )
             .subscribe();
 
@@ -62,6 +57,7 @@ const IncidentReport: React.FC = () => {
     initData();
   }, []);
 
+  // --- HÀM FETCH TÀI SẢN (ĐÃ FIX) ---
   const fetchTaiSan = async () => {
     const { data, error } = await supabase.from("taisan").select(`
       mataisan, 
@@ -77,8 +73,6 @@ const IncidentReport: React.FC = () => {
       return;
     }
 
-    console.log("DATA:", data); // 👈 DEBUG
-
     const formattedData = data?.map((item: any) => ({
       mataisan: item.mataisan,
       tentaisan: item.tentaisan,
@@ -88,96 +82,92 @@ const IncidentReport: React.FC = () => {
     setTaiSans(formattedData || []);
   };
 
-  const fetchMyReports = async (manguoidung: string) => {
-    const { data } = await supabase
+  // --- HÀM FETCH BÁO CÁO (ĐÃ FIX) ---
+  const fetchMyReports = async (manguoidung: number) => {
+    const { data, error } = await supabase
       .from("thongbao")
-      .select(
-        `
-      mathongbao,
-      noidung,
-      ngaygui,
-      isread,
-      manguoidung,
-      taisan (
-        tentaisan,
-        vitri (
-          phong
+      .select(`
+        mathongbao,
+        noidung,
+        ngaygui,
+        isread,
+        mataisan,
+        taisan (
+          tentaisan,
+          vitri (
+            phong
+          )
         )
-      )
-    `,
-      )
+      `)
+      .eq("manguoidung", manguoidung)
       .eq("loaithongbao", "incident")
-      .eq("manguoidung", manguoidung);
+      .order("ngaygui", { ascending: false });
 
-    console.log("TEST:", data);
+    if (error) {
+      console.error("Lỗi fetch báo cáo:", error.message);
+      return;
+    }
 
-    setMyReports(data || []);
+    const formattedReports = data?.map((item: any) => ({
+      ...item,
+      tentaisan: item.taisan?.tentaisan || "N/A",
+      phong: item.taisan?.vitri?.phong || "N/A"
+    }));
+
+    setMyReports(formattedReports || []);
   };
 
   const handleSubmit = async (values: any) => {
     if (!currentUser) return message.error("Lỗi xác thực!");
-
     setLoading(true);
 
-    const selectedTS = taiSans.find(
-      (ts) => ts.mataisan === values.mataisan, // ✅ sửa đúng key
-    );
+    const selectedTS = taiSans.find((ts) => ts.mataisan === values.mataisan);
 
     const success = await notificationService.sendIncidentAlert(
       currentUser.manguoidung,
       values.mataisan,
-      selectedTS?.tentaisan || "", // ✅ đúng field
+      selectedTS?.tentaisan || "",
       values.noidung,
-      currentUser.email,
+      currentUser.email
     );
 
     if (success) {
       message.success("✅ Đã gửi báo cáo!");
       form.resetFields();
-      fetchMyReports(currentUser.manguoidung); // Cập nhật lại danh sách báo cáo của tôi
+      fetchMyReports(currentUser.manguoidung);
     } else {
       message.error("❌ Gửi báo cáo thất bại!");
     }
-
     setLoading(false);
   };
 
-  interface BaoCao {
-    mathongbao: number;
-    tentaisan: string;
-    noidung: string;
-    ngaygui: Date;
-    isread: boolean;
-  }
-
-  const columns: ColumnsType<BaoCao> = [
+  const columns: ColumnsType<any> = [
     {
       title: "Tài sản",
-      render: (_, record: any) => (
+      key: "taisan",
+      render: (_, record) => (
         <div>
           <b className="block">{record.tentaisan}</b>
-          <small className="text-gray-400">
-            Phòng: {record.phong || "N/A"}
-          </small>
+          <small className="text-gray-500">Phòng: {record.phong}</small>
         </div>
       ),
     },
-    { title: "Nội dung", dataIndex: "noidung" },
+    { title: "Nội dung", dataIndex: "noidung", key: "noidung" },
     {
       title: "Thời gian",
       dataIndex: "ngaygui",
+      key: "ngaygui",
       render: (date) => new Date(date).toLocaleString("vi-VN"),
     },
     {
       title: "Trạng thái",
       dataIndex: "isread",
       key: "isread",
-      render: (isread: boolean) =>
-        isread ? (
-          <Tag color="green">Đã đọc</Tag>
-        ) : (
-          <Tag color="orange">Chưa đọc</Tag>
-        ),
+      render: (isread: boolean) => (
+        <Tag color={isread ? "green" : "orange"}>
+          {isread ? "Đã tiếp nhận" : "Đang chờ"}
+        </Tag>
+      ),
     },
   ];
 
@@ -192,48 +182,31 @@ const IncidentReport: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="📋 Gửi yêu cầu" className="shadow">
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
-              {/* <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true }]}>
-                <Select showSearch optionFilterProp="children" placeholder="Tìm tài sản hoặc phòng...">
-                  {taiSans.map(ts => (
-                    <Select.Option key={ts.mataisan} value={ts.mataisan}>
-                      {ts.tentaisan} - Phòng: {ts.phong}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item> */}
-
               <Form.Item
                 label="Chọn tài sản"
                 name="mataisan"
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: 'Vui lòng chọn tài sản!' }]}
               >
                 <Select
                   showSearch
                   placeholder="Tìm tài sản hoặc phòng..."
                   optionFilterProp="children"
                   filterOption={(input, option) =>
-                    (option?.children as unknown as string)
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
+                    (option?.label as string ?? "").toLowerCase().includes(input.toLowerCase())
                   }
-                >
-                  {taiSans.map((ts) => (
-                    <Select.Option key={ts.mataisan} value={ts.mataisan}>
-                      {ts.tentaisan} - Phòng: {ts.phong}
-                    </Select.Option>
-                  ))}
-                </Select>
+                  options={taiSans.map(ts => ({
+                    value: ts.mataisan,
+                    label: `${ts.tentaisan} - Phòng: ${ts.phong}`
+                  }))}
+                />
               </Form.Item>
 
               <Form.Item
                 label="Mô tả sự cố"
                 name="noidung"
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
               >
-                <Input.TextArea
-                  rows={4}
-                  placeholder="Ví dụ: Máy chiếu không lên nguồn..."
-                />
+                <Input.TextArea rows={4} placeholder="Ví dụ: Máy chiếu không lên nguồn..." />
               </Form.Item>
 
               <Button
@@ -242,6 +215,7 @@ const IncidentReport: React.FC = () => {
                 loading={loading}
                 icon={<Send className="w-4 h-4" />}
                 block
+                danger
               >
                 Gửi Báo Cáo
               </Button>
@@ -253,7 +227,8 @@ const IncidentReport: React.FC = () => {
               columns={columns}
               dataSource={myReports}
               rowKey="mathongbao"
-              pagination={{ pageSize: 5 }}
+              pagination={{ pageSize: 6 }}
+              locale={{ emptyText: 'Chưa có báo cáo nào' }}
             />
           </Card>
         </div>
