@@ -55,13 +55,20 @@ const IncidentReport: React.FC = () => {
   }, []);
 
   const fetchTaiSan = async () => {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('taisan')
     .select(`
       mataisan,
       tentaisan,
-      vitri(phong)
+      vitri:vitri!mavitri (phong)
     `);
+
+  if (error) {
+    console.log("Lỗi fetchTaiSan:", error);
+    return;
+  }
+
+  console.log("DATA TAISAN:", data); // 👈 DEBUG
 
   const formatted = data?.map((ts: any) => ({
     mataisan: ts.mataisan,
@@ -72,22 +79,29 @@ const IncidentReport: React.FC = () => {
   setTaiSans(formatted || []);
 };
 
-  const fetchMyReports = async (userId: number) => {
-  const { data } = await supabase
+ const fetchMyReports = async (userId: number) => {
+  const { data, error } = await supabase
     .from('thongbao')
     .select(`
       mathongbao,
       noidung,
       ngaygui,
       isread,
-      taisan:taisan (
+      taisan:taisan!mataisan (
         tentaisan,
-        vitri:vitri (phong)
+        vitri:vitri!mavitri (phong)
       )
     `)
     .eq('manguoidung', userId)
     .eq('loaithongbao', 'incident')
     .order('ngaygui', { ascending: false });
+
+  if (error) {
+    console.log("Lỗi fetchMyReports:", error);
+    return;
+  }
+
+  console.log("DATA REPORT:", data); // 👈 DEBUG
 
   const formatted = data?.map((r: any) => ({
     ...r,
