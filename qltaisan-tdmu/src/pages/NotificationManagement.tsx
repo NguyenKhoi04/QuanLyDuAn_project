@@ -17,6 +17,10 @@ interface Notification {
   isread: boolean;
   loaithongbao: string;
   mataisan?: number;
+  manguoidung?: number;
+  // Dữ liệu từ bảng join
+  nguoidung?: { hoten: string };
+  taisan?: { tentaisan: string };
 }
 
 const NotificationManagement: React.FC = () => {
@@ -28,7 +32,7 @@ const NotificationManagement: React.FC = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('thongbao')
-      .select('*')
+      .select('*, nguoidung(hoten), taisan(tentaisan)')
       .order('ngaygui', { ascending: false });
 
     if (error) message.error('Lỗi tải thông báo');
@@ -53,10 +57,21 @@ const NotificationManagement: React.FC = () => {
   };
 
   const filteredNotifications = notifications.filter(n =>
-    n.noidung.toLowerCase().includes(searchText.toLowerCase())
-  );
+  n.noidung.toLowerCase().includes(searchText.toLowerCase()) ||
+  n.nguoidung?.hoten?.toLowerCase().includes(searchText.toLowerCase())
+);
 
   const columns: ColumnsType<Notification> = [
+    {
+    title: 'Người gửi',
+    key: 'hoten',
+    render: (_, record) => record.nguoidung?.hoten || <span className="text-gray-400">Hệ thống</span>,
+  },
+    {
+      title: 'Tài sản',
+      key: 'tentaisan',
+      render: (_, record) => record.taisan?.tentaisan || <span className="text-gray-400">Hệ thống</span>,
+    },
     {
       title: 'Loại',
       dataIndex: 'loaithongbao',
