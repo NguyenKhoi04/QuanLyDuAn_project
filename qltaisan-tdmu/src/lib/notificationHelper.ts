@@ -41,6 +41,7 @@ export const sendNotification = async ({
 
     if (error) return false;
 
+    //tạm ngưng gửi email để tránh lỗi khi chưa cấu hình SMTP
 
     return true; // Trả về true ngay lập tức sau khi xong bước 1
   } catch (err) {
