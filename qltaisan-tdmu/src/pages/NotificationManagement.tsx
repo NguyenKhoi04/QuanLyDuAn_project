@@ -62,6 +62,13 @@ const NotificationManagement: React.FC = () => {
 );
 
   const columns: ColumnsType<Notification> = [
+    //Thêm cột stt
+    {
+      title: 'STT',
+      key: 'mathongbao',
+      render: (_, __, index) => index + 1,
+    },
+    // Thêm cột người gửi và tài sản
     {
     title: 'Người gửi',
     key: 'hoten',
