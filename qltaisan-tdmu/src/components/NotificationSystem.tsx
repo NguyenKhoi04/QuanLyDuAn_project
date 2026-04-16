@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";// Sử dụng để chuyển hướng
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,10 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, AlertTriangle, Info, Clock, ExternalLink } from "lucide-react";
+import { Bell, CheckCircle, AlertTriangle, Info, Clock } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { message } from "antd";
-import { notificationService } from "@/lib/notificationHelper";
+import { message } from 'antd'; // hoặc dùng toast của bạn
+import { notificationService } from '@/lib/notificationHelper';
 
 type Notification = {
   mathongbao: number;
@@ -26,146 +25,167 @@ type Notification = {
   loaithongbao: string;
 };
 
-const NotificationSystem: React.FC<{ manguoidung: number }> = ({
-  manguoidung,
-}) => {
+const NotificationSystem: React.FC<{ manguoidung: number }> = ({ manguoidung }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
-    if (manguoidung) {
-      fetchNotifications();
-
-      // Đăng ký Real-time: Lắng nghe mọi thay đổi (INSERT, UPDATE)
-      const channel = supabase
-        .channel("thongbao-realtime")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "thongbao",
-            filter: `manguoidung=eq.${manguoidung}`,
-          },
-          (payload) => {
-            console.log("Change received!", payload);
-            fetchNotifications(); // Tải lại danh sách khi có thông báo mới
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
+    fetchNotifications();
   }, [manguoidung]);
 
+  // Lấy danh sách thông báo
   const fetchNotifications = async () => {
+    if (!manguoidung) return;
+    
+    setLoading(true);
     const { data, error } = await supabase
-      .from("thongbao")
-      .select("*")
-      .eq("manguoidung", manguoidung)
-      .order("ngaygui", { ascending: false })
-      .limit(5); // Chỉ lấy 5 thông báo mới nhất để hiển thị ở dropdown
+      .from('thongbao')
+      .select('*')
+      .eq('manguoidung', manguoidung)
+      .order('ngaygui', { ascending: false })
+      .limit(20);
 
     if (error) {
-      console.error("Lỗi:", error.message);
+      message.error('Lỗi tải thông báo: ' + error.message);
     } else {
       setNotifications(data || []);
-      const unread = (data || []).filter((n) => !n.isread).length;
+      const unread = (data || []).filter(n => !n.isread).length;
       setUnreadCount(unread);
     }
+    setLoading(false);
   };
 
-  const handleNotificationClick = async (noti: Notification) => {
-    // 1. Đánh dấu đã đọc trong Database
-    if (!noti.isread) {
-      await supabase
-        .from("thongbao")
-        .update({ isread: true })
-        .eq("mathongbao", noti.mathongbao);
+  //Khi tạo lịch bảo trì mới, gửi thông báo
+  const handleCreateMaintenance = async (maNguoiDung: number, mataisan: number, tentaisan: string, ngaybaotri: string) => {
+    const success = await notificationService.sendMaintenanceReminder(maNguoiDung, mataisan, tentaisan, ngaybaotri);
+    if (success) {
+      message.success('Đã gửi thông báo nhắc nhở bảo trì');
+    } else {
+      message.error('Gửi thông báo thất bại');
     }
+  }
 
-    // 2. Đóng dropdown
-    setOpen(false);
+  // ==================== THÊM ĐOẠN NÀY ====================
 
-    // 3. Chuyển hướng đến trang chi tiết thông báo
-    // Bạn có thể truyền ID vào query để trang /notifications tự động mở thông báo đó
-    window.location.href = `/notifications?mathongbao=${noti.mathongbao}`;
+const testSendNotification = async () => {
+  const result = await notificationService.sendIncidentAlert(
+    1,                                 // MaNguoiDung (Admin)
+    1,                                 // MaTaiSan (có thể thay số khác)
+    "Máy chiếu phòng A301",            // Tên tài sản
+    "Không bật được, đèn báo lỗi đỏ",  // Mô tả sự cố
+    "admin@tdmu.edu.vn"                // ← THAY BẰNG EMAIL CỦA BẠN
+  );
+
+  if (result) {
+    message.success("✅ Gửi thành công! Kiểm tra email của bạn.");
+  } else {
+    message.error("❌ Gửi thất bại. Xem console để xem lỗi.");
+  }
+};
+// =====================================================
+
+  useEffect(() => {
+    fetchNotifications();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel('thongbao-changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'thongbao',
+          filter: `manguoidung=eq.${manguoidung}` 
+        }, 
+        () => fetchNotifications()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [manguoidung]);
+
+  // Đánh dấu đã đọc
+  const markAsRead = async (mathongbao: number) => {
+    await supabase
+      .from('thongbao')
+      .update({ isread: true })
+      .eq('mathongbao', mathongbao);
+    
+    fetchNotifications();
+  };
+
+  const markAllAsRead = async () => {
+    await supabase
+      .from('thongbao')
+      .update({ isread: true })
+      .eq('manguoidung', manguoidung)
+      .eq('isread', false);
+    
+    fetchNotifications();
+    message.success('Đã đánh dấu tất cả là đã đọc');
   };
 
   const getIcon = (type: string) => {
     switch (type) {
-      case "maintenance":
-        return <Clock className="h-4 w-4 text-blue-500" />;
-      case "incident":
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case "status":
-        return <Info className="h-4 w-4 text-green-500" />;
-      default:
-        return <Bell className="h-4 w-4 text-gray-500" />;
+      case 'maintenance': return <Clock className="h-4 w-4 text-blue-500" />;
+      case 'incident': return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      case 'status': return <Info className="h-4 w-4 text-green-500" />;
+      default: return <Bell className="h-4 w-4 text-gray-500" />;
     }
   };
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="relative border-none bg-transparent hover:bg-white/10">
-          <Bell className="h-6 w-6 text-white" />
-          
-          {/* SỐ THÔNG BÁO MÀU CAM */}
+        <Button variant="outline" size="icon" className="relative">
+          <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-orange-500 text-[11px] flex items-center justify-center text-white font-bold border-2 border-slate-900 shadow-lg animate-in zoom-in">
-              {unreadCount > 9 ? "9+" : unreadCount}
+            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-[10px] flex items-center justify-center text-white font-medium">
+              {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="end"
-        className="w-80 bg-white dark:bg-slate-900 border shadow-2xl rounded-xl p-0 overflow-hidden"
-      >
-        <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800">
-          <span className="font-bold text-sm text-slate-800 dark:text-white">Thông báo mới nhất</span>
+      <DropdownMenuContent align="end" className="w-96 bg-white dark:bg-slate-900 border shadow-xl">
+        <div className="flex items-center justify-between px-4 py-3">
+          <DropdownMenuLabel className="text-lg font-semibold">Thông báo</DropdownMenuLabel>
           {unreadCount > 0 && (
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 uppercase">
-              {unreadCount} mới
-            </span>
+            <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+              Đánh dấu tất cả đã đọc
+            </Button>
           )}
         </div>
-        
-        <DropdownMenuSeparator className="m-0" />
+        <DropdownMenuSeparator />
 
-        <div className="max-h-[350px] overflow-y-auto">
+        <div className="max-h-[420px] overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="py-10 text-center text-muted-foreground text-sm italic">
-              Không có thông báo nào gần đây
+            <div className="py-8 text-center text-muted-foreground">
+              Không có thông báo nào
             </div>
           ) : (
             notifications.map((noti) => (
               <DropdownMenuItem
                 key={noti.mathongbao}
-                className={`flex flex-col items-start p-4 cursor-pointer border-b last:border-none focus:bg-slate-50 dark:focus:bg-slate-800 ${
-                  !noti.isread ? "bg-orange-50/30 dark:bg-orange-900/5" : ""
-                }`}
-                onClick={() => handleNotificationClick(noti)}
+                className="flex flex-col items-start p-4 hover:bg-accent cursor-pointer"
+                onClick={() => markAsRead(noti.mathongbao)}
               >
                 <div className="flex items-start gap-3 w-full">
-                  <div className="mt-1">{getIcon(noti.loaithongbao)}</div>
+                  {getIcon(noti.loaithongbao)}
                   <div className="flex-1">
-                    <p className={`text-sm leading-snug ${!noti.isread ? "font-bold text-slate-900 dark:text-white" : "font-normal text-slate-500"}`}>
+                    <p className={`font-medium ${!noti.isread ? 'text-foreground' : 'text-muted-foreground'}`}>
                       {noti.noidung}
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {new Date(noti.ngaygui).toLocaleString("vi-VN")}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {new Date(noti.ngaygui).toLocaleString('vi-VN')}
                     </p>
                   </div>
                   {!noti.isread && (
-                    <div className="h-2 w-2 rounded-full bg-orange-500 mt-2 shrink-0 shadow-sm" />
+                    <div className="h-2 w-2 rounded-full bg-blue-500 mt-2"></div>
                   )}
                 </div>
               </DropdownMenuItem>
@@ -173,18 +193,14 @@ const NotificationSystem: React.FC<{ manguoidung: number }> = ({
           )}
         </div>
 
-        <DropdownMenuSeparator className="m-0" />
-        
-        <button 
-          onClick={() => { router.push('/notifications'); setOpen(false); }}
-          className="w-full py-3 text-sm font-bold text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
-        >
-          Xem tất cả thông báo
-          <ExternalLink className="h-3 w-3" />
-        </button>
+        <DropdownMenuSeparator />
+        <div className="p-2 text-center text-xs text-muted-foreground">
+          Tích hợp thông báo bảo trì • Sự cố • Trạng thái tài sản
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
 export default NotificationSystem;
+
