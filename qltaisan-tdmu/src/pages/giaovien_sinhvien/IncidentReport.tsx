@@ -38,29 +38,6 @@ const IncidentReport: React.FC = () => {
       hoten: "Nguyễn Thị Sinh Viên",
       email: "sinhvien@tdmu.edu.vn"
     };
-
-    // Lưu user vào state để sử dụng trong các hàm khác
-    // Đăng ký lắng nghe thay đổi từ bảng thongbao
-  const channel = supabase
-    .channel('schema-db-changes')
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'thongbao',
-        filter: `manguoidung=eq.${currentUser?.manguoidung}`,
-      },
-      (payload) => {
-        // Khi có bất kỳ dòng nào được update, tải lại danh sách
-        fetchMyReports(currentUser.manguoidung);
-      }
-    )
-    .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-
     setCurrentUser(user);
     fetchTaiSan();
     fetchMyReports(user.manguoidung);
