@@ -19,28 +19,7 @@ interface SendNotificationParams {
 /**
  * Gửi email qua API
  */
-const sendEmail = async (toEmail: string, content: string, type: NotificationType) => {
-  try {
-    const res = await fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: toEmail,
-        content: content,
-        type: type,
-      }),
-    });
 
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || 'Gửi email thất bại');
-
-    console.log('✅ Email đã được gửi thành công');
-    return true;
-  } catch (err) {
-    console.error('Gửi email thất bại:', err);
-    return false;
-  }
-};
 
 /**
  * Gửi thông báo vào Database (và email nếu có)
@@ -62,10 +41,6 @@ export const sendNotification = async ({
 
     if (error) return false;
 
-    // 2. Gửi email NGẦM (Xóa chữ await ở đây)
-    if (email) {
-      sendEmail(email, noidung, loaiThongBao); // Không đợi nó chạy xong
-    }
 
     return true; // Trả về true ngay lập tức sau khi xong bước 1
   } catch (err) {

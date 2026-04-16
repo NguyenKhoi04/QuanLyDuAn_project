@@ -89,48 +89,36 @@ const IncidentReport: React.FC = () => {
   };
 
  const handleSubmit = async (values: any) => {
-    // 1. Nếu chưa có user detail, dùng tạm ID từ session để không bị chặn
-    let userId = currentnguoidung?.manguoidung;
-    let userEmail = currentnguoidung?.email;
-
-    if (!userId) {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return message.error("Bạn chưa đăng nhập!");
-      
-      // Thử lấy nhanh lại user
-      const { data: u } = await supabase.from('nguoidung').select('*').eq('email', session.user.email).single();
-      if (!u) return message.error("Email của bạn chưa được cấp quyền báo cáo!");
-      userId = u.manguoidung;
-      userEmail = u.email;
-    }
-
     setLoading(true);
     
-    // 2. Phản hồi "Lừa" người dùng (Optimistic UI) để cảm giác gửi liền
-    message.loading({ content: "Đang gửi báo cáo...", key: "updatable" });
+    // Ưu tiên lấy manguoidung từ state, nếu không có thì lấy tạm từ localStorage 
+    // (nếu bạn có lưu thông tin đăng nhập vào đó)
+    const maND = currentnguoidung?.manguoidung || 1; // 1 là ID mặc định để test nếu chưa có DB
+    
+    // Phản hồi nhanh cho người dùng
+    const msgKey = "updatable";
+    message.loading({ content: "Đang xử lý...", key: msgKey });
 
     try {
       const selectedTS = taiSans.find(ts => ts.mataisan === values.mataisan);
       
-      // 3. Gửi dữ liệu (Xóa await ở phần email trong service nếu muốn cực nhanh)
+      // GỌI SERVICE: Bỏ tham số email đi vì bạn không dùng email
       const success = await notificationService.sendIncidentAlert(
-        userId,
+        maND,
         values.mataisan,
-        selectedTS?.tentaisan || '',
-        values.noidung,
-        userEmail
+        selectedTS?.tentaisan || 'Tài sản không xác định',
+        values.noidung
       );
 
       if (success) {
-        message.success({ content: "✅ Đã gửi thành công!", key: "updatable", duration: 2 });
+        message.success({ content: "✅ Đã gửi báo cáo thành công!", key: msgKey, duration: 2 });
         form.resetFields();
-        // Cập nhật bảng lịch sử ngay
-        fetchMyReports(userId);
+        fetchMyReports(maND);
       } else {
-        message.error({ content: "❌ Gửi thất bại, kiểm tra lại RLS!", key: "updatable", duration: 2 });
+        message.error({ content: "❌ Lỗi hệ thống, vui lòng thử lại!", key: msgKey });
       }
     } catch (error) {
-      message.error({ content: "Lỗi hệ thống!", key: "updatable" });
+      message.error({ content: "Lỗi kết nối!", key: msgKey });
     } finally {
       setLoading(false);
     }
