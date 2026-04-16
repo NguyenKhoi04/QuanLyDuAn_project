@@ -59,6 +59,7 @@ const IncidentReport: React.FC = () => {
 
   // --- HÀM FETCH TÀI SẢN (ĐÃ FIX) ---
   const fetchTaiSan = async () => {
+  // Chú ý dấu ` ở đầu và cuối chuỗi select
   const { data, error } = await supabase
     .from('taisan')
     .select(`
@@ -68,12 +69,14 @@ const IncidentReport: React.FC = () => {
       vitri (
         phong
       )
-    `); // Phải có dấu backtick bao quanh nội dung select
+    `);
 
   if (error) {
     console.error("Lỗi fetch tài sản:", error.message);
     return;
   }
+
+  console.log("Dữ liệu tài sản thô:", data); // Kiểm tra xem data có [] không
 
   const formattedData = data?.map((item: any) => ({
     mataisan: item.mataisan,
@@ -188,13 +191,10 @@ const IncidentReport: React.FC = () => {
                 <Select
                   showSearch
                   placeholder="Tìm tài sản hoặc phòng..."
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label as string ?? "").toLowerCase().includes(input.toLowerCase())
-                  }
+                  optionFilterProp="label" // Sửa thành label
                   options={taiSans.map(ts => ({
                     value: ts.mataisan,
-                    label: `${ts.tentaisan} - Phòng: ${ts.phong}`
+                    label: `${ts.tentaisan} - Phòng: ${ts.phong}` // Đây là nội dung hiển thị và tìm kiếm
                   }))}
                 />
               </Form.Item>
