@@ -24,45 +24,28 @@ const IncidentReport: React.FC = () => {
   const [myReports, setMyReports] = useState<BaoCao[]>([]);
   const [currentnguoidung, setCurrentnguoidung] = useState<any>(null);
 
-  useEffect(() => {
-    // 1. Lấy danh sách tài sản ngay lập tức
+ useEffect(() => {
     fetchTaiSan();
 
     const initData = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
+      console.log("Auth Session:", session?.user?.email); // Xem email auth là gì
+
       if (session?.user) {
-        const { data: userData } = await supabase
+        const { data: userData, error } = await supabase
           .from("nguoidung")
           .select("*")
           .eq("email", session.user.email)
           .single();
 
         if (userData) {
+          console.log("Đã tìm thấy user trong DB:", userData);
           setCurrentnguoidung(userData);
           fetchMyReports(userData.manguoidung);
-
-          // 2. Thiết lập Realtime (Quan trọng: Phải có manguoidung mới lắng nghe đúng người)
-          const channel = supabase
-            .channel(`user-reports-${userData.manguoidung}`)
-            .on(
-              'postgres_changes',
-              {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'thongbao',
-                filter: `manguoidung=eq.${userData.manguoidung}`
-              },
-              () => {
-                // Khi admin update cột isread, fetch lại danh sách ngay
-                fetchMyReports(userData.manguoidung);
-              }
-            )
-            .subscribe();
-
-          return () => {
-            supabase.removeChannel(channel);
-          };
+        } else {
+          // Lỗi ở đây: Auth có nhưng DB không có
+          console.error("Không tìm thấy email này trong bảng nguoidung!");
+          message.error("Tài khoản của bạn chưa được khởi tạo trong hệ thống!");
         }
       }
     };

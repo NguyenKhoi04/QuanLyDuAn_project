@@ -45,17 +45,14 @@ const sendEmail = async (toEmail: string, content: string, type: NotificationTyp
 /**
  * Gửi thông báo vào Database (và email nếu có)
  */
+// Trong file notificationHelper.ts
 export const sendNotification = async ({
-  manguoidung,
-  mataisan,
-  noidung,
-  loaithongbao: loaiThongBao,
-  email,
+  manguoidung: maNguoiDung, mataisan, noidung, loaithongbao: loaiThongBao, email,
 }: SendNotificationParams): Promise<boolean> => {
   try {
-    // 1. Gửi vào DB ngay lập tức
+    // 1. Lưu vào DB (Bắt buộc await để biết đã lưu chưa)
     const { error } = await supabase.from('thongbao').insert({
-      manguoidung: manguoidung,
+      manguoidung: maNguoiDung,
       mataisan: mataisan,
       noidung: noidung,
       loaithongbao: loaiThongBao,
@@ -63,20 +60,15 @@ export const sendNotification = async ({
       isread: false
     });
 
-    if (error) {
-      console.error("Lỗi insert thông báo:", error);
-      return false;
-    }
+    if (error) return false;
 
-    // 2. KHÔNG DÙNG 'await' ở đây. Cứ để nó chạy ngầm.
+    // 2. Gửi email NGẦM (Xóa chữ await ở đây)
     if (email) {
-      sendEmail(email, noidung, loaiThongBao).catch(e => console.error("Gửi email ngầm lỗi:", e));
+      sendEmail(email, noidung, loaiThongBao); // Không đợi nó chạy xong
     }
 
-    // Trả về true ngay khi DB xong, không đợi email
-    return true; 
+    return true; // Trả về true ngay lập tức sau khi xong bước 1
   } catch (err) {
-    console.error("Gửi thông báo thất bại:", err);
     return false;
   }
 };
