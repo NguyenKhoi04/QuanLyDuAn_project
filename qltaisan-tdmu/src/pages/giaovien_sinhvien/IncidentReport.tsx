@@ -31,55 +31,143 @@ const IncidentReport: React.FC = () => {
   const [myReports, setMyReports] = useState<BaoCao[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  useEffect(() => {
-    // Giả lập user (Nên thay bằng auth từ supabase.auth.getSession())
-    const user = {
-      manguoidung: 5,
-      hoten: "Nguyễn Thị Sinh Viên",
-      email: "sinhvien@tdmu.edu.vn"
-    };
-    setCurrentUser(user);
-    fetchTaiSan();
-    fetchMyReports(user.manguoidung);
-  }, []);
+        useEffect(() => {
+          const user = {
+            manguoidung: 5,
+            hoten: "Nguyễn Thị Sinh Viên",
+            email: "sinhvien@tdmu.edu.vn"
+          };
 
-  const fetchTaiSan = async () => {
-    // Join: taisan -> vitri qua mavitri
-    const { data, error } = await supabase
-      .from('taisan')
-      .select('mataisan, tentaisan, vitri(phong)');
+          const fetchTaiSan = async () => {
+            // Join: taisan -> vitri qua mavitri
+            const { data, error } = await supabase
+              .from('taisan')
+              .select('mataisan, tentaisan, vitri(phong)');
 
-    if (error) {
-       message.error("Không thể tải danh sách tài sản");
-       return;
-    }
+            if (error) {
+              message.error("Không thể tải danh sách tài sản");
+              return;
+            }
+
+            const formatted = data?.map((ts: any) => ({
+              mataisan: ts.mataisan,
+              tentaisan: ts.tentaisan,
+              phong: ts.vitri?.phong || 'N/A',
+            }));
+            setTaiSans(formatted || []);
+          };
+
+          setCurrentUser(user);
+          fetchTaiSan();
+          fetchMyReports(user.manguoidung);
+
+          // --- THIẾT LẬP REALTIME ---
+          const channel = supabase
+            .channel('db-changes')
+            .on(
+              'postgres_changes',
+              {
+                event: 'UPDATE', // Lắng nghe sự kiện Admin cập nhật trạng thái
+                schema: 'public',
+                table: 'thongbao',
+                filter: `manguoidung=eq.${user.manguoidung}`
+              },
+              (payload) => {
+                console.log('Có thay đổi mới:', payload);
+                fetchMyReports(user.manguoidung); // Tải lại danh sách khi Admin nhấn "Đã đọc"
+              }
+            )
+            .subscribe();
+
+          return () => {
+            supabase.removeChannel(channel);
+          };
+        }, []); // Chỉ chạy 1 lần khi mount
+
+        const fetchMyReports = async (manguoidung: number) => {
+          const { data, error } = await supabase
+            .from('thongbao')
+            .select('mathongbao, noidung, ngaygui, mataisan, isread, taisan(tentaisan)') // BẮT BUỘC có isread
+            .eq('manguoidung', manguoidung)
+            .eq('loaithongbao', 'incident')
+            .order('ngaygui', { ascending: false });
+
+          if (error) {
+            console.error(error);
+            return;
+          }
+
+          const formatted = data?.map((rp: any) => ({
+            ...rp,
+            tentaisan: rp.taisan?.tentaisan,
+            isread: rp.isread // Đảm bảo gán đúng giá trị từ DB
+          }));
+          setMyReports(formatted || []);
+        };
+
+  // useEffect(() => {
+  //   // Giả lập user (Nên thay bằng auth từ supabase.auth.getSession())
+  //   const user = {
+  //     manguoidung: 5,
+  //     hoten: "Nguyễn Thị Sinh Viên",
+  //     email: "sinhvien@tdmu.edu.vn"
+  //   };
+  //   // Đăng ký lắng nghe thay đổi từ bảng thongbao
+  //     const subscription = supabase
+  //       .from('thongbao').on('*', payload => {
+  //         // Nếu có sự thay đổi liên quan đến user hiện tại, refresh danh sách báo cáo
+  //         if (payload.new?.manguoidung === user.manguoidung) {
+  //           fetchMyReports(user.manguoidung);
+  //         }
+  //       })
+  //       .subscribe();
+
+  //   return () => {
+  //     subscription.unsubscribe();
+  //   };
     
-    const formatted = data?.map((ts: any) => ({
-      mataisan: ts.mataisan,
-      tentaisan: ts.tentaisan,
-      phong: ts.vitri?.phong || 'N/A',
-      isread: false
-    }));
-    setTaiSans(formatted || []);
-  };
+  //   setCurrentUser(user);
+  //   fetchTaiSan();
+  //   fetchMyReports(user.manguoidung);
+  // }, [ currentUser?.manguoidung]);
 
-  const fetchMyReports = async (manguoidung: number) => {
-    // Join: thongbao -> taisan qua mataisan
-    const { data, error } = await supabase
-      .from('thongbao')
-      .select('mathongbao, noidung, ngaygui, mataisan, taisan(tentaisan)')
-      .eq('manguoidung', manguoidung)
-      .eq('loaithongbao', 'incident')
-      .order('ngaygui', { ascending: false });
+  // const fetchTaiSan = async () => {
+  //   // Join: taisan -> vitri qua mavitri
+  //   const { data, error } = await supabase
+  //     .from('taisan')
+  //     .select('mataisan, tentaisan, vitri(phong)');
 
-    if (error) return;
+  //   if (error) {
+  //      message.error("Không thể tải danh sách tài sản");
+  //      return;
+  //   }
+    
+  //   const formatted = data?.map((ts: any) => ({
+  //     mataisan: ts.mataisan,
+  //     tentaisan: ts.tentaisan,
+  //     phong: ts.vitri?.phong || 'N/A',
+  //     isread: false
+  //   }));
+  //   setTaiSans(formatted || []);
+  // };
 
-    const formatted = data?.map((rp: any) => ({
-      ...rp,
-      tentaisan: rp.taisan?.tentaisan
-    }));
-    setMyReports(formatted || []);
-  };
+  // const fetchMyReports = async (manguoidung: number) => {
+  //   // Join: thongbao -> taisan qua mataisan
+  //   const { data, error } = await supabase
+  //     .from('thongbao')
+  //     .select('mathongbao, noidung, ngaygui, mataisan, taisan(tentaisan)')
+  //     .eq('manguoidung', manguoidung)
+  //     .eq('loaithongbao', 'incident')
+  //     .order('ngaygui', { ascending: false });
+
+  //   if (error) return;
+
+  //   const formatted = data?.map((rp: any) => ({
+  //     ...rp,
+  //     tentaisan: rp.taisan?.tentaisan
+  //   }));
+  //   setMyReports(formatted || []);
+  // };
 
   const handleSubmit = async (values: any) => {
     if (!currentUser) return;
