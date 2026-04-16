@@ -88,7 +88,7 @@ const IncidentReport: React.FC = () => {
         currentUser.manguoidung,
         values.mataisan,
         selectedTS?.tentaisan || '',
-        values.mota,
+        values.noidung,
         currentUser.email
       );
 
@@ -143,7 +143,7 @@ const IncidentReport: React.FC = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item label="Mô tả sự cố" name="mota" rules={[{ required: true }]}>
+              <Form.Item label="Mô tả sự cố" name="noidung" rules={[{ required: true }]}>
                 <Input.TextArea rows={4} placeholder="Ví dụ: Máy chiếu không lên nguồn..." />
               </Form.Item>
 
@@ -253,14 +253,14 @@ export default IncidentReport;
 //     try {
 //       const selectedTS = taiSans.find(ts => ts.mataisan === values.mataisan);
 
-//       const noiDung = `🚨 Báo hỏng: ${selectedTS?.tentaisan} - ${values.mota}`;
+//       const noiDung = `🚨 Báo hỏng: ${selectedTS?.tentaisan} - ${values.noidung}`;
 
 //       // Gửi thông báo vào bảng thongbao
 //       const success = await notificationService.sendIncidentAlert(
 //         currentUser.manguoidung,
 //         values.mataisan,
 //         selectedTS?.tentaisan || '',
-//         values.mota,
+//         values.noidung,
 //         currentUser.email
 //       );
 
@@ -323,7 +323,7 @@ export default IncidentReport;
 
 //               <Form.Item
 //                 label="Mô tả sự cố"
-//                 name="mota"
+//                 name="noidung"
 //                 rules={[{ required: true, message: 'Vui lòng mô tả sự cố' }]}
 //               >
 //                 <Input.TextArea 
