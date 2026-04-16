@@ -26,11 +26,13 @@ const IncidentReport: React.FC = () => {
 
  useEffect(() => {
     // Giả lập user (Nên thay bằng auth từ supabase.auth.getSession())
-    const user = {
-      manguoidung: 5,
-      hoten: "Nguyễn Thị Sinh Viên",
-      email: "sinhvien@tdmu.edu.vn"
-    };
+    
+    const user = supabase.auth.getSession().then(({ data: { session } }) => session?.user);
+
+    if (!user) {
+      message.error("Vui lòng đăng nhập để sử dụng tính năng này.");
+      return;
+    }
 
     // Lưu user vào state để sử dụng trong các hàm khác
     // Đăng ký lắng nghe thay đổi từ bảng thongbao
