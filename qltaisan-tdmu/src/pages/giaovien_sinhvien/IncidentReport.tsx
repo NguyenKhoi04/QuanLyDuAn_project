@@ -58,58 +58,59 @@ const IncidentReport: React.FC = () => {
   const { data, error } = await supabase
     .from('taisan')
     .select(`
-      mataisan,
-      tentaisan,
-      vitri:vitri!mavitri (phong)
+      mataisan, 
+      tentaisan, 
+      mavitri,
+      vitri (
+        phong
+      )
     `);
 
   if (error) {
-    console.log("Lỗi fetchTaiSan:", error);
+    console.error("Lỗi fetch tài sản:", error.message);
     return;
   }
 
-  console.log("DATA TAISAN:", data); // 👈 DEBUG
+  console.log("DATA:", data); // 👈 DEBUG
 
-  const formatted = data?.map((ts: any) => ({
-    mataisan: ts.mataisan,
-    tentaisan: ts.tentaisan,
-    phong: ts.vitri?.phong || 'N/A'
+  const formattedData = data?.map((item: any) => ({
+    mataisan: item.mataisan,
+    tentaisan: item.tentaisan,
+    phong: item.vitri?.phong || 'Chưa xác định'
   }));
 
-  setTaiSans(formatted || []);
+  setTaiSans(formattedData || []);
 };
 
- const fetchMyReports = async (userId: number) => {
+  const fetchMyReports = async (manguoidung: number) => {
   const { data, error } = await supabase
     .from('thongbao')
     .select(`
       mathongbao,
       noidung,
       ngaygui,
-      isread,
-      taisan:taisan!mataisan (
-        tentaisan,
-        vitri:vitri!mavitri (phong)
+      mataisan,
+      taisan (
+        tentaisan
       )
     `)
-    .eq('manguoidung', userId)
+    .eq('manguoidung', manguoidung)
     .eq('loaithongbao', 'incident')
     .order('ngaygui', { ascending: false });
 
   if (error) {
-    console.log("Lỗi fetchMyReports:", error);
+    console.error("Lỗi fetch báo cáo:", error.message);
     return;
   }
 
-  console.log("DATA REPORT:", data); // 👈 DEBUG
+  console.log("REPORT:", data); // 👈 DEBUG
 
-  const formatted = data?.map((r: any) => ({
-    ...r,
-    tentaisan: r.taisan?.tentaisan,
-    phong: r.taisan?.vitri?.phong
+  const formattedReports = data?.map((item: any) => ({
+    ...item,
+    tentaisan: item.taisan?.tentaisan
   }));
 
-  setMyReports(formatted || []);
+  setMyReports(formattedReports || []);
 };
 
   const handleSubmit = async (values: any) => {
