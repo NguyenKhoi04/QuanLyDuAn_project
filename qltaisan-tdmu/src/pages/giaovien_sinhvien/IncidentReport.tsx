@@ -55,7 +55,7 @@ const IncidentReport: React.FC = () => {
   const fetchTaiSan = async () => {
     try {
       const { data, error } = await supabase
-        .from('vitritaisan') // Tên bảng phải khớp 100%
+        .from('taisan') // Tên bảng phải khớp 100%
         .select('mataisan, tentaisan, phong');
 
       if (error) {
