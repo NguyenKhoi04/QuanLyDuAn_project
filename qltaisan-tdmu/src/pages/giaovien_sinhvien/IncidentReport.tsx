@@ -45,11 +45,27 @@ const IncidentReport: React.FC = () => {
     fetchMyReports(user.manguoidung);
   }, []);
 
+  // const fetchTaiSan = async () => {
+  //   const { data } = await supabase
+  //     .from('taisan')
+  //     .select('mataisan, tentaisan, phong');
+  //   setTaiSans(data || []);
+  // };
+
   const fetchTaiSan = async () => {
-    const { data } = await supabase
-      .from('taisan')
-      .select('mataisan, tentaisan, phong');
-    setTaiSans(data || []);
+    try {
+      const { data, error } = await supabase
+        .from('vitritaisan') // Tên bảng phải khớp 100%
+        .select('mataisan, tentaisan, phong');
+
+      if (error) {
+        console.error("Lỗi truy vấn:", error.message);
+        return;
+      }
+      setTaiSans(data || []);
+    } catch (err) {
+      console.error("Lỗi kết nối:", err);
+    }
   };
 
   const fetchMyReports = async (manguoidung: number) => {
