@@ -9,10 +9,10 @@ export type NotificationType =
   | "general";
 
 interface SendNotificationParams {
-  maNguoiDung: number;
+  manguoidung: number;
   mataisan?: number;
   noidung: string;
-  loaiThongBao: NotificationType;
+  loaithongbao: NotificationType;
   email?: string;           // Nếu có email thì gửi thêm qua email
 }
 
@@ -46,19 +46,19 @@ const sendEmail = async (toEmail: string, content: string, type: NotificationTyp
  * Gửi thông báo vào Database (và email nếu có)
  */
 export const sendNotification = async ({
-  maNguoiDung,
+  manguoidung,
   mataisan,
   noidung,
-  loaiThongBao,
+  loaithongbao,
   email,
 }: SendNotificationParams): Promise<boolean> => {
   try {
     // 1. Lưu vào bảng ThongBao
     const { error } = await supabase.from('thongbao').insert({
-      manguoidung: maNguoiDung,
+      manguoidung: manguoidung,
       mataisan: mataisan,
       noidung: noidung,
-      loaithongbao: loaiThongBao,
+      loaithongbao: loaithongbao,
     });
 
     if (error) {
@@ -68,7 +68,7 @@ export const sendNotification = async ({
 
     // 2. Gửi email nếu có địa chỉ email
     if (email) {
-      await sendEmail(email, noidung, loaiThongBao);
+      await sendEmail(email, noidung, loaithongbao);
     }
 
     return true;
@@ -84,65 +84,65 @@ export const sendNotification = async ({
 export const notificationService = {
   // 1. Gửi thông báo lịch bảo trì
   async sendMaintenanceReminder(
-    maNguoiDung: number,
+    manguoidung: number,
     mataisan: number,
     tenTaiSan: string,
     ngayBaoTri: string,
     email?: string
   ) {
     return sendNotification({
-      maNguoiDung,
+      manguoidung,
       mataisan,
       noidung: `Đến hạn bảo trì tài sản: ${tenTaiSan} vào ngày ${ngayBaoTri}`,
-      loaiThongBao: "maintenance",
+      loaithongbao: "maintenance",
       email,
     });
   },
 
   // 2. Nhắc nhở sự cố tài sản
   async sendIncidentAlert(
-    maNguoiDung: number,
+    manguoidung: number,
     mataisan: number,
     tenTaiSan: string,
     moTaSuCo: string,
     email?: string
   ) {
     return sendNotification({
-      maNguoiDung,
+      manguoidung,
       mataisan,
       noidung: `🚨 Sự cố mới: ${tenTaiSan} - ${moTaSuCo}`,
-      loaiThongBao: "incident",
+      loaithongbao: "incident",
       email,
     });
   },
 
   // 3. Cập nhật trạng thái tài sản
   async sendStatusUpdate(
-    maNguoiDung: number,
+    manguoidung: number,
     mataisan: number,
     tenTaiSan: string,
     trangThaiMoi: string,
     email?: string
   ) {
     return sendNotification({
-      maNguoiDung,
+      manguoidung,
       mataisan,
       noidung: `Trạng thái tài sản ${tenTaiSan} đã thay đổi thành: ${trangThaiMoi}`,
-      loaiThongBao: "status",
+      loaithongbao: "status",
       email,
     });
   },
 
   // 4. Thông báo chung
   async sendGeneral(
-    maNguoiDung: number,
+    manguoidung: number,
     tieuDe: string,
     email?: string
   ) {
     return sendNotification({
-      maNguoiDung,
+      manguoidung,
       noidung: tieuDe,
-      loaiThongBao: "general",
+      loaithongbao: "general",
       email,
     });
   },
