@@ -76,7 +76,7 @@ useEffect(() => {
     // Join: thongbao -> taisan qua mataisan
     const { data, error } = await supabase
       .from('thongbao')
-      .select('mathongbao, noidung, ngaygui, mataisan, taisan(tentaisan)')
+      .select('mathongbao, noidung, ngaygui, isread, mataisan, taisan(tentaisan)')
       .eq('manguoidung', manguoidung)
       .eq('loaithongbao', 'incident')
       .order('ngaygui', { ascending: false });
