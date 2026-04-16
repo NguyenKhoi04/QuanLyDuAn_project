@@ -60,7 +60,7 @@ const IncidentReport: React.FC = () => {
     .select(`
       mataisan,
       tentaisan,
-      vitri:vitri (phong)
+      vitri(phong)
     `);
 
   const formatted = data?.map((ts: any) => ({
