@@ -32,10 +32,26 @@ const IncidentReport: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
         useEffect(() => {
-          const user = {
-            manguoidung: 5,
-            hoten: "Nguyễn Thị Sinh Viên",
-            email: "sinhvien@tdmu.edu.vn"
+        const getCurrentUser = async () => {
+    // 1. Lấy session từ Supabase Auth
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      // 2. Lấy thêm thông tin chi tiết từ bảng 'nguoidung' (nếu cần hoten, manguoidung)
+      const { data: userData, error } = await supabase
+        .from('nguoidung')
+        .select('*')
+        .eq('email', session.user.email) // Hoặc dùng auth_id nếu bạn có lưu
+        .single();
+
+      if (userData) {
+        setCurrentUser(userData);
+        fetchMyReports(userData.manguoidung);
+      }
+    } else {
+      // Nếu chưa đăng nhập thì đá về trang login hoặc báo lỗi
+      message.error("Vui lòng đăng nhập để thực hiện báo cáo!");
+    }
           };
 
           const fetchTaiSan = async () => {
@@ -57,9 +73,9 @@ const IncidentReport: React.FC = () => {
             setTaiSans(formatted || []);
           };
 
-          setCurrentUser(user);
+          setCurrentUser(getCurrentUser());
           fetchTaiSan();
-          fetchMyReports(user.manguoidung);
+          fetchMyReports(currentUser?.manguoidung);
 
           // --- THIẾT LẬP REALTIME ---
           const channel = supabase
@@ -70,11 +86,11 @@ const IncidentReport: React.FC = () => {
                 event: 'UPDATE', // Lắng nghe sự kiện Admin cập nhật trạng thái
                 schema: 'public',
                 table: 'thongbao',
-                filter: `manguoidung=eq.${user.manguoidung}`
+                filter: `manguoidung=eq.${currentUser?.manguoidung}`
               },
               (payload) => {
                 console.log('Có thay đổi mới:', payload);
-                fetchMyReports(user.manguoidung); // Tải lại danh sách khi Admin nhấn "Đã đọc"
+                fetchMyReports(currentUser?.manguoidung); // Tải lại danh sách khi Admin nhấn "Đã đọc"
               }
             )
             .subscribe();
