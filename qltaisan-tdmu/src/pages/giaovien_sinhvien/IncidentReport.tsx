@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Button, Form, Input, Select, message, Card, Table, Tag } from 'antd';
-import { AlertTriangle, Send } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
-import AppShell from '@/components/AppShell';
-import { notificationService } from '@/lib/notificationHelper';
-import { ColumnsType } from 'antd/es/table';
+import React, { useState, useEffect } from "react";
+import { Button, Form, Input, Select, message, Card, Table, Tag } from "antd";
+import { AlertTriangle, Send } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import AppShell from "@/components/AppShell";
+import { notificationService } from "@/lib/notificationHelper";
+import { ColumnsType } from "antd/es/table";
 
 const IncidentReport: React.FC = () => {
   const [form] = Form.useForm();
@@ -18,14 +18,16 @@ const IncidentReport: React.FC = () => {
   useEffect(() => {
     const initData = async () => {
       // 1. Lấy user đang đăng nhập từ Session
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (session?.user) {
         // Lấy thông tin chi tiết (hoten, manguoidung) từ bảng nguoidung
         const { data: userData } = await supabase
-          .from('nguoidung')
-          .select('*')
-          .eq('email', session.user.email)
+          .from("nguoidung")
+          .select("*")
+          .eq("email", session.user.email)
           .single();
 
         if (userData) {
@@ -35,18 +37,24 @@ const IncidentReport: React.FC = () => {
 
           // 2. Đăng ký Realtime: Admin đọc là cập nhật ngay
           const channel = supabase
-            .channel('user-notis')
-            .on('postgres_changes', {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'thongbao',
-              filter: `manguoidung=eq.${userData.manguoidung}`
-            }, () => {
-              fetchMyReports(userData.manguoidung); // Load lại khi admin update isread
-            })
+            .channel("user-notis")
+            .on(
+              "postgres_changes",
+              {
+                event: "UPDATE",
+                schema: "public",
+                table: "thongbao",
+                filter: `manguoidung=eq.${userData.manguoidung}`,
+              },
+              () => {
+                fetchMyReports(userData.manguoidung); // Load lại khi admin update isread
+              },
+            )
             .subscribe();
 
-          return () => { supabase.removeChannel(channel); };
+          return () => {
+            supabase.removeChannel(channel);
+          };
         }
       }
     };
@@ -55,9 +63,7 @@ const IncidentReport: React.FC = () => {
   }, []);
 
   const fetchTaiSan = async () => {
-  const { data, error } = await supabase
-    .from('taisan')
-    .select(`
+    const { data, error } = await supabase.from("taisan").select(`
       mataisan, 
       tentaisan, 
       mavitri,
@@ -66,78 +72,75 @@ const IncidentReport: React.FC = () => {
       )
     `);
 
-  if (error) {
-    console.error("Lỗi fetch tài sản:", error.message);
-    return;
-  }
+    if (error) {
+      console.error("Lỗi fetch tài sản:", error.message);
+      return;
+    }
 
-  console.log("DATA:", data); // 👈 DEBUG
+    console.log("DATA:", data); // 👈 DEBUG
 
-  const formattedData = data?.map((item: any) => ({
-    mataisan: item.mataisan,
-    tentaisan: item.tentaisan,
-    phong: item.vitri?.phong || 'Chưa xác định'
-  }));
+    const formattedData = data?.map((item: any) => ({
+      mataisan: item.mataisan,
+      tentaisan: item.tentaisan,
+      phong: item.vitri?.phong || "Chưa xác định",
+    }));
 
-  setTaiSans(formattedData || []);
-};
+    setTaiSans(formattedData || []);
+  };
 
-  const fetchMyReports = async (manguoidung: number) => {
-  const { data, error } = await supabase
-    .from('thongbao')
-    .select(`
+  const fetchMyReports = async (manguoidung: string) => {
+    const { data } = await supabase
+      .from("thongbao")
+      .select(
+        `
       mathongbao,
       noidung,
       ngaygui,
-      mataisan,
+      isread,
+      manguoidung,
       taisan (
-        tentaisan
+        tentaisan,
+        vitri (
+          phong
+        )
       )
-    `)
-    .eq('manguoidung', manguoidung)
-    .eq('loaithongbao', 'incident')
-    .order('ngaygui', { ascending: false });
+    `,
+      )
+      .eq("loaithongbao", "incident")
+      .eq("manguoidung", manguoidung);
 
-  if (error) {
-    console.error("Lỗi fetch báo cáo:", error.message);
-    return;
-  }
+    console.log("TEST:", data);
 
-  console.log("REPORT:", data); // 👈 DEBUG
-
-  const formattedReports = data?.map((item: any) => ({
-    ...item,
-    tentaisan: item.taisan?.tentaisan
-  }));
-
-  setMyReports(formattedReports || []);
-};
+    setMyReports(data || []);
+  };
 
   const handleSubmit = async (values: any) => {
-  if (!currentUser) return message.error("Lỗi xác thực!");
+    if (!currentUser) return message.error("Lỗi xác thực!");
 
-  setLoading(true);
+    setLoading(true);
 
-  const selectedTS = taiSans.find(
-    ts => ts.mataisan === values.mataisan // ✅ sửa đúng key
-  );
+    const selectedTS = taiSans.find(
+      (ts) => ts.mataisan === values.mataisan, // ✅ sửa đúng key
+    );
 
-  const success = await notificationService.sendIncidentAlert(
-    currentUser.manguoidung,
-    values.mataisan,
-    selectedTS?.tentaisan || '', // ✅ đúng field
-    values.noidung,
-    currentUser.email
-  );
+    const success = await notificationService.sendIncidentAlert(
+      currentUser.manguoidung,
+      values.mataisan,
+      selectedTS?.tentaisan || "", // ✅ đúng field
+      values.noidung,
+      currentUser.email,
+    );
 
-  if (success) {
-    message.success("✅ Đã gửi báo cáo!");
-    form.resetFields();
-    fetchMyReports(currentUser.manguoidung);
-  }
+    if (success) {
+      message.success("✅ Đã gửi báo cáo!");
+      form.resetFields();
+      fetchMyReports(currentUser.manguoidung); // Cập nhật lại danh sách báo cáo của tôi
+    } else {
+      message.error("❌ Gửi báo cáo thất bại!");
+    }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   interface BaoCao {
     mathongbao: number;
@@ -146,36 +149,36 @@ const IncidentReport: React.FC = () => {
     ngaygui: Date;
     isread: boolean;
   }
-  
 
   const columns: ColumnsType<BaoCao> = [
-    { 
-      title: 'Tài sản',
-  render: (_, record: any) => (
-    <div>
-      <b className="block">{record.tentaisan}</b>
-      <small className="text-gray-400">
-        Phòng: {record.phong || 'N/A'}
-      </small>
-    </div>
-      )
+    {
+      title: "Tài sản",
+      render: (_, record: any) => (
+        <div>
+          <b className="block">{record.tentaisan}</b>
+          <small className="text-gray-400">
+            Phòng: {record.phong || "N/A"}
+          </small>
+        </div>
+      ),
     },
-    { title: 'Nội dung', dataIndex: 'noidung' },
-    { 
-      title: 'Thời gian', 
-      dataIndex: 'ngaygui', 
-      render: (date) => new Date(date).toLocaleString('vi-VN') 
+    { title: "Nội dung", dataIndex: "noidung" },
+    {
+      title: "Thời gian",
+      dataIndex: "ngaygui",
+      render: (date) => new Date(date).toLocaleString("vi-VN"),
     },
     {
-    title: 'Trạng thái',
-    dataIndex: 'isread',
-    key: 'isread',
-    render: (isread: boolean) => (
-      isread ? 
-        <Tag color="green">Đã đọc</Tag> : 
-        <Tag color="orange">Chưa đọc</Tag>
-    ),
-  },
+      title: "Trạng thái",
+      dataIndex: "isread",
+      key: "isread",
+      render: (isread: boolean) =>
+        isread ? (
+          <Tag color="green">Đã đọc</Tag>
+        ) : (
+          <Tag color="orange">Chưa đọc</Tag>
+        ),
+    },
   ];
 
   return (
@@ -199,36 +202,59 @@ const IncidentReport: React.FC = () => {
                 </Select>
               </Form.Item> */}
 
-              
-              <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true }]}>
-                  <Select 
-                      showSearch 
-                      placeholder="Tìm tài sản hoặc phòng..."
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
-                      }
-                    >
-                    {taiSans.map(ts => (
-                      <Select.Option key={ts.mataisan} value={ts.mataisan}>
-                        {ts.tentaisan} - Phòng: {ts.phong}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-
-              <Form.Item label="Mô tả sự cố" name="noidung" rules={[{ required: true }]}>
-                <Input.TextArea rows={4} placeholder="Ví dụ: Máy chiếu không lên nguồn..." />
+              <Form.Item
+                label="Chọn tài sản"
+                name="mataisan"
+                rules={[{ required: true }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="Tìm tài sản hoặc phòng..."
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.children as unknown as string)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                >
+                  {taiSans.map((ts) => (
+                    <Select.Option key={ts.mataisan} value={ts.mataisan}>
+                      {ts.tentaisan} - Phòng: {ts.phong}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
 
-              <Button type="primary" htmlType="submit" loading={loading} icon={<Send className="w-4 h-4" />} block>
+              <Form.Item
+                label="Mô tả sự cố"
+                name="noidung"
+                rules={[{ required: true }]}
+              >
+                <Input.TextArea
+                  rows={4}
+                  placeholder="Ví dụ: Máy chiếu không lên nguồn..."
+                />
+              </Form.Item>
+
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                icon={<Send className="w-4 h-4" />}
+                block
+              >
                 Gửi Báo Cáo
               </Button>
             </Form>
           </Card>
 
           <Card title="📜 Lịch sử của bạn" className="shadow">
-            <Table columns={columns} dataSource={myReports} rowKey="mathongbao" pagination={{ pageSize: 5 }} />
+            <Table
+              columns={columns}
+              dataSource={myReports}
+              rowKey="mathongbao"
+              pagination={{ pageSize: 5 }}
+            />
           </Card>
         </div>
       </div>
@@ -237,5 +263,3 @@ const IncidentReport: React.FC = () => {
 };
 
 export default IncidentReport;
-
-
