@@ -8,11 +8,20 @@ import AppShell from "@/components/AppShell";
 import { notificationService } from "@/lib/notificationHelper";
 import { ColumnsType } from "antd/es/table";
 
+interface BaoCao {
+  mathongbao: number;
+  noidung: string;
+  ngaygui: string;
+  mataisan: number;
+  tentaisan: string;
+  isread?: boolean;
+}
+
 const IncidentReport: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [taiSans, setTaiSans] = useState<any[]>([]);
-  const [myReports, setMyReports] = useState<any[]>([]);
+  const [myReports, setMyReports] = useState<BaoCao[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
  useEffect(() => {
