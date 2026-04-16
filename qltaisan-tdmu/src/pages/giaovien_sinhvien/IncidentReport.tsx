@@ -22,44 +22,53 @@ const IncidentReport: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [taiSans, setTaiSans] = useState<any[]>([]);
   const [myReports, setMyReports] = useState<BaoCao[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentnguoidung, setCurrentnguoidung] = useState<any>(null);
 
  useEffect(() => {
-    // Giả lập user (Nên thay bằng auth từ supabase.auth.getSession())
-    
-    const user = supabase.auth.getSession().then(({ data: { session } }) => session?.user);
+    const initializenguoidung = async () => {
+      // Giả lập nguoidung (Nên thay bằng auth từ supabase.auth.getSession())
+      const { data: { session } } = await supabase.auth.getSession();
+      const nguoidung = session?.user ? {
+        manguoidung: 1, // Giả định ID người dùng
+        hoten: session.user.email || "Người dùng",
+        email: session.user.email || ""
+      } : null;
 
-    if (!user) {
-      message.error("Vui lòng đăng nhập để sử dụng tính năng này.");
-      return;
-    }
-
-    // Lưu user vào state để sử dụng trong các hàm khác
-    // Đăng ký lắng nghe thay đổi từ bảng thongbao
-  const channel = supabase
-    .channel('schema-db-changes')
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'thongbao',
-        filter: `manguoidung=eq.${currentUser?.manguoidung}`,
-      },
-      (payload) => {
-        // Khi có bất kỳ dòng nào được update, tải lại danh sách
-        fetchMyReports(currentUser.manguoidung);
+      if (!nguoidung) {
+        message.error("Vui lòng đăng nhập để sử dụng tính năng này.");
+        return;
       }
-    )
-    .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
+
+      // Lưu nguoidung vào state để sử dụng trong các hàm khác
+      setCurrentnguoidung(nguoidung);
+      fetchTaiSan();
+      fetchMyReports(nguoidung.manguoidung);
+
+      // Đăng ký lắng nghe thay đổi từ bảng thongbao
+      const channel = supabase
+        .channel('schema-db-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'thongbao',
+            filter: `manguoidung=eq.${nguoidung.manguoidung}`,
+          },
+          (payload) => {
+            // Khi có bất kỳ dòng nào được update, tải lại danh sách
+            fetchMyReports(nguoidung.manguoidung);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     };
 
-    setCurrentUser(user);
-    fetchTaiSan();
-    fetchMyReports(user.manguoidung);
-  }, [currentUser?.manguoidung]);
+    initializenguoidung();
+  }, []);
 
   const fetchTaiSan = async () => {
     // Join: taisan -> vitri qua mavitri
@@ -100,23 +109,23 @@ const IncidentReport: React.FC = () => {
   };
 
   const handleSubmit = async (values: any) => {
-    if (!currentUser) return;
+    if (!currentnguoidung) return;
     setLoading(true);
     try {
       const selectedTS = taiSans.find(ts => ts.mataisan === values.mataisan);
       
       const success = await notificationService.sendIncidentAlert(
-        currentUser.manguoidung,
+        currentnguoidung.manguoidung,
         values.mataisan,
         selectedTS?.tentaisan || '',
         values.noidung,
-        currentUser.email
+        currentnguoidung.email
       );
 
       if (success) {
         message.success("✅ Đã gửi báo cáo sự cố!");
         form.resetFields();
-        fetchMyReports(currentUser.manguoidung);
+        fetchMyReports(currentnguoidung.manguoidung);
       }
     } catch (error) {
       message.error("Lỗi khi gửi dữ liệu");
