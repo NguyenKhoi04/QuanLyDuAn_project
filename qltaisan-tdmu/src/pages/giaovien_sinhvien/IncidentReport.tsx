@@ -1,152 +1,112 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Input, Select, message, Card, Table } from 'antd';
+import { Button, Form, Input, Select, message, Card, Table, Tag } from 'antd';
 import { AlertTriangle, Send } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import AppShell from '@/components/AppShell';
 import { notificationService } from '@/lib/notificationHelper';
-import type { ColumnsType } from 'antd/es/table';
-import { Tag } from 'antd';
-
-interface TaiSan {
-  mataisan: number;
-  tentaisan: string;
-  phong: string;
-}
-
-interface BaoCao {
-  mathongbao: number;
-  noidung: string;
-  ngaygui: string;
-  mataisan: number;
-  tentaisan?: string;
-  isread: boolean;
-}
+import { ColumnsType } from 'antd/es/table';
 
 const IncidentReport: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [taiSans, setTaiSans] = useState<TaiSan[]>([]);
-  const [myReports, setMyReports] = useState<BaoCao[]>([]);
+  const [taiSans, setTaiSans] = useState<any[]>([]);
+  const [myReports, setMyReports] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-        useEffect(() => {
-        const getCurrentUser = async () => {
-    // 1. Lấy session từ Supabase Auth
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session?.user) {
-      // 2. Lấy thêm thông tin chi tiết từ bảng 'nguoidung' (nếu cần hoten, manguoidung)
-      const { data: userData, error } = await supabase
-        .from('nguoidung')
-        .select('*')
-        .eq('email', session.user.email) // Hoặc dùng auth_id nếu bạn có lưu
-        .single();
+  useEffect(() => {
+    const initData = async () => {
+      // 1. Lấy user đang đăng nhập từ Session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        // Lấy thông tin chi tiết (hoten, manguoidung) từ bảng nguoidung
+        const { data: userData } = await supabase
+          .from('nguoidung')
+          .select('*')
+          .eq('email', session.user.email)
+          .single();
 
-      if (userData) {
-        setCurrentUser(userData);
-        fetchMyReports(userData.manguoidung);
-      }
-    } else {
-      // Nếu chưa đăng nhập thì đá về trang login hoặc báo lỗi
-      message.error("Vui lòng đăng nhập để thực hiện báo cáo!");
-    }
-          };
-
-          const fetchTaiSan = async () => {
-            // Join: taisan -> vitri qua mavitri
-            const { data, error } = await supabase
-              .from('taisan')
-              .select('mataisan, tentaisan, vitri(phong)');
-
-            if (error) {
-              message.error("Không thể tải danh sách tài sản");
-              return;
-            }
-
-            const formatted = data?.map((ts: any) => ({
-              mataisan: ts.mataisan,
-              tentaisan: ts.tentaisan,
-              phong: ts.vitri?.phong || 'N/A',
-            }));
-            setTaiSans(formatted || []);
-          };
-
-          setCurrentUser(getCurrentUser());
+        if (userData) {
+          setCurrentUser(userData);
           fetchTaiSan();
-          fetchMyReports(currentUser?.manguoidung);
+          fetchMyReports(userData.manguoidung);
 
-          // --- THIẾT LẬP REALTIME ---
+          // 2. Đăng ký Realtime: Admin đọc là cập nhật ngay
           const channel = supabase
-            .channel('db-changes')
-            .on(
-              'postgres_changes',
-              {
-                event: 'UPDATE', // Lắng nghe sự kiện Admin cập nhật trạng thái
-                schema: 'public',
-                table: 'thongbao',
-                filter: `manguoidung=eq.${currentUser?.manguoidung}`
-              },
-              (payload) => {
-                console.log('Có thay đổi mới:', payload);
-                fetchMyReports(currentUser?.manguoidung); // Tải lại danh sách khi Admin nhấn "Đã đọc"
-              }
-            )
+            .channel('user-notis')
+            .on('postgres_changes', {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'thongbao',
+              filter: `manguoidung=eq.${userData.manguoidung}`
+            }, () => {
+              fetchMyReports(userData.manguoidung); // Load lại khi admin update isread
+            })
             .subscribe();
 
-          return () => {
-            supabase.removeChannel(channel);
-          };
-        }, []); // Chỉ chạy 1 lần khi mount
+          return () => { supabase.removeChannel(channel); };
+        }
+      }
+    };
 
-        const fetchMyReports = async (manguoidung: number) => {
-          const { data, error } = await supabase
-            .from('thongbao')
-            .select('mathongbao, noidung, ngaygui, mataisan, isread, taisan(tentaisan)') // BẮT BUỘC có isread
-            .eq('manguoidung', manguoidung)
-            .eq('loaithongbao', 'incident')
-            .order('ngaygui', { ascending: false });
+    initData();
+  }, []);
 
-          if (error) {
-            console.error(error);
-            return;
-          }
+  const fetchTaiSan = async () => {
+    const { data } = await supabase
+      .from('taisan')
+      .select('mataisan, tentaisan, vitri(phong)');
+    
+    const formatted = data?.map((ts: any) => ({
+      value: ts.mataisan,
+      label: `${ts.tentaisan} - ${ts.vitri?.phong || 'N/A'}`,
+      name: ts.tentaisan
+    }));
+    setTaiSans(formatted || []);
+  };
 
-          const formatted = data?.map((rp: any) => ({
-            ...rp,
-            tentaisan: rp.taisan?.tentaisan,
-            isread: rp.isread // Đảm bảo gán đúng giá trị từ DB
-          }));
-          setMyReports(formatted || []);
-        };
+  const fetchMyReports = async (userId: number) => {
+    const { data } = await supabase
+      .from('thongbao')
+      .select('mathongbao, noidung, ngaygui, isread, taisan(tentaisan)')
+      .eq('manguoidung', userId)
+      .eq('loaithongbao', 'incident')
+      .order('ngaygui', { ascending: false });
 
+    setMyReports(data?.map((r: any) => ({ ...r, tentaisan: r.taisan?.tentaisan })) || []);
+  };
 
   const handleSubmit = async (values: any) => {
-    if (!currentUser) return;
+    if (!currentUser) return message.error("Lỗi xác thực!");
     setLoading(true);
-    try {
-      const selectedTS = taiSans.find(ts => ts.mataisan === values.mataisan);
-      
-      const success = await notificationService.sendIncidentAlert(
-        currentUser.manguoidung,
-        values.mataisan,
-        selectedTS?.tentaisan || '',
-        values.noidung,
-        currentUser.email
-      );
+    
+    const selectedTS = taiSans.find(ts => ts.value === values.mataisan);
+    const success = await notificationService.sendIncidentAlert(
+      currentUser.manguoidung, // Ghi nhận đúng ID người đang dùng
+      values.mataisan,
+      selectedTS?.name || '',
+      values.noidung,
+      currentUser.email
+    );
 
-      if (success) {
-        message.success("✅ Đã gửi báo cáo sự cố!");
-        form.resetFields();
-        fetchMyReports(currentUser.manguoidung);
-      }
-    } catch (error) {
-      message.error("Lỗi khi gửi dữ liệu");
-    } finally {
-      setLoading(false);
+    if (success) {
+      message.success("✅ Đã gửi báo cáo!");
+      form.resetFields();
+      fetchMyReports(currentUser.manguoidung);
     }
+    setLoading(false);
   };
+
+  interface BaoCao {
+    mathongbao: number;
+    tentaisan: string;
+    noidung: string;
+    ngaygui: Date;
+    isread: boolean;
+  }
+  
 
   const columns: ColumnsType<BaoCao> = [
     { 
@@ -154,7 +114,7 @@ const IncidentReport: React.FC = () => {
       render: (_, record) => (
         <div>
           <b className="block">{record.tentaisan}</b>
-          <small className="text-gray-400">ID: TS{record.mataisan}</small>
+          <small className="text-gray-400">ID: TS{record.mathongbao}</small>
         </div>
       )
     },
