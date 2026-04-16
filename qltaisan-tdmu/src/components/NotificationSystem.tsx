@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";// Sử dụng để chuyển hướng
+import { useRouter } from "next/navigation";// Sử dụng để chuyển hướng
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -93,7 +93,7 @@ const NotificationSystem: React.FC<{ manguoidung: number }> = ({
 
     // 3. Chuyển hướng đến trang chi tiết thông báo
     // Bạn có thể truyền ID vào query để trang /notifications tự động mở thông báo đó
-    router.push(`/notifications?id=${noti.mathongbao}`);
+    window.location.href = `/notifications?mathongbao=${noti.mathongbao}`;
   };
 
   const getIcon = (type: string) => {
