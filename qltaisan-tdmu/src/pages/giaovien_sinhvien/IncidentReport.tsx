@@ -24,56 +24,71 @@ const IncidentReport: React.FC = () => {
   const [myReports, setMyReports] = useState<BaoCao[]>([]);
   const [currentnguoidung, setCurrentnguoidung] = useState<any>(null);
 
-useEffect(() => {
-  // 1. Gọi ngay lập tức, không cần đợi login để kiểm tra xem Supabase có phản hồi không
-  fetchTaiSan();
+  useEffect(() => {
+    // 1. Lấy danh sách tài sản ngay lập tức
+    fetchTaiSan();
 
-  const initData = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session?.user) {
-      // 2. Lấy thông tin user
-      const { data: userData, error } = await supabase
-        .from("nguoidung")
-        .select("*")
-        .eq("email", session.user.email)
-        .single();
+    const initData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const { data: userData } = await supabase
+          .from("nguoidung")
+          .select("*")
+          .eq("email", session.user.email)
+          .single();
 
-      if (userData) {
-        setCurrentnguoidung(userData);
-        // 3. Có user rồi mới lấy lịch sử báo cáo của chính họ
-        fetchMyReports(userData.manguoidung);
-      } else {
-        console.error("Email này không có trong bảng nguoidung:", session.user.email);
+        if (userData) {
+          setCurrentnguoidung(userData);
+          fetchMyReports(userData.manguoidung);
+
+          // 2. Thiết lập Realtime (Quan trọng: Phải có manguoidung mới lắng nghe đúng người)
+          const channel = supabase
+            .channel(`user-reports-${userData.manguoidung}`)
+            .on(
+              'postgres_changes',
+              {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'thongbao',
+                filter: `manguoidung=eq.${userData.manguoidung}`
+              },
+              () => {
+                // Khi admin update cột isread, fetch lại danh sách ngay
+                fetchMyReports(userData.manguoidung);
+              }
+            )
+            .subscribe();
+
+          return () => {
+            supabase.removeChannel(channel);
+          };
+        }
       }
-    }
-  };
+    };
 
-  initData();
-}, []);
+    initData();
+  }, []);
 
   const fetchTaiSan = async () => {
-    // Join: taisan -> vitri qua mavitri
     const { data, error } = await supabase
       .from('taisan')
       .select('mataisan, tentaisan, vitri(phong)');
 
     if (error) {
-       message.error("Không thể tải danh sách tài sản");
-       return;
+      message.error("Không thể tải danh sách tài sản");
+      return;
     }
     
     const formatted = data?.map((ts: any) => ({
       mataisan: ts.mataisan,
       tentaisan: ts.tentaisan,
       phong: ts.vitri?.phong || 'N/A',
-      isread: false
     }));
     setTaiSans(formatted || []);
   };
 
   const fetchMyReports = async (manguoidung: number) => {
-    // Join: thongbao -> taisan qua mataisan
     const { data, error } = await supabase
       .from('thongbao')
       .select('mathongbao, noidung, ngaygui, isread, mataisan, taisan(tentaisan)')
@@ -85,13 +100,17 @@ useEffect(() => {
 
     const formatted = data?.map((rp: any) => ({
       ...rp,
-      tentaisan: rp.taisan?.tentaisan
+      tentaisan: rp.taisan?.tentaisan || 'Tài sản đã bị xóa'
     }));
     setMyReports(formatted || []);
   };
 
   const handleSubmit = async (values: any) => {
-    if (!currentnguoidung) return;
+    if (!currentnguoidung) {
+      message.warning("Vui lòng đợi hệ thống xác thực tài khoản...");
+      return;
+    }
+    
     setLoading(true);
     try {
       const selectedTS = taiSans.find(ts => ts.mataisan === values.mataisan);
@@ -107,10 +126,14 @@ useEffect(() => {
       if (success) {
         message.success("✅ Đã gửi báo cáo sự cố!");
         form.resetFields();
-        fetchMyReports(currentnguoidung.manguoidung);
+        // Cập nhật lại lịch sử ngay sau khi gửi thành công
+        await fetchMyReports(currentnguoidung.manguoidung);
+      } else {
+        message.error("Gửi báo cáo thất bại");
       }
     } catch (error) {
-      message.error("Lỗi khi gửi dữ liệu");
+      console.error("Submit error:", error);
+      message.error("Lỗi kết nối máy chủ");
     } finally {
       setLoading(false);
     }
@@ -133,15 +156,15 @@ useEffect(() => {
       render: (date) => new Date(date).toLocaleString('vi-VN') 
     },
     {
-    title: 'Trạng thái',
-    dataIndex: 'isread',
-    key: 'isread',
-    render: (isread: boolean) => (
-      isread ? 
-        <Tag color="green">Đã đọc</Tag> : 
-        <Tag color="orange">Chưa đọc</Tag>
-    ),
-  },
+      title: 'Trạng thái',
+      dataIndex: 'isread',
+      key: 'isread',
+      render: (isread: boolean) => (
+        <Tag color={isread ? "green" : "orange"}>
+          {isread ? "Đã tiếp nhận" : "Đang chờ"}
+        </Tag>
+      ),
+    },
   ];
 
   return (
@@ -155,23 +178,23 @@ useEffect(() => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="📋 Gửi yêu cầu" className="shadow">
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
-              <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true }]}>
+              <Form.Item label="Chọn tài sản" name="mataisan" rules={[{ required: true, message: 'Vui lòng chọn tài sản!' }]}>
                 <Select
                     showSearch
-                    placeholder="Tìm tài sản..."
-                    optionFilterProp="label" // Cực kỳ quan trọng để tìm kiếm hoạt động
+                    placeholder="Tìm tài sản hoặc phòng..."
+                    optionFilterProp="label"
                     options={taiSans.map((ts) => ({
                       value: ts.mataisan,
-                      label: `${ts.tentaisan} (${ts.phong})`, // Đảm bảo key này có dữ liệu
+                      label: `${ts.tentaisan} - Phòng: ${ts.phong}`,
                     }))}
                   />
               </Form.Item>
 
-              <Form.Item label="Mô tả sự cố" name="noidung" rules={[{ required: true }]}>
+              <Form.Item label="Mô tả sự cố" name="noidung" rules={[{ required: true, message: 'Vui lòng nhập mô tả sự cố!' }]}>
                 <Input.TextArea rows={4} placeholder="Ví dụ: Máy chiếu không lên nguồn..." />
               </Form.Item>
 
-              <Button type="primary" htmlType="submit" loading={loading} icon={<Send className="w-4 h-4" />} block>
+              <Button type="primary" htmlType="submit" loading={loading} icon={<Send className="w-4 h-4" />} block danger>
                 Gửi Báo Cáo
               </Button>
             </Form>
