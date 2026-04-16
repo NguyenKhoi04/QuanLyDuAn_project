@@ -59,63 +59,61 @@ const IncidentReport: React.FC = () => {
 
   // --- HÀM FETCH TÀI SẢN (ĐÃ FIX) ---
   const fetchTaiSan = async () => {
-    const { data, error } = await supabase.from("taisan").select(`
+  const { data, error } = await supabase
+    .from('taisan')
+    .select(`
       mataisan, 
       tentaisan, 
       mavitri,
       vitri (
         phong
       )
-    `);
+    `); // Phải có dấu backtick bao quanh nội dung select
 
-    if (error) {
-      console.error("Lỗi fetch tài sản:", error.message);
-      return;
-    }
+  if (error) {
+    console.error("Lỗi fetch tài sản:", error.message);
+    return;
+  }
 
-    const formattedData = data?.map((item: any) => ({
-      mataisan: item.mataisan,
-      tentaisan: item.tentaisan,
-      phong: item.vitri?.phong || "Chưa xác định",
-    }));
+  const formattedData = data?.map((item: any) => ({
+    mataisan: item.mataisan,
+    tentaisan: item.tentaisan,
+    phong: item.vitri?.phong || 'Chưa xác định'
+  }));
 
-    setTaiSans(formattedData || []);
-  };
+  setTaiSans(formattedData || []);
+};
 
   // --- HÀM FETCH BÁO CÁO (ĐÃ FIX) ---
   const fetchMyReports = async (manguoidung: number) => {
-    const { data, error } = await supabase
-      .from("thongbao")
-      .select(`
-        mathongbao,
-        noidung,
-        ngaygui,
-        isread,
-        mataisan,
-        taisan (
-          tentaisan,
-          vitri (
-            phong
-          )
-        )
-      `)
-      .eq("manguoidung", manguoidung)
-      .eq("loaithongbao", "incident")
-      .order("ngaygui", { ascending: false });
+  const { data, error } = await supabase
+    .from('thongbao')
+    .select(`
+      mathongbao,
+      noidung,
+      ngaygui,
+      isread,
+      mataisan,
+      taisan (
+        tentaisan
+      )
+    `) // Phải có dấu backtick ở đây
+    .eq('manguoidung', manguoidung)
+    .eq('loaithongbao', 'incident')
+    .order('ngaygui', { ascending: false });
 
-    if (error) {
-      console.error("Lỗi fetch báo cáo:", error.message);
-      return;
-    }
+  if (error) {
+    console.error("Lỗi fetch báo cáo:", error.message);
+    return;
+  }
 
-    const formattedReports = data?.map((item: any) => ({
-      ...item,
-      tentaisan: item.taisan?.tentaisan || "N/A",
-      phong: item.taisan?.vitri?.phong || "N/A"
-    }));
+  const formattedReports = data?.map((item: any) => ({
+    ...item,
+    tentaisan: item.taisan?.tentaisan || "N/A"
+  }));
 
-    setMyReports(formattedReports || []);
-  };
+  setMyReports(formattedReports || []);
+};
 
   const handleSubmit = async (values: any) => {
     if (!currentUser) return message.error("Lỗi xác thực!");
