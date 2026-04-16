@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Sử dụng để chuyển hướng
+import { useRouter } from "next/router";// Sử dụng để chuyển hướng
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
