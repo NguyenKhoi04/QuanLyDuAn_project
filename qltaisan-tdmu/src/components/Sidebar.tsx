@@ -87,6 +87,7 @@ const filterSidebar = (role: number) => {
 
   if (role === 2) {
     allowed = [
+      "/notifications",
       "/su-co-tai-san",
       "/assets",
       "/kiem-ke",
@@ -108,6 +109,7 @@ const filterSidebar = (role: number) => {
 
   if (role === 4) {
     allowed = [
+      "/notifications",
       "/bao-tri",
       "/ke-hoach-bao-tri-dinh-ky",
       "/su-co-tai-san",
