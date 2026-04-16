@@ -55,54 +55,74 @@ const IncidentReport: React.FC = () => {
   }, []);
 
   const fetchTaiSan = async () => {
-    const { data } = await supabase
-      .from('taisan')
-      .select('mataisan, tentaisan, vitri(phong)');
-    
-    // const formatted = data?.map((ts: any) => ({
-    //   value: ts.mataisan,
-    //   label: `${ts.tentaisan} - ${ts.vitri?.phong || 'N/A'}`,
-    //   name: ts.tentaisan
-    // }));
-    const formatted = data?.map((ts: any) => ({
+  const { data } = await supabase
+    .from('taisan')
+    .select(`
+      mataisan,
+      tentaisan,
+      vitri:vitri (phong)
+    `);
+
+  const formatted = data?.map((ts: any) => ({
     mataisan: ts.mataisan,
     tentaisan: ts.tentaisan,
     phong: ts.vitri?.phong || 'N/A'
   }));
-    setTaiSans(formatted || []);
-  };
+
+  setTaiSans(formatted || []);
+};
 
   const fetchMyReports = async (userId: number) => {
-    const { data } = await supabase
-      .from('thongbao')
-      .select('mathongbao, noidung, ngaygui, isread, taisan(tentaisan)')
-      .eq('manguoidung', userId)
-      .eq('loaithongbao', 'incident')
-      .order('ngaygui', { ascending: false });
+  const { data } = await supabase
+    .from('thongbao')
+    .select(`
+      mathongbao,
+      noidung,
+      ngaygui,
+      isread,
+      taisan:taisan (
+        tentaisan,
+        vitri:vitri (phong)
+      )
+    `)
+    .eq('manguoidung', userId)
+    .eq('loaithongbao', 'incident')
+    .order('ngaygui', { ascending: false });
 
-    setMyReports(data?.map((r: any) => ({ ...r, tentaisan: r.taisan?.tentaisan })) || []);
-  };
+  const formatted = data?.map((r: any) => ({
+    ...r,
+    tentaisan: r.taisan?.tentaisan,
+    phong: r.taisan?.vitri?.phong
+  }));
+
+  setMyReports(formatted || []);
+};
 
   const handleSubmit = async (values: any) => {
-    if (!currentUser) return message.error("Lỗi xác thực!");
-    setLoading(true);
-    
-    const selectedTS = taiSans.find(ts => ts.value === values.mataisan);
-    const success = await notificationService.sendIncidentAlert(
-      currentUser.manguoidung, // Ghi nhận đúng ID người đang dùng
-      values.mataisan,
-      selectedTS?.name || '',
-      values.noidung,
-      currentUser.email
-    );
+  if (!currentUser) return message.error("Lỗi xác thực!");
 
-    if (success) {
-      message.success("✅ Đã gửi báo cáo!");
-      form.resetFields();
-      fetchMyReports(currentUser.manguoidung);
-    }
-    setLoading(false);
-  };
+  setLoading(true);
+
+  const selectedTS = taiSans.find(
+    ts => ts.mataisan === values.mataisan // ✅ sửa đúng key
+  );
+
+  const success = await notificationService.sendIncidentAlert(
+    currentUser.manguoidung,
+    values.mataisan,
+    selectedTS?.tentaisan || '', // ✅ đúng field
+    values.noidung,
+    currentUser.email
+  );
+
+  if (success) {
+    message.success("✅ Đã gửi báo cáo!");
+    form.resetFields();
+    fetchMyReports(currentUser.manguoidung);
+  }
+
+  setLoading(false);
+};
 
   interface BaoCao {
     mathongbao: number;
@@ -115,12 +135,14 @@ const IncidentReport: React.FC = () => {
 
   const columns: ColumnsType<BaoCao> = [
     { 
-      title: 'Tài sản', 
-      render: (_, record) => (
-        <div>
-          <b className="block">{record.tentaisan}</b>
-          <small className="text-gray-400">ID: TS{record.mathongbao}</small>
-        </div>
+      title: 'Tài sản',
+  render: (_, record: any) => (
+    <div>
+      <b className="block">{record.tentaisan}</b>
+      <small className="text-gray-400">
+        Phòng: {record.phong || 'N/A'}
+      </small>
+    </div>
       )
     },
     { title: 'Nội dung', dataIndex: 'noidung' },
