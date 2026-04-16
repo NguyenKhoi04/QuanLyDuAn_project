@@ -49,16 +49,18 @@ export const sendNotification = async ({
   manguoidung,
   mataisan,
   noidung,
-  loaithongbao,
+  loaithongbao: loaiThongBao,
   email,
 }: SendNotificationParams): Promise<boolean> => {
   try {
-    // 1. Lưu vào bảng ThongBao
+    // 1. Gửi vào DB ngay lập tức
     const { error } = await supabase.from('thongbao').insert({
       manguoidung: manguoidung,
       mataisan: mataisan,
       noidung: noidung,
-      loaithongbao: loaithongbao,
+      loaithongbao: loaiThongBao,
+      ngaygui: new Date().toISOString(),
+      isread: false
     });
 
     if (error) {
@@ -66,12 +68,13 @@ export const sendNotification = async ({
       return false;
     }
 
-    // 2. Gửi email nếu có địa chỉ email
+    // 2. KHÔNG DÙNG 'await' ở đây. Cứ để nó chạy ngầm.
     if (email) {
-      await sendEmail(email, noidung, loaithongbao);
+      sendEmail(email, noidung, loaiThongBao).catch(e => console.error("Gửi email ngầm lỗi:", e));
     }
 
-    return true;
+    // Trả về true ngay khi DB xong, không đợi email
+    return true; 
   } catch (err) {
     console.error("Gửi thông báo thất bại:", err);
     return false;
