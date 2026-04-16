@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import AppShell from '@/components/AppShell';
 import { notificationService } from '@/lib/notificationHelper';
 import type { ColumnsType } from 'antd/es/table';
+import { Tag } from 'antd';
 
 interface TaiSan {
   mataisan: number;
@@ -20,6 +21,7 @@ interface BaoCao {
   ngaygui: string;
   mataisan: number;
   tentaisan?: string;
+  isread: boolean;
 }
 
 const IncidentReport: React.FC = () => {
@@ -120,6 +122,16 @@ const IncidentReport: React.FC = () => {
       dataIndex: 'ngaygui', 
       render: (date) => new Date(date).toLocaleString('vi-VN') 
     },
+    {
+    title: 'Trạng thái',
+    dataIndex: 'isread',
+    key: 'isread',
+    render: (isread: boolean) => (
+      isread ? 
+        <Tag color="green">Đã đọc</Tag> : 
+        <Tag color="orange">Chưa đọc</Tag>
+    ),
+  },
   ];
 
   return (
