@@ -271,7 +271,7 @@ function MaintenanceHistory() {
 
         <div className="flex items-center gap-2">
           <Button variant="secondary" className="gap-2">
-            <Plus className="h-4 w-4" /> + Tạo hóa đơn
+            <Plus className="h-4 w-4" />Tạo hóa đơn
           </Button>
           <Button variant="outline" onClick={handleExport} className="gap-2">
             <Download className="h-4 w-4" /> Xuất báo cáo (Excel)
