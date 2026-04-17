@@ -136,11 +136,10 @@ function PositionDepartment() {
       setData([]);
     } else {
       const normalized = (taiSanData || []).map((item: any) => ({
-        // macode: item.macode ?? item.macode,
-        mavitri: item.mavitri ?? item.mavitri ?? 0,
-        toanha: item.toanha ?? item.Toanha ?? "",
-        tang: item.tang ?? item.Tang ?? "",
-        phong: item.phong ?? item.phong ?? "",
+        mavitri: item.mavitri ?? 0,
+        toanha: String(item.toanha ?? item.Toanha ?? ""),
+        tang: String(item.tang ?? item.Tang ?? ""),
+        phong: String(item.phong ?? item.phong ?? ""),
       }));
       console.log("✅ Lấy thành công:", taiSanData?.length, "bản ghi");
       setData(normalized);
@@ -153,12 +152,14 @@ function PositionDepartment() {
   }, []);
 
   // ====================== FILTER & PAGINATION ======================
-  const filtered = data.filter(
-    (ts) =>
-      ts.toanha?.toLowerCase().includes(search.toLowerCase()) ||
-      ts.tang?.toLowerCase().includes(search.toLowerCase()) ||
-      ts.phong?.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = data.filter((ts) => {
+    const searchText = search.toLowerCase();
+    return (
+      String(ts.toanha ?? "").toLowerCase().includes(searchText) ||
+      String(ts.tang ?? "").toLowerCase().includes(searchText) ||
+      String(ts.phong ?? "").toLowerCase().includes(searchText)
+    );
+  });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice(
