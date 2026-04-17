@@ -47,7 +47,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import axios from "axios";
+//import axios from "axios";
 
 // const vaiTro: Record<number, string> = {
 //   1: "Quản trị",
@@ -235,11 +235,32 @@ function Users() {
       trangthai: Number(form.trangthai),
     };
 
+    let error: any;
+
     if (editingItem) {
-      await supabase.from("nguoidung").update(payload).eq("manguoidung", editingItem.manguoidung);
+      const res = await supabase
+        .from("nguoidung")
+        .update(payload)
+        .eq("manguoidung", editingItem.manguoidung);
+
+        
+      error = res.error;
     } else {
-      await supabase.from("nguoidung").insert([payload]);
+      const res = await supabase
+        .from("nguoidung")
+        .insert([payload]);
+
+      error = res.error;
     }
+
+    if (error) {
+      console.log(error);
+      alert("Lỗi lưu dữ liệu");
+      return;
+    }
+
+    alert("Lưu thành công");
+
 
     resetForm();
     setDialogOpen(false);
@@ -274,14 +295,15 @@ function Users() {
     setCurrentPage(1);
   };
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:3000/users")
-      .then((res) => setData(res.data))
-      .catch(() => {
-        // keep initialData when api is unavailable
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios
+  //     .get("http://localhost:3000/users")
+  //     .then((res) => setData(res.data))
+  //     .catch(() => {
+  //       // keep initialData when api is unavailable
+  //     });
+  // }, 
+  // []);
 
   return (
     <AppShell>
