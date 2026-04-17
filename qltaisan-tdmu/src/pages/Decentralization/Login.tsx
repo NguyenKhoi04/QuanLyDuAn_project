@@ -50,7 +50,7 @@ const Login = () => {
         .select("*")
         .eq("tendangnhap", username)
         .eq("matkhau", password)
-        .single(); // Dùng .single() thay vì mảng
+        .maybeSingle(); // Dùng .single() thay vì mảng
 
       if (error || !data) {
         setError("Sai tài khoản hoặc mật khẩu!");
@@ -101,7 +101,7 @@ const Login = () => {
             .from("nguoidung")
             .select("*")
             .eq("email", email)
-            .single();
+            .maybeSingle();
 
           if (dbUser) {
             localStorage.setItem("user", JSON.stringify(dbUser));
