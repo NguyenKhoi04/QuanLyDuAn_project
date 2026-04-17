@@ -4,45 +4,35 @@ import AppShell from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Clock, Download, Search, FilePlus, Save } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select"; // Cài shadcn/ui/select
+import { FilePlus, Search, Download, Clock } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import * as XLSX from 'xlsx';
-
-// Định nghĩa Interface cho Form
-interface NewHistoryForm {
-  mataisan: string;
-  nguoisua: string;
-  ketqua: string;
-  chiphi: number;
-}
 
 function MaintenanceHistory() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Danh sách để đổ vào Select
+  const [dsTaiSan, setDsTaiSan] = useState<any[]>([]);
+  const [dsNguoiDung, setDsNguoiDung] = useState<any[]>([]);
   const [search, setSearch] = useState("");
-  const [isOpen, setIsOpen] = useState(false); // Trạng thái mở Modal
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+
   // Form state
-  const [formData, setFormData] = useState<NewHistoryForm>({
+  const [formData, setFormData] = useState({
     mataisan: "",
-    nguoisua: "", // Đây là ID người dùng (UUID hoặc integer tùy DB của bạn)
+    manguoidung: "",
     ketqua: "",
     chiphi: 0,
   });
@@ -57,13 +47,11 @@ function MaintenanceHistory() {
       .select(`
         malichsu, mataisan, ngaysua, nguoisua, ketqua, chiphi,
         taisan ( macode, tentaisan ),
-        nguoidung ( hoten )
+        nguoidung!lichsubaotri_nguoisua_fkey ( manguoidung, hoten )
       `)
       .order("ngaysua", { ascending: false });
 
-    if (error) {
-      console.error("Lỗi lấy lịch sử:", error);
-    } else {
+    if (!error) {
       const mapped = data?.map((item: any) => ({
         ...item,
         macode: item.taisan?.macode || "N/A",
@@ -77,28 +65,43 @@ function MaintenanceHistory() {
 
   useEffect(() => { fetchLichSu(); }, []);
 
+  // ====================== LẤY DANH SÁCH HỖ TRỢ FORM ======================
+  const fetchSupportData = async () => {
+    const { data: ts } = await supabase.from("taisan").select("mataisan, tentaisan");
+    const { data: nd } = await supabase.from("nguoidung").select("manguoidung, hoten");
+    if (ts) setDsTaiSan(ts);
+    if (nd) setDsNguoiDung(nd);
+  };
+
+  useEffect(() => {
+    fetchLichSu();
+    fetchSupportData();
+  }, []);
+
   // ====================== THÊM MỚI (CREATE) ======================
   const handleCreate = async () => {
-    try {
-      const { error } = await supabase
-        .from("lichsubaotri")
-        .insert([{
-          mataisan: parseInt(formData.mataisan),
-          nguoisua: formData.nguoisua, // Cần đảm bảo ID này tồn tại trong bảng nguoidung
-          ngaysua: new Date().toISOString(),
-          ketqua: formData.ketqua,
-          chiphi: formData.chiphi
-        }]);
+    if (!formData.mataisan || !formData.manguoidung) {
+      alert("Vui lòng chọn đầy đủ Tài sản và Người thực hiện!");
+      return;
+    }
 
-      if (error) throw error;
-      
-      // Thành công: Đóng modal, reset form và tải lại data
+    const { error } = await supabase
+      .from("lichsubaotri")
+      .insert([{
+        mataisan: parseInt(formData.mataisan),
+        nguoisua: parseInt(formData.manguoidung), // Liên kết manguoidung -> nguoisua
+        ngaysua: new Date().toISOString(),
+        ketqua: formData.ketqua,
+        chiphi: formData.chiphi
+      }]);
+
+    if (!error) {
       setIsOpen(false);
-      setFormData({ mataisan: "", nguoisua: "", ketqua: "", chiphi: 0 });
+      setFormData({ mataisan: "", manguoidung: "", ketqua: "", chiphi: 0 });
       fetchLichSu();
-      alert("Thêm lịch sử thành công!");
-    } catch (error: any) {
-      alert("Lỗi: " + error.message);
+    } else {
+      console.error(error);
+      alert("Lỗi khi lưu dữ liệu");
     }
   };
 
@@ -118,54 +121,72 @@ function MaintenanceHistory() {
     <AppShell>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Lịch sử bảo trì & sửa chữa</h2>
-          <p className="text-sm text-muted-foreground">Theo dõi tiến độ và chi phí bảo trì tại TDMU</p>
+          <h2 className="text-2xl font-bold">Lịch sử bảo trì & sửa chữa</h2>
+          <p className="text-sm text-muted-foreground">Quản lý các hoạt động sửa chữa tại TDMU</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* NÚT TẠO MỚI + DIALOG FORM */}
+        <div className="flex gap-2">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-sm">
+              <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
                 <FilePlus className="h-4 w-4" /> Tạo hóa đơn
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[450px]">
               <DialogHeader>
-                <DialogTitle>Thêm lịch sử sửa chữa</DialogTitle>
+                <DialogTitle>Ghi nhận bảo trì mới</DialogTitle>
               </DialogHeader>
+              
               <div className="grid gap-4 py-4">
+                {/* CHỌN TÀI SẢN */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Mã Tài Sản (ID)</label>
-                  <Input 
-                    type="number" 
-                    placeholder="VD: 1" 
-                    value={formData.mataisan}
-                    onChange={(e) => setFormData({...formData, mataisan: e.target.value})}
-                  />
+                  <label className="text-sm font-semibold text-blue-700">Tên tài sản</label>
+                  <Select onValueChange={(val) => setFormData({...formData, mataisan: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="-- Chọn tài sản bảo trì --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {dsTaiSan.map((ts) => (
+                        <SelectItem key={ts.mataisan} value={ts.mataisan.toString()}>
+                          {ts.tentaisan} (ID: {ts.mataisan})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {/* CHỌN NGƯỜI SỬA */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">ID Người Sửa</label>
-                  <Input 
-                    placeholder="Nhập ID nhân viên kỹ thuật" 
-                    value={formData.nguoisua}
-                    onChange={(e) => setFormData({...formData, nguoisua: e.target.value})}
-                  />
+                  <label className="text-sm font-semibold text-blue-700">Người thực hiện sửa chữa</label>
+                  <Select onValueChange={(val) => setFormData({...formData, manguoidung: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="-- Chọn nhân viên kỹ thuật --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {dsNguoiDung.map((nd) => (
+                        <SelectItem key={nd.manguoidung} value={nd.manguoidung.toString()}>
+                          {nd.hoten}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Nội dung sửa chữa / Kết quả</label>
+                  <label className="text-sm font-semibold">Nội dung / Kết quả</label>
                   <Input 
-                    placeholder="VD: Thay pin, vệ sinh..." 
+                    placeholder="VD: Thay màn hình, Cài lại Win..." 
                     value={formData.ketqua}
                     onChange={(e) => setFormData({...formData, ketqua: e.target.value})}
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Chi phí (VND)</label>
+                  <label className="text-sm font-semibold">Chi phí (VND)</label>
                   <Input 
-                    type="number" 
+                    type="number"
                     value={formData.chiphi}
-                    onChange={(e) => setFormData({...formData, chiphi: parseInt(e.target.value)})}
+                    onChange={(e) => setFormData({...formData, chiphi: parseInt(e.target.value) || 0})}
                   />
                 </div>
               </div>
