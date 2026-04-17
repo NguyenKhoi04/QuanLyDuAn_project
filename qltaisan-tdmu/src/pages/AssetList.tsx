@@ -718,7 +718,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 1)}
                 >
                   Mã Tài sản
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
@@ -726,7 +726,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 2)}
                 >
                   Tên tài sản
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
@@ -734,7 +734,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 3)}
                 >
                   Loại
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
@@ -742,7 +742,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 4)}
                 >
                   Phòng ban
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
@@ -750,7 +750,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 5)}
                 >
                   Vị trí
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
@@ -758,7 +758,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 6)}
                 >
                   Nhà cung cấp
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
@@ -766,7 +766,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 7)}
                 >
                   Ngày mua
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
@@ -774,7 +774,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 8)}
                 >
                   Trạng thái
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/70 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead className="text-center w-28">Thao tác</TableHead>
               </TableRow>
