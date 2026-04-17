@@ -112,107 +112,71 @@ const Login = () => {
   //   checkUser();
   // }, [navigate]);
 
-  useEffect(() => {
+ useEffect(() => {
   const checkUser = async () => {
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      // Chưa đăng nhập Google
       if (!session?.user) return;
 
-      const authUser = session.user;
-      const email = authUser.email;
-      const authId = authUser.id;
+      const email = session.user.email;
+      const authId = session.user.id;
 
-      // Chỉ cho phép email trường
       if (!email?.endsWith("@student.tdmu.edu.vn")) {
         await supabase.auth.signOut();
-        setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
+        setError("Chỉ chấp nhận tài khoản @student.tdmu.edu.vn");
         return;
       }
 
-      let dbUser = null;
-
-      // ==================================================
-      // ƯU TIÊN TÌM THEO auth_id
-      // ==================================================
-      const { data: userByAuth } = await supabase
+      // 1 query duy nhất
+      const { data: dbUser, error } = await supabase
         .from("nguoidung")
         .select("*")
-        .eq("auth_id", authId)
-        .maybeSingle();
+        .or(`auth_id.eq.${authId},email.eq.${email}`)
+        .limit(1)
+        .single();
 
-      if (userByAuth) {
-        dbUser = userByAuth;
-      } else {
-        // ==================================================
-        // Nếu chưa có auth_id thì tìm theo email
-        // ==================================================
-        const { data: userByEmail } = await supabase
-          .from("nguoidung")
-          .select("*")
-          .eq("email", email)
-          .maybeSingle();
-
-        if (userByEmail) {
-          dbUser = userByEmail;
-
-          // cập nhật auth_id lần đầu login Google
-          await supabase
-            .from("nguoidung")
-            .update({ auth_id: authId })
-            .eq("manguoidung", userByEmail.manguoidung);
-        }
-      }
-
-      // ==================================================
-      // Không tồn tại trong bảng người dùng
-      // ==================================================
-      if (!dbUser) {
-        setError("Tài khoản Google chưa được cấp quyền sử dụng!");
+      if (error || !dbUser) {
+        setError("Tài khoản chưa được cấp quyền!");
         await supabase.auth.signOut();
         return;
       }
 
-      // ==================================================
-      // Lưu localStorage để Header / Sidebar hiện tên
-      // ==================================================
+      // nếu chưa có auth_id thì update ngầm
+      if (!dbUser.auth_id) {
+        supabase
+          .from("nguoidung")
+          .update({ auth_id: authId })
+          .eq("manguoidung", dbUser.manguoidung);
+      }
+
       localStorage.setItem("user", JSON.stringify(dbUser));
 
-      // ==================================================
-      // Redirect theo vai trò
-      // ==================================================
-      const role = dbUser.mavaitro ?? 0;
-
-      switch (role) {
+      switch (dbUser.mavaitro) {
         case 1:
           navigate("/dashboard");
           break;
-
         case 2:
           navigate("/assets");
           break;
-
         case 4:
           navigate("/bao-tri");
           break;
-
         case 5:
           navigate("/kiem-ke");
           break;
-
         default:
           navigate("/dashboard");
       }
     } catch (err: any) {
-      setError("Lỗi đăng nhập Google: " + err.message);
+      setError(err.message);
     }
   };
 
   checkUser();
-}, []);
+}, [navigate]);
 
   
   return (
