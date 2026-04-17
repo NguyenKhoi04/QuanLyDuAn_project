@@ -29,8 +29,8 @@ const Login = () => {
             prompt: "select_account",
           },
           // URL quay lại sau khi đăng nhập thành công (khai báo trong Supabase)
-         // redirectTo: window.location.origin + "/dashboard",
-          redirectTo: window.location.origin,
+          redirectTo: window.location.origin + "/dashboard",
+          //redirectTo: window.location.origin,
         },
       });
 
@@ -85,100 +85,33 @@ const Login = () => {
   };
 
   // Cần một useEffect để kiểm tra domain sau khi redirect về (Double Check)
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     const {
-  //       data: { session },
-  //     } = await supabase.auth.getSession();
-  //     if (session?.user) {
-  //       const email = session.user.email;
-  //       if (!email?.endsWith("@student.tdmu.edu.vn")) {
-  //         await supabase.auth.signOut();
-  //         setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
-  //       } else {
-  //         // TỰ ĐỘNG FETCH VÀ LƯU VÀO LOCAL STORAGE TẠI ĐÂY ĐỂ SIDEBAR CÓ DATA NGAY
-  //         const { data: dbUser } = await supabase
-  //           .from("nguoidung")
-  //           .select("*")
-  //           .eq("email", email)
-  //           .single();
-
-  //         if (dbUser) {
-  //           localStorage.setItem("user", JSON.stringify(dbUser));
-  //         }
-  //       }
-  //     }
-  //   };
-  //   checkUser();
-  // }, [navigate]);
-
- useEffect(() => {
-  const checkUser = async () => {
-    try {
+  useEffect(() => {
+    const checkUser = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+      if (session?.user) {
+        const email = session.user.email;
+        if (!email?.endsWith("@student.tdmu.edu.vn")) {
+          await supabase.auth.signOut();
+          setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
+        } else {
+          // TỰ ĐỘNG FETCH VÀ LƯU VÀO LOCAL STORAGE TẠI ĐÂY ĐỂ SIDEBAR CÓ DATA NGAY
+          const { data: dbUser } = await supabase
+            .from("nguoidung")
+            .select("*")
+            .eq("email", email)
+            .single();
 
-      if (!session?.user) return;
-
-      const email = session.user.email;
-      const authId = session.user.id;
-
-      if (!email?.endsWith("@student.tdmu.edu.vn")) {
-        await supabase.auth.signOut();
-        setError("Chỉ chấp nhận tài khoản @student.tdmu.edu.vn");
-        return;
+          if (dbUser) {
+            localStorage.setItem("user", JSON.stringify(dbUser));
+          }
+        }
       }
+    };
+    checkUser();
+  }, [navigate]);
 
-      // 1 query duy nhất
-      const { data: dbUser, error } = await supabase
-        .from("nguoidung")
-        .select("*")
-        .or(`auth_id.eq.${authId},email.eq.${email}`)
-        .limit(1)
-        .single();
-
-      if (error || !dbUser) {
-        setError("Tài khoản chưa được cấp quyền!");
-        await supabase.auth.signOut();
-        return;
-      }
-
-      // nếu chưa có auth_id thì update ngầm
-      if (!dbUser.auth_id) {
-        supabase
-          .from("nguoidung")
-          .update({ auth_id: authId })
-          .eq("manguoidung", dbUser.manguoidung);
-      }
-
-      localStorage.setItem("user", JSON.stringify(dbUser));
-
-      switch (dbUser.mavaitro) {
-        case 1:
-          navigate("/dashboard");
-          break;
-        case 2:
-          navigate("/assets");
-          break;
-        case 4:
-          navigate("/bao-tri");
-          break;
-        case 5:
-          navigate("/kiem-ke");
-          break;
-        default:
-          navigate("/dashboard");
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  checkUser();
-}, [navigate]);
-
-  
   return (
     <div>
       <AppHeader />
