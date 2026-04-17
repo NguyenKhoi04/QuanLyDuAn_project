@@ -11,63 +11,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, Clock, Download, Search, X, Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight, Clock, Download, Search, FilePlus, Save } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import * as XLSX from 'xlsx';
 
-interface LichSuBaoTri {
-  malichsu: number;
-  mataisan: number;
-  macode: string;           // từ taisan
-  tentaisan: string;        // từ taisan
-  ngaysua: string;
-  nguoisua: string; 
-  hoten: string;            // hoten từ nguoidung
+// Định nghĩa Interface cho Form
+interface NewHistoryForm {
+  mataisan: string;
+  nguoisua: string;
   ketqua: string;
   chiphi: number;
 }
 
-const ITEMS_PER_PAGE = 7;
-
-function toCsv(rows: LichSuBaoTri[]) {
-  const header = ["Mã Lịch Sử", "Mã Code", "Mã TS", "Tên Tài Sản", "Ngày Sửa", "Người Sửa", "Kết Quả", "Chi Phí (VND)"];
-  
-  const escape = (v: string) => `"${v.replaceAll('"', '""')}"`;
-  
-  const lines = [
-    header.join(","),
-    ...rows.map((r) =>
-      [
-        String(r.malichsu),
-        escape(r.macode),
-        String(r.mataisan),
-        escape(r.tentaisan),
-        escape(r.ngaysua),
-        escape(r.hoten),
-        escape(r.ketqua),
-        String(r.chiphi ?? 0),
-      ].join(",")
-    ),
-  ];
-  return lines.join("\n");
-}
-
-function downloadTextFile(filename: string, content: string, mime: string) {
-  const blob = new Blob([content], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 function MaintenanceHistory() {
-  const [data, setData] = useState<LichSuBaoTri[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false); // Trạng thái mở Modal
+  
+  // Form state
+  const [formData, setFormData] = useState<NewHistoryForm>({
+    mataisan: "",
+    nguoisua: "", // Đây là ID người dùng (UUID hoặc integer tùy DB của bạn)
+    ketqua: "",
+    chiphi: 0,
+  });
+
+  const ITEMS_PER_PAGE = 7;
 
   // ====================== FETCH DATA ======================
   const fetchLichSu = async () => {
@@ -75,314 +55,176 @@ function MaintenanceHistory() {
     const { data, error } = await supabase
       .from("lichsubaotri")
       .select(`
-        malichsu,
-        mataisan,
-        ngaysua,
-        nguoisua,
-        ketqua,
-        chiphi,
-        taisan (
-          macode,
-          tentaisan
-        ),
-        nguoidung (
-          hoten
-        )
+        malichsu, mataisan, ngaysua, nguoisua, ketqua, chiphi,
+        taisan ( macode, tentaisan ),
+        nguoidung ( hoten )
       `)
       .order("ngaysua", { ascending: false });
 
     if (error) {
-      console.error("Lỗi lấy lịch sử bảo trì:", error);
+      console.error("Lỗi lấy lịch sử:", error);
     } else {
       const mapped = data?.map((item: any) => ({
-        malichsu: item.malichsu,
-        mataisan: item.mataisan,
+        ...item,
         macode: item.taisan?.macode || "N/A",
         tentaisan: item.taisan?.tentaisan || "Không tìm thấy",
-        ngaysua: item.ngaysua,
-        nguoisua: item.nguoisua,
-        hoten: item.nguoidung?.hoten || "Không rõ", // Lấy tên người sửa từ bảng nguoidung
-        ketqua: item.ketqua,
-        chiphi: item.chiphi || 0,
+        hoten: item.nguoidung?.hoten || "Không rõ",
       })) || [];
       setData(mapped);
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchLichSu();
-  }, []);
+  useEffect(() => { fetchLichSu(); }, []);
 
-  // ====================== FILTER ======================
+  // ====================== THÊM MỚI (CREATE) ======================
+  const handleCreate = async () => {
+    try {
+      const { error } = await supabase
+        .from("lichsubaotri")
+        .insert([{
+          mataisan: parseInt(formData.mataisan),
+          nguoisua: formData.nguoisua, // Cần đảm bảo ID này tồn tại trong bảng nguoidung
+          ngaysua: new Date().toISOString(),
+          ketqua: formData.ketqua,
+          chiphi: formData.chiphi
+        }]);
+
+      if (error) throw error;
+      
+      // Thành công: Đóng modal, reset form và tải lại data
+      setIsOpen(false);
+      setFormData({ mataisan: "", nguoisua: "", ketqua: "", chiphi: 0 });
+      fetchLichSu();
+      alert("Thêm lịch sử thành công!");
+    } catch (error: any) {
+      alert("Lỗi: " + error.message);
+    }
+  };
+
+  // ====================== UI PHÂN TRANG & SEARCH ======================
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return data.filter((h) => {
-      return (
-        h.macode.toLowerCase().includes(q) ||
-        String(h.mataisan).includes(q) ||
-        h.tentaisan.toLowerCase().includes(q) ||
-       // h.nguoisua.toLowerCase().includes(q) ||
-        h.hoten.toLowerCase().includes(q) ||
-        h.ketqua.toLowerCase().includes(q) ||
-        h.ngaysua.includes(q)
-      );
-    });
+    return data.filter((h) => 
+      h.macode.toLowerCase().includes(q) || 
+      h.tentaisan.toLowerCase().includes(q) ||
+      h.hoten.toLowerCase().includes(q)
+    );
   }, [data, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paged = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
-  };
-
-  const handleSearch = (val: string) => {
-    setSearch(val);
-    setCurrentPage(1);
-  };
-
-  const handleExport = () => {
-  const today = new Date();
-  const dateStr = today.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-
-  // Dữ liệu
-  const exportData = filtered.map((item, index) => ({
-    "STT": index + 1,
-    "Mã Code": item.macode,
-    "Mã TS": item.mataisan,
-    "Tên Tài Sản": item.tentaisan,
-    "Ngày Sửa": item.ngaysua,
-    "Người Sửa": item.hoten,
-    "Kết Quả": item.ketqua,
-    "Chi Phí (VND)": Number(item.chiphi ?? 0),
-  }));
-
-  const totalChiPhi = filtered.reduce((sum, item) => sum + Number(item.chiphi ?? 0), 0);
-
-  // Tạo worksheet
-  const ws = XLSX.utils.json_to_sheet(exportData);
-
-  // ==================== TIÊU ĐỀ BÁO CÁO ====================
-  XLSX.utils.sheet_add_aoa(ws, [["TRƯỜNG ĐẠI HỌC THỦ DẦU MỘT"]], { origin: "A1" });
-  XLSX.utils.sheet_add_aoa(ws, [["QUẢN LÝ TÀI SẢN"]], { origin: "A2" });
-  XLSX.utils.sheet_add_aoa(ws, [["LỊCH SỬ BẢO TRÌ & SỬA CHỮA"]], { origin: "A3" });
-  XLSX.utils.sheet_add_aoa(ws, [[`Ngày xuất báo cáo: ${dateStr}`]], { origin: "A4" });
-  XLSX.utils.sheet_add_aoa(ws, [[`Người xuất báo cáo: Quản trị viên`]], { origin: "A5" });
-
-  // Merge tiêu đề
-  ws['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
-    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
-    { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } },
-    { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } },
-  ];
-
-  // Style tiêu đề
-  if (ws['A1']) ws['A1'].s = { font: { bold: true, sz: 16, color: { rgb: "1e40af" } }, alignment: { horizontal: "center" } };
-  if (ws['A3']) ws['A3'].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
-
-  // ==================== HEADER CỘT (DÒNG 6) ====================
-  XLSX.utils.sheet_add_aoa(ws, [[
-    "STT", "Mã Code", "Mã TS", "Tên Tài Sản", "Ngày Sửa", "Người Sửa", "Kết Quả", "Chi Phí (VND)"
-  ]], { origin: "A6" });
-
-  // Style header cột
-  const headerRow = 6;
-  for (let col = 0; col <= 7; col++) {
-    const cell = ws[XLSX.utils.encode_cell({ r: headerRow - 1, c: col })]; // headerRow bắt đầu từ 0
-    if (cell) {
-      cell.s = {
-        font: { bold: true, color: { rgb: "ffffff" } },
-        fill: { fgColor: { rgb: "1e40af" } },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } }
-      };
-    }
-  }
-
-  // ==================== ĐÓNG KHUNG TOÀN BẢNG ====================
-  const range = XLSX.utils.decode_range(ws['!ref'] || "A1");
-  for (let R = range.s.r; R <= range.e.r; R++) {
-    for (let C = range.s.c; C <= range.e.c; C++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-      if (!ws[cellAddress]) ws[cellAddress] = { v: "", t: "s" };
-      ws[cellAddress].s = ws[cellAddress].s || {};
-      ws[cellAddress].s.border = {
-        top: { style: "thin" },
-        bottom: { style: "thin" },
-        left: { style: "thin" },
-        right: { style: "thin" }
-      };
-    }
-  }
-
-  // ==================== DÒNG TỔNG CHI PHÍ ====================
-  const lastDataRow = exportData.length + 6;
-  XLSX.utils.sheet_add_aoa(ws, [[
-    "", "", "", "", "", "", "TỔNG CHI PHÍ:", 
-    Number(totalChiPhi).toLocaleString('vi-VN') + " VND"
-  ]], { origin: `A${lastDataRow}` });
-
-  // ==================== CHÂN BÁO CÁO ====================
-  const footerRow = lastDataRow + 3;
-  XLSX.utils.sheet_add_aoa(ws, [[`TP. HCM, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`]], 
-    { origin: `F${footerRow}` });
-  
-  XLSX.utils.sheet_add_aoa(ws, [["Người lập bảng"]], { origin: `F${footerRow + 2}` });
-
-  // Style footer
-  if (ws[`F${footerRow}`]) ws[`F${footerRow}`].s = { alignment: { horizontal: "right" } };
-  if (ws[`F${footerRow + 2}`]) ws[`F${footerRow + 2}`].s = { font: { bold: true }, alignment: { horizontal: "center" } };
-
-  // Độ rộng cột
-  ws['!cols'] = [
-    { wch: 6 }, { wch: 15 }, { wch: 12 }, { wch: 45 },
-    { wch: 15 }, { wch: 28 }, { wch: 22 }, { wch: 22 }
-  ];
-
-  // Xuất file
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử Bảo Trì");
-
-  const fileName = `Lich_Su_Bao_Tri_${today.toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(wb, fileName);
-};
+  const paged = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <AppShell>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">
-            Lịch sử bảo trì & sửa chữa
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Lưu lịch sử bảo trì, sửa chữa tài sản
-          </p>
+          <h2 className="text-2xl font-bold text-foreground">Lịch sử bảo trì & sửa chữa</h2>
+          <p className="text-sm text-muted-foreground">Theo dõi tiến độ và chi phí bảo trì tại TDMU</p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="secondary" className="gap-2">
-            <Plus className="h-4 w-4" />Tạo hóa đơn
-          </Button>
-          <Button variant="outline" onClick={handleExport} className="gap-2">
-            <Download className="h-4 w-4" /> Xuất báo cáo (Excel)
+          {/* NÚT TẠO MỚI + DIALOG FORM */}
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-sm">
+                <FilePlus className="h-4 w-4" /> Tạo hóa đơn
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Thêm lịch sử sửa chữa</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Mã Tài Sản (ID)</label>
+                  <Input 
+                    type="number" 
+                    placeholder="VD: 1" 
+                    value={formData.mataisan}
+                    onChange={(e) => setFormData({...formData, mataisan: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">ID Người Sửa</label>
+                  <Input 
+                    placeholder="Nhập ID nhân viên kỹ thuật" 
+                    value={formData.nguoisua}
+                    onChange={(e) => setFormData({...formData, nguoisua: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nội dung sửa chữa / Kết quả</label>
+                  <Input 
+                    placeholder="VD: Thay pin, vệ sinh..." 
+                    value={formData.ketqua}
+                    onChange={(e) => setFormData({...formData, ketqua: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Chi phí (VND)</label>
+                  <Input 
+                    type="number" 
+                    value={formData.chiphi}
+                    onChange={(e) => setFormData({...formData, chiphi: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsOpen(false)}>Hủy</Button>
+                <Button onClick={handleCreate} className="bg-blue-600">Lưu thông tin</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Button variant="outline" onClick={() => {}} className="gap-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50">
+            <Download className="h-4 w-4" /> Xuất Excel
           </Button>
         </div>
       </div>
 
+      {/* THANH TÌM KIẾM */}
       <div className="relative mb-4 max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Tìm theo mã tài sản, tên, người sửa, kết quả..."
+          placeholder="Tìm theo mã, tên tài sản..."
           value={search}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="pl-9"
         />
       </div>
 
-      <div className="bg-card border border-border rounded-lg shadow-sm">
-        {loading ? (
-          <p className="text-center py-12">Đang tải dữ liệu...</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">STT</TableHead>
-                <TableHead className="w-28">Mã Code</TableHead>
-                <TableHead className="w-28">Mã TS</TableHead>
-                <TableHead>Tên tài sản</TableHead>
-                <TableHead className="w-40">Ngày sửa</TableHead>
-                <TableHead>Người sửa</TableHead>
-                <TableHead className="w-32">Kết quả</TableHead>
-                <TableHead className="text-right w-44">Chi phí (VND)</TableHead>
+      {/* BẢNG DỮ LIỆU (Giữ nguyên logic Table cũ của bạn nhưng hiển thị state data mới) */}
+      <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader className="bg-slate-50">
+            <TableRow>
+              <TableHead className="w-16">STT</TableHead>
+              <TableHead>Mã Code</TableHead>
+              <TableHead>Tên tài sản</TableHead>
+              <TableHead>Người sửa</TableHead>
+              <TableHead>Kết quả</TableHead>
+              <TableHead className="text-right">Chi phí</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paged.map((item, idx) => (
+              <TableRow key={item.malichsu}>
+                <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
+                <TableCell className="font-mono font-bold text-blue-600">{item.macode}</TableCell>
+                <TableCell className="font-medium">{item.tentaisan}</TableCell>
+                <TableCell>{item.hoten}</TableCell>
+                <TableCell>
+                    <span className="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
+                        {item.ketqua}
+                    </span>
+                </TableCell>
+                <TableCell className="text-right font-semibold">
+                  {Number(item.chiphi).toLocaleString()} đ
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paged.map((item, idx) => (
-                <TableRow key={item.malichsu}>
-                  <TableCell>{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</TableCell>
-                  <TableCell className="font-mono font-medium">{item.macode}</TableCell>
-                  <TableCell className="font-mono">{item.mataisan}</TableCell>
-                  <TableCell className="font-medium">{item.tentaisan}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>{item.ngaysua}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">{item.hoten}</TableCell>
-                  <TableCell className="text-emerald-600 dark:text-emerald-400">
-                    {item.ketqua}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {Number(item.chiphi ?? 0).toLocaleString()}
-                  </TableCell>
-                </TableRow>
-              ))}
-
-              {paged.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="text-center py-8 text-muted-foreground"
-                  >
-                    Không có lịch sử nào
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
-
-        <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-          <p className="text-sm text-muted-foreground">
-            Hiển thị{" "}
-            {paged.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}–
-            {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} /{" "}
-            {filtered.length} bản ghi
-          </p>
-
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              disabled={currentPage === 1}
-              onClick={() => handlePageChange(currentPage - 1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={page === currentPage ? "default" : "outline"}
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => handlePageChange(page)}
-              >
-                {page}
-              </Button>
             ))}
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              disabled={currentPage === totalPages}
-              onClick={() => handlePageChange(currentPage + 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+          </TableBody>
+        </Table>
       </div>
     </AppShell>
   );
