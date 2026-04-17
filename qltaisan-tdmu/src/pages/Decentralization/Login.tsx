@@ -112,7 +112,6 @@ const Login = () => {
   //   checkUser();
   // }, [navigate]);
 
-
   useEffect(() => {
   const checkUser = async () => {
     try {
@@ -120,6 +119,7 @@ const Login = () => {
         data: { session },
       } = await supabase.auth.getSession();
 
+      // Chưa đăng nhập Google
       if (!session?.user) return;
 
       const authUser = session.user;
@@ -135,7 +135,9 @@ const Login = () => {
 
       let dbUser = null;
 
-      // Ưu tiên tìm theo auth_id
+      // ==================================================
+      // ƯU TIÊN TÌM THEO auth_id
+      // ==================================================
       const { data: userByAuth } = await supabase
         .from("nguoidung")
         .select("*")
@@ -145,7 +147,9 @@ const Login = () => {
       if (userByAuth) {
         dbUser = userByAuth;
       } else {
+        // ==================================================
         // Nếu chưa có auth_id thì tìm theo email
+        // ==================================================
         const { data: userByEmail } = await supabase
           .from("nguoidung")
           .select("*")
@@ -155,7 +159,7 @@ const Login = () => {
         if (userByEmail) {
           dbUser = userByEmail;
 
-          // cập nhật auth_id cho lần login sau
+          // cập nhật auth_id lần đầu login Google
           await supabase
             .from("nguoidung")
             .update({ auth_id: authId })
@@ -163,17 +167,23 @@ const Login = () => {
         }
       }
 
-      // Không có quyền trong bảng nguoidung
+      // ==================================================
+      // Không tồn tại trong bảng người dùng
+      // ==================================================
       if (!dbUser) {
         setError("Tài khoản Google chưa được cấp quyền sử dụng!");
         await supabase.auth.signOut();
         return;
       }
 
-      // Lưu localStorage để Header/Sidebar hiện tên
+      // ==================================================
+      // Lưu localStorage để Header / Sidebar hiện tên
+      // ==================================================
       localStorage.setItem("user", JSON.stringify(dbUser));
 
+      // ==================================================
       // Redirect theo vai trò
+      // ==================================================
       const role = dbUser.mavaitro ?? 0;
 
       switch (role) {
@@ -202,8 +212,9 @@ const Login = () => {
   };
 
   checkUser();
-}, [navigate]);
+}, []);
 
+  
   return (
     <div>
       <AppHeader />
