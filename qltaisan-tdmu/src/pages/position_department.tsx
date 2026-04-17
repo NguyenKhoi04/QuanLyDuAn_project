@@ -61,8 +61,6 @@ type PositionDepartment = {
   phong: string;
 };
 
-
-
 const ITEMS_PER_PAGE = 20;
 
 function PositionDepartment() {
@@ -155,9 +153,15 @@ function PositionDepartment() {
   const filtered = data.filter((ts) => {
     const searchText = search.toLowerCase();
     return (
-      String(ts.toanha ?? "").toLowerCase().includes(searchText) ||
-      String(ts.tang ?? "").toLowerCase().includes(searchText) ||
-      String(ts.phong ?? "").toLowerCase().includes(searchText)
+      String(ts.toanha ?? "")
+        .toLowerCase()
+        .includes(searchText) ||
+      String(ts.tang ?? "")
+        .toLowerCase()
+        .includes(searchText) ||
+      String(ts.phong ?? "")
+        .toLowerCase()
+        .includes(searchText)
     );
   });
 
@@ -197,12 +201,12 @@ function PositionDepartment() {
 
     if (editingItem) {
       const { error } = await supabase
-        .from("taisan")
+        .from("vitri")
         .update(newAsset)
         .eq("mavitri", editingItem.mavitri);
       if (error) console.error(error);
     } else {
-      const { error } = await supabase.from("taisan").insert([newAsset]);
+      const { error } = await supabase.from("vitri").insert([newAsset]);
       if (error) console.error(error);
     }
 
@@ -261,8 +265,6 @@ function PositionDepartment() {
   useEffect(() => {
     fetchAssets();
   }, [search]);
-
-
 
   return (
     <AppShell>
@@ -343,7 +345,6 @@ function PositionDepartment() {
                 </div>
               </div>
             </div>
-
 
             <DialogFooter>
               <Button
