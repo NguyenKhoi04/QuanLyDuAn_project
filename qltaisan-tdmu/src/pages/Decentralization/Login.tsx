@@ -85,31 +85,79 @@ const Login = () => {
   };
 
   // Cần một useEffect để kiểm tra domain sau khi redirect về (Double Check)
-  useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user) {
-        const email = session.user.email;
-        if (!email?.endsWith("@student.tdmu.edu.vn")) {
-          await supabase.auth.signOut();
-          setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
-        } else {
-          // TỰ ĐỘNG FETCH VÀ LƯU VÀO LOCAL STORAGE TẠI ĐÂY ĐỂ SIDEBAR CÓ DATA NGAY
-          const { data: dbUser } = await supabase
-            .from("nguoidung")
-            .select("*")
-            .eq("email", email)
-            .single();
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const {
+  //       data: { session },
+  //     } = await supabase.auth.getSession();
+  //     if (session?.user) {
+  //       const email = session.user.email;
+  //       if (!email?.endsWith("@student.tdmu.edu.vn")) {
+  //         await supabase.auth.signOut();
+  //         setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
+  //       } else {
+  //         // TỰ ĐỘNG FETCH VÀ LƯU VÀO LOCAL STORAGE TẠI ĐÂY ĐỂ SIDEBAR CÓ DATA NGAY
+  //         const { data: dbUser } = await supabase
+  //           .from("nguoidung")
+  //           .select("*")
+  //           .eq("email", email)
+  //           .single();
 
-          if (dbUser) {
-            localStorage.setItem("user", JSON.stringify(dbUser));
-          }
-        }
+  //         if (dbUser) {
+  //           localStorage.setItem("user", JSON.stringify(dbUser));
+  //         }
+  //       }
+  //     }
+  //   };
+  //   checkUser();
+
+  useEffect(() => {
+  const checkUser = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      const email = session.user.email;
+
+      if (!email?.endsWith("@student.tdmu.edu.vn")) {
+        await supabase.auth.signOut();
+        setError("Chỉ chấp nhận tài khoản email @student.tdmu.edu.vn");
+        return;
       }
-    };
-    checkUser();
+
+      const { data: dbUser } = await supabase
+        .from("nguoidung")
+        .select("*")
+        .eq("email", email)
+        .single();
+
+      if (dbUser) {
+        localStorage.setItem("user", JSON.stringify(dbUser));
+
+        switch (dbUser.mavaitro) {
+          case 1:
+            navigate("/dashboard");
+            break;
+          case 2:
+            navigate("/assets");
+            break;
+          case 4:
+            navigate("/bao-tri");
+            break;
+          case 5:
+            navigate("/kiem-ke");
+            break;
+          default:
+            navigate("/dashboard");
+        }
+      } else {
+        setError("Tài khoản Google chưa được cấp quyền.");
+      }
+    }
+  };
+
+  checkUser();
   }, [navigate]);
 
   return (
