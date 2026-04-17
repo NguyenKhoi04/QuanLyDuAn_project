@@ -127,6 +127,9 @@ function Users() {
   const [deleteItem, setDeleteItem] = useState<NguoiDung | null>(null);
   const [search, setSearch] = useState("");
   const [formError, setFormError] = useState("");
+  const [vaiTroList, setVaiTroList] = useState<any[]>([]);
+  const [phongBanList, setPhongBanList] = useState<any[]>([]);
+  const [trangthaiList, setTrangthaiList] = useState<any[]>([]);
 
   const emptyForm = {
     tendangnhap: "",
@@ -177,7 +180,18 @@ function Users() {
     setLoading(false);
   };
 
+  const fetchDanhMuc = async () => {
+  const [vt, pb] = await Promise.all([
+    supabase.from("vaitro").select("mavaitro, tenvaitro"),
+    supabase.from("phongban").select("maphongban, tenphongban"),
+  ]);
+
+  setVaiTroList(vt.data || []);
+  setPhongBanList(pb.data || []);
+};
+
   useEffect(() => {
+    fetchDanhMuc();
     fetchUsers();
   }, []);
 
@@ -312,41 +326,83 @@ function Users() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Vai trò *</Label>
-                  <Select value={form.mavaitro} onValueChange={(v) => setForm({ ...form, mavaitro: v })}>
-                    <SelectTrigger><SelectValue placeholder="Chọn vai trò" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Quản trị</SelectItem>
-                      <SelectItem value="2">Quản lý</SelectItem>
-                      <SelectItem value="3">Nhân viên</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Phòng ban</Label>
-                  <Select value={form.maphongban} onValueChange={(v) => setForm({ ...form, maphongban: v })}>
-                    <SelectTrigger><SelectValue placeholder="Chọn phòng ban" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Phòng CNTT</SelectItem>
-                      <SelectItem value="2">Phòng Kế toán</SelectItem>
-                      <SelectItem value="3">Phòng Nhân sự</SelectItem>
-                      <SelectItem value="4">Khoa CNTT</SelectItem>
-                      <SelectItem value="5">Khoa Kinh tế</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <Label>Vai trò *</Label>
+
+                    <Select
+                      value={form.mavaitro}
+                      onValueChange={(v) =>
+                        setForm({ ...form, mavaitro: v })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn vai trò" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {vaiTroList.map((item) => (
+                          <SelectItem
+                            key={item.mavaitro}
+                            value={String(item.mavaitro)}
+                          >
+                            {item.tenvaitro}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+
+                  <div className="space-y-2">
+                    <Label>Phòng ban</Label>
+
+                    <Select
+                      value={form.maphongban}
+                      onValueChange={(v) =>
+                        setForm({ ...form, maphongban: v })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn phòng ban" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {phongBanList.map((item) => (
+                          <SelectItem
+                            key={item.maphongban}
+                            value={String(item.maphongban)}
+                          >
+                            {item.tenphongban}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Trạng thái *</Label>
-                <Select value={form.trangthai} onValueChange={(v) => setForm({ ...form, trangthai: v })}>
-                  <SelectTrigger><SelectValue placeholder="Chọn trạng thái" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Đang hoạt động</SelectItem>
-                    <SelectItem value="0">Ngưng hoạt động</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  <Label>Trạng thái *</Label>
+
+                  <Select
+                    value={form.trangthai}
+                    onValueChange={(v) =>
+                      setForm({ ...form, trangthai: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn trạng thái" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="1">
+                        Đang hoạt động
+                      </SelectItem>
+
+                      <SelectItem value="0">
+                        Ngưng hoạt động
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
             </div>
 
             <DialogFooter>

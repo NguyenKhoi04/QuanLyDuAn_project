@@ -61,6 +61,7 @@ function AssetLocationTracking() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ViTriTaiSan | null>(null);
   const [deleteItem, setDeleteItem] = useState<ViTriTaiSan | null>(null);
+  const [viTriList, setViTriList] = useState<any[]>([]);
 
   const [form, setForm] = useState({
     mataisan: "",
@@ -104,8 +105,19 @@ function AssetLocationTracking() {
     setLoading(false);
   };
 
+  const fetchViTri = async () => {
+  const { data, error } = await supabase
+    .from("vitri")
+    .select("mavitri, phong")
+    .order("mavitri");
+
+  if (!error) setViTriList(data || []);
+};
+
   useEffect(() => {
     fetchLocations();
+    fetchViTri();
+
   }, []);
 
   const filtered = useMemo(() => {
@@ -203,33 +215,55 @@ function AssetLocationTracking() {
               </div>
 
               <div className="space-y-2">
-                <Label>Vị trí hiện tại *</Label>
-                <Select value={form.vitrihientai} onValueChange={(v) => setForm({ ...form, vitrihientai: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn vị trí" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {/* Bạn có thể fetch danh sách vị trí từ bảng ViTri nếu cần */}
-                    <SelectItem value="1">Tầng 1 - Phòng 101</SelectItem>
-                    <SelectItem value="2">Tầng 2 - Phòng 201</SelectItem>
-                    <SelectItem value="3">Tầng 3 - Phòng 301</SelectItem>
-                    {/* Thêm các vị trí khác... */}
-                  </SelectContent>
-                </Select>
-              </div>
+                  <Label>Vị trí hiện tại *</Label>
+
+                  <Select
+                    value={form.vitrihientai}
+                    onValueChange={(v) =>
+                      setForm({ ...form, vitrihientai: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn vị trí" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {viTriList.map((item) => (
+                        <SelectItem
+                          key={item.mavitri}
+                          value={String(item.mavitri)}
+                        >
+                          {item.phong}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
               <div className="space-y-2">
-                <Label>Trạng thái</Label>
-                <Select value={form.trangthai} onValueChange={(v) => setForm({ ...form, trangthai: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Hoạt động</SelectItem>
-                    <SelectItem value="0">Ngưng hoạt động</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  <Label>Trạng thái *</Label>
+
+                  <Select
+                    value={form.trangthai}
+                    onValueChange={(v) =>
+                      setForm({ ...form, trangthai: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn trạng thái" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="1">
+                        Đang hoạt động
+                      </SelectItem>
+
+                      <SelectItem value="0">
+                        Ngưng hoạt động
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
               <div className="space-y-2">
                 <Label>Ghi chú</Label>

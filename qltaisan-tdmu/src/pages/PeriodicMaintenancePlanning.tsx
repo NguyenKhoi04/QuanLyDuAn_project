@@ -95,6 +95,7 @@ function PeriodicMaintenancePlanning() {
 
   const [search, setSearch] = useState("");
   const [formError, setFormError] = useState("");
+  const [nguoiDungList, setNguoiDungList] = useState<any[]>([]);
 
   const emptyForm = useMemo(
     () => ({
@@ -150,8 +151,21 @@ function PeriodicMaintenancePlanning() {
     setLoading(false);
   };
 
+  const fetchNguoiDung = async () => {
+  const { data, error } = await supabase
+    .from("nguoidung")
+    .select("manguoidung, hoten, trangthai")
+    .eq("trangthai", 1)
+    .order("hoten");
+
+  if (!error) {
+    setNguoiDungList(data || []);
+  }
+};
+  
   useEffect(() => {
     fetchKeHoach();
+    fetchNguoiDung();
   }, []);
 
   // ====================== FILTER & PAGINATION ======================
@@ -288,7 +302,28 @@ function PeriodicMaintenancePlanning() {
                 </div>
                 <div className="space-y-2">
                   <Label>Người phụ trách *</Label>
-                  <Input value={form.nguoiphutrach} onChange={(e) => setForm({ ...form, nguoiphutrach: e.target.value })} placeholder="VD: 5" />
+
+                  <Select
+                    value={form.nguoiphutrach}
+                    onValueChange={(v) =>
+                      setForm({ ...form, nguoiphutrach: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn người phụ trách" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {nguoiDungList.map((item) => (
+                        <SelectItem
+                          key={item.manguoidung}
+                          value={String(item.manguoidung)}
+                        >
+                          {item.hoten}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

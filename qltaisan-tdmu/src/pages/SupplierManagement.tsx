@@ -117,8 +117,21 @@ const SupplierManagement: React.FC = () => {
         />
 
         {/* Modal giữ nguyên như cũ */}
-        <Modal /* ... */ >
-          {/* Form giữ nguyên */}
+        <Modal open={isModalOpen} onCancel={() => setIsModalOpen(false)} title={editingRecord ? 'Sửa nhà cung cấp' : 'Thêm nhà cung cấp'} onOk={() => form.submit()}>
+          <Form form={form} onFinish={handleSubmit} layout="vertical" initialValues={editingRecord || {}}>
+            <Form.Item name="tennhacungcap" label="Tên nhà cung cấp" rules={[{ required: true, message: 'Vui lòng nhập tên nhà cung cấp' }]}>
+              <Input placeholder="Nhập tên nhà cung cấp" />
+            </Form.Item>
+            <Form.Item name="sodienthoai" label="Số điện thoại">
+              <Input placeholder="Nhập số điện thoại" />
+            </Form.Item>
+            <Form.Item name="email" label="Email">
+              <Input placeholder="Nhập email" />
+            </Form.Item>
+            <Form.Item name="diachi" label="Địa chi">
+              <Input placeholder="Nhập địa chỉ" />
+            </Form.Item>
+          </Form>
         </Modal>
       </div>
     </AppShell>
