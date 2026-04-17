@@ -734,7 +734,7 @@ function AssetList() {
                   onMouseDown={(e) => handleResize(e, 3)}
                 >
                   Loại
-                  <div className="absolute right-0 top-0 bottom-0 w-[2px] bg-gray-300 hover:bg-blue-500 cursor-col-resize transition-colors" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500/30 hover:bg-blue-500 cursor-col-resize" />
                 </TableHead>
                 <TableHead
                   className="cursor-col-resize relative group"
