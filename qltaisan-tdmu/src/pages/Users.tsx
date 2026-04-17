@@ -144,43 +144,53 @@ function Users() {
   const [form, setForm] = useState(emptyForm);
 
   // ====================== FETCH DATA ======================
-  const fetchUsers = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("nguoidung")
-      .select(`
-        manguoidung,
-        tendangnhap,
-        hoten,
-        email,
-        mavaitro,
-        maphongban,
-        trangthai,
-        vaitro (tenvaitro),
-        phongban (tenphongban)
-      `)
-      .order("manguoidung", { ascending: true });
+const fetchUsers = async () => {
+  setLoading(true);
+  const { data, error } = await supabase
+    .from("nguoidung")
+    .select(`
+      manguoidung,
+      tendangnhap,
+      hoten,
+      email,
+      mavaitro,
+      maphongban,
+      trangthai,
+      vaitro (tenvaitro),
+      phongban (tenphongban)
+    `)
+    .order("manguoidung", { ascending: true });
 
-    if (error) {
-      console.error("Lỗi lấy người dùng:", error);
-    } else {
-      const mapped = data?.map((item: any) => ({
-        manguoidung: item.manguoidung,
-        tendangnhap: item.tendangnhap,
-        hoten: item.hoten,
-        email: item.email,
-        mavaitro: item.mavaitro,
-        tenvaitro: item.vaitro?.tenvaitro || "Không xác định",
-        maphongban: item.maphongban,
-        tenphongban: item.phongban?.tenphongban || null,
-        trangthai: item.trangthai,
-      })) || [];
-      setData(mapped);
-    }
-    setLoading(false);
-  };
+  if (error) {
+    console.error("Lỗi lấy người dùng:", error);
+  } else {
+    const mapped = data?.map((item: any) => ({
+      manguoidung: item.manguoidung,
+      tendangnhap: item.tendangnhap,
+      hoten: item.hoten,
+      email: item.email,
+      mavaitro: item.mavaitro,
+      tenvaitro: item.vaitro?.tenvaitro || "Không xác định",
+      maphongban: item.maphongban,
+      tenphongban: item.phongban?.tenphongban || null,
+      trangthai: item.trangthai,
+    })) || [];
+    setData(mapped);
+  }
+  setLoading(false);
+};
 
-  const fetchDanhMuc = async () => {
+const checkUsernameExists = async (username: string) => {
+  const { data: checkUser } = await supabase
+    .from("nguoidung")
+    .select("manguoidung")
+    .eq("tendangnhap", username)
+    .maybeSingle();
+
+  return !!checkUser;
+};
+
+const fetchDanhMuc = async () => {
   const [vt, pb] = await Promise.all([
     supabase.from("vaitro").select("mavaitro, tenvaitro"),
     supabase.from("phongban").select("maphongban, tenphongban"),
@@ -223,6 +233,14 @@ function Users() {
     if (!form.tendangnhap.trim() || !form.hoten.trim() || !form.mavaitro) {
       setFormError("Vui lòng điền đầy đủ các trường bắt buộc (*)");
       return;
+    }
+
+    if (!editingItem) {
+      const exists = await checkUsernameExists(form.tendangnhap.trim());
+      if (exists) {
+        setFormError("Tên đăng nhập đã tồn tại");
+        return;
+      }
     }
 
     const payload = {
