@@ -84,8 +84,7 @@ function App() {
   const role = Number(user?.mavaitro);
 
 
-  const isLoggedIn =
-    user && [1, 2, 4].includes(user.mavaitro ?? user.mavaitro ?? 0);
+  const isLoggedIn = user && [1, 2, 4].includes(role);
 
   return (
     <QueryClientProvider client={queryClient}>
