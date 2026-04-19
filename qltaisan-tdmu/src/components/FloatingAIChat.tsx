@@ -138,20 +138,27 @@ export default function FloatingAIChat() {
 
   // ==================== FETCH DATA ====================
   const fetchAll = async () => {
-    try {
-      const { data: assetData } = await supabase
-        .from("taisan")
-        .select("*")
-        .order("macode", { ascending: false });
+  try {
+    // Sử dụng cú pháp join của Supabase: tên_bảng_khóa_ngoại(cột_muốn_lấy)
+    const { data: assetData, error } = await supabase
+      .from("taisan")
+      .select(`
+        *,
+        vitri:mavitri ( tenvitri )
+      `)
+      .order("macode", { ascending: false });
 
-      if (assetData) {
-        setAssets(assetData);
-        mapToSuggestions(assetData, 0);
-      }
-    } catch (e) {
-      console.error(e);
+    if (error) throw error;
+
+    if (assetData) {
+      // assetData lúc này sẽ có cấu trúc: { ..., vitri: { tenvitri: "Phòng A" } }
+      setAssets(assetData);
+      mapToSuggestions(assetData, 0);
     }
-  };
+  } catch (e) {
+    console.error("Lỗi fetch dữ liệu:", e);
+  }
+};
 
   const mapToSuggestions = (data: any[], page: number) => {
     const itemsPerPage = 4;
@@ -197,37 +204,40 @@ export default function FloatingAIChat() {
   };
 
   const sendMessage = async (preset?: string) => {
-    const q = preset || input;
-    if (!q.trim() || loading) return;
+  const q = preset || input;
+  if (!q.trim() || loading) return;
 
-    const contextData = assets
-      .map(
-        (a) =>
-          `- ${a.macode}: ${a.tentaisan} (${a.loai}), Vị trí: ${a.phong}, Trạng thái: ${a.trangthai}`,
-      )
-      .join("\n");
+  const contextData = assets
+    .map((a) => {
+      // Lấy tên vị trí từ object đã join, nếu không có thì để "Chưa xác định"
+      const tenViTri = a.vitri?.tenvitri || "Chưa xác định";
+      const tenTrangThai = TRANG_THAI[a.trangthai] || "Không xác định";
 
-    const userMsg: { role: "user"; text: string } = { role: "user", text: q };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+      return `- ${a.macode}: ${a.tentaisan}, Vị trí: ${tenViTri}, Trạng thái: ${tenTrangThai}`;
+    })
+    .join("\n");
 
-    try {
-      const reply = await askAI(
-        q,
-        contextData,
-        [...messages, userMsg].slice(-10),
-      );
-      setMessages((prev) => [...prev, { role: "ai", text: reply }]);
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "ai", text: "❌ Có lỗi xảy ra. Vui lòng thử lại sau." },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const userMsg: { role: "user"; text: string } = { role: "user", text: q };
+  setMessages((prev) => [...prev, userMsg]);
+  setInput("");
+  setLoading(true);
+
+  try {
+    const reply = await askAI(
+      q,
+      contextData,
+      [...messages, userMsg].slice(-10)
+    );
+    setMessages((prev) => [...prev, { role: "ai", text: reply }]);
+  } catch (err) {
+    setMessages((prev) => [
+      ...prev,
+      { role: "ai", text: "❌ Có lỗi xảy ra khi kết nối với Grok." },
+    ]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const riskBadge = (risk: number) => {
     if (risk >= 80) return "bg-red-500/10 text-red-400 border-red-500/30";
