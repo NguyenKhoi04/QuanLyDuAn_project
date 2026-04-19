@@ -397,7 +397,7 @@ export default function FloatingAIChat() {
                     onChange={(e) => setLookupInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && lookupInput && sendMessage(`Tra cứu chi tiết: ${lookupInput}`)}
                     placeholder="Nhập mã tài sản (ví dụ: TS001)"
-                    className="w-full bg-zinc-900 border border-zinc-700 focus:border-violet-500 rounded-3xl px-6 py-4 text-base outline-none"
+                    className="w-full bg-zinc-900 border border-zinc-700 focus:border-violet-500 rounded-3xl px-6 py-4 text-base outline-none text-white placeholder:text-zinc-500"
                   />
                   <button
                     onClick={() => {
