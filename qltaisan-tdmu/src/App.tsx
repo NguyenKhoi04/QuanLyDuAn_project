@@ -81,6 +81,9 @@ function App() {
   }, []);
 
   // Kiểm tra có đăng nhập và role hợp lệ (1,2,4)
+  const role = Number(user?.mavaitro);
+
+
   const isLoggedIn =
     user && [1, 2, 4].includes(user.mavaitro ?? user.mavaitro ?? 0);
 
