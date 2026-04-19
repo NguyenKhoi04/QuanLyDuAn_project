@@ -68,15 +68,15 @@ function RenderAIMessage({ text }: { text: string }) {
             isHigh
               ? "text-red-400 bg-red-950/50 border-red-900/50"
               : isMid
-              ? "text-amber-400 bg-amber-950/40 border-amber-900/50"
-              : "text-emerald-400 bg-emerald-950/40 border-emerald-900/50"
+                ? "text-amber-400 bg-amber-950/40 border-amber-900/50"
+                : "text-emerald-400 bg-emerald-950/40 border-emerald-900/50"
           }`}
         >
           {isHigh && <AlertTriangle className="w-4 h-4" />}
           {isMid && <Info className="w-4 h-4" />}
           {!isHigh && !isMid && <CheckCircle className="w-4 h-4" />}
           {content}
-        </div>
+        </div>,
       );
       return;
     }
@@ -84,10 +84,13 @@ function RenderAIMessage({ text }: { text: string }) {
     if (/^\*\s/.test(t)) {
       const content = t.replace(/^\*\s+/, "");
       elements.push(
-        <div key={i} className="flex gap-2 text-zinc-300 text-[15px] leading-relaxed">
+        <div
+          key={i}
+          className="flex gap-2 text-zinc-300 text-[15px] leading-relaxed"
+        >
           <span className="text-emerald-500 mt-1.5">•</span>
           <span>{content}</span>
-        </div>
+        </div>,
       );
       return;
     }
@@ -95,7 +98,7 @@ function RenderAIMessage({ text }: { text: string }) {
     elements.push(
       <p key={i} className="text-[15px] text-zinc-200 leading-relaxed">
         {t}
-      </p>
+      </p>,
     );
   });
 
@@ -115,8 +118,13 @@ export default function FloatingAIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("chat");
-  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
-    { role: "ai", text: "Xin chào! Tôi là **Grok 4.20** – Chuyên gia AI Bảo trì Dự đoán. Bạn cần hỗ trợ gì hôm nay?" },
+  const [messages, setMessages] = useState<
+    { role: "user" | "ai"; text: string }[]
+  >([
+    {
+      role: "ai",
+      text: "Xin chào! Tôi là **Grok 4.20** – Chuyên gia AI Bảo trì Dự đoán. Bạn cần hỗ trợ gì hôm nay?",
+    },
   ]);
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<GoiYAIBaoTri[]>([]);
@@ -165,12 +173,12 @@ export default function FloatingAIChat() {
             risk > 80
               ? `Cảnh báo khẩn: ${a.tentaisan} cần sửa chữa hoặc thay thế ngay.`
               : risk > 50
-              ? `Đề xuất bảo trì định kỳ cho ${a.tentaisan}.`
-              : "Thiết bị đang hoạt động ổn định.",
+                ? `Đề xuất bảo trì định kỳ cho ${a.tentaisan}.`
+                : "Thiết bị đang hoạt động ổn định.",
           NgayDeXuat: new Date().toISOString().split("T")[0],
           quickQuestion: quickQ,
         };
-      })
+      }),
     );
   };
 
@@ -192,12 +200,24 @@ export default function FloatingAIChat() {
     const q = preset || input;
     if (!q.trim() || loading) return;
 
-    setMessages((prev) => [...prev, { role: "user", text: q }]);
+    const contextData = assets
+      .map(
+        (a) =>
+          `- ${a.macode}: ${a.tentaisan} (${a.loai}), Vị trí: ${a.vitri}, Trạng thái: ${a.trangthai}`,
+      )
+      .join("\n");
+
+    const userMsg: { role: "user"; text: string } = { role: "user", text: q };
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
-      const reply = await askAI(q, "", messages.slice(-10)); // Bạn có thể truyền context nếu cần
+      const reply = await askAI(
+        q,
+        contextData,
+        [...messages, userMsg].slice(-10),
+      );
       setMessages((prev) => [...prev, { role: "ai", text: reply }]);
     } catch (err) {
       setMessages((prev) => [
@@ -244,7 +264,9 @@ export default function FloatingAIChat() {
           className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-3xl shadow-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-50"
         >
           <Bot className="w-8 h-8" />
-          <div className="absolute -top-1 -right-1 bg-emerald-500 text-[10px] font-bold px-1.5 rounded-full">Grok</div>
+          <div className="absolute -top-1 -right-1 bg-emerald-500 text-[10px] font-bold px-1.5 rounded-full">
+            Grok
+          </div>
         </button>
       )}
 
@@ -270,9 +292,14 @@ export default function FloatingAIChat() {
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="p-2 hover:bg-white/20 rounded-2xl transition"
               >
-                <ChevronDown className={`w-5 h-5 transition-transform ${isMinimized ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform ${isMinimized ? "rotate-180" : ""}`}
+                />
               </button>
-              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/20 rounded-2xl transition">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-white/20 rounded-2xl transition"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -280,30 +307,40 @@ export default function FloatingAIChat() {
 
           {/* Tabs */}
           <div className="flex border-b border-zinc-800 bg-zinc-900">
-            {(["chat", "suggestions", "risk", "lookup"] as TabId[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-3.5 text-sm font-medium transition-all ${
-                  activeTab === tab ? "text-white border-b-2 border-violet-500" : "text-zinc-400 hover:text-zinc-200"
-                }`}
-              >
-                {tab === "chat" && "💬 Chat"}
-                {tab === "suggestions" && "📅 Gợi ý"}
-                {tab === "risk" && "⚠️ Rủi ro"}
-                {tab === "lookup" && "🔍 Tra cứu"}
-              </button>
-            ))}
+            {(["chat", "suggestions", "risk", "lookup"] as TabId[]).map(
+              (tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 py-3.5 text-sm font-medium transition-all ${
+                    activeTab === tab
+                      ? "text-white border-b-2 border-violet-500"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  {tab === "chat" && "💬 Chat"}
+                  {tab === "suggestions" && "📅 Gợi ý"}
+                  {tab === "risk" && "⚠️ Rủi ro"}
+                  {tab === "lookup" && "🔍 Tra cứu"}
+                </button>
+              ),
+            )}
           </div>
 
           {/* Content Area */}
           {!isMinimized && (
-            <div className="flex-1 overflow-auto p-5 space-y-5 bg-zinc-950" ref={chatRef}>
+            <div
+              className="flex-1 overflow-auto p-5 space-y-5 bg-zinc-950"
+              ref={chatRef}
+            >
               {/* Chat Tab */}
               {activeTab === "chat" && (
                 <>
                   {messages.map((m, i) => (
-                    <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div
+                      key={i}
+                      className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
                       <div
                         className={`max-w-[85%] px-5 py-3.5 rounded-3xl text-[15px] leading-relaxed ${
                           m.role === "user"
@@ -311,11 +348,19 @@ export default function FloatingAIChat() {
                             : "bg-zinc-900 border border-zinc-800 text-zinc-100"
                         }`}
                       >
-                        {m.role === "user" ? m.text : <RenderAIMessage text={m.text} />}
+                        {m.role === "user" ? (
+                          m.text
+                        ) : (
+                          <RenderAIMessage text={m.text} />
+                        )}
                       </div>
                     </div>
                   ))}
-                  {loading && <div className="text-zinc-500 text-sm">Grok đang suy nghĩ...</div>}
+                  {loading && (
+                    <div className="text-zinc-500 text-sm">
+                      Grok đang suy nghĩ...
+                    </div>
+                  )}
                 </>
               )}
 
@@ -325,7 +370,9 @@ export default function FloatingAIChat() {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-white font-semibold">Gợi ý bảo trì</p>
-                      <p className="text-xs text-zinc-500">Trang {suggestionPage + 1}</p>
+                      <p className="text-xs text-zinc-500">
+                        Trang {suggestionPage + 1}
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -349,8 +396,12 @@ export default function FloatingAIChat() {
                       className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 hover:border-violet-500/30 transition-all"
                     >
                       <div className="flex justify-between mb-3">
-                        <span className="font-mono text-violet-400 font-bold">{item.MaTaiSan}</span>
-                        <span className={`text-xs font-bold px-3 py-1 rounded-2xl border ${riskBadge(item.MucRuiRo)}`}>
+                        <span className="font-mono text-violet-400 font-bold">
+                          {item.MaTaiSan}
+                        </span>
+                        <span
+                          className={`text-xs font-bold px-3 py-1 rounded-2xl border ${riskBadge(item.MucRuiRo)}`}
+                        >
                           {item.MucRuiRo}% RISK
                         </span>
                       </div>
@@ -374,12 +425,18 @@ export default function FloatingAIChat() {
               {activeTab === "risk" && (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12">
                   <Shield className="w-20 h-20 text-violet-400 mb-6" />
-                  <h4 className="text-xl font-semibold mb-2">Phân tích rủi ro tiên tiến</h4>
-                  <p className="text-zinc-400 mb-8 max-w-[260px]">Grok sẽ quét và cảnh báo sớm các tài sản có nguy cơ cao</p>
+                  <h4 className="text-xl font-semibold mb-2">
+                    Phân tích rủi ro tiên tiến
+                  </h4>
+                  <p className="text-zinc-400 mb-8 max-w-[260px]">
+                    Grok sẽ quét và cảnh báo sớm các tài sản có nguy cơ cao
+                  </p>
                   <button
                     onClick={() => {
                       setActiveTab("chat");
-                      sendMessage("Thực hiện quét rủi ro toàn hệ thống và liệt kê top tài sản nguy hiểm.");
+                      sendMessage(
+                        "Thực hiện quét rủi ro toàn hệ thống và liệt kê top tài sản nguy hiểm.",
+                      );
                     }}
                     className="px-10 py-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl font-semibold text-white hover:scale-105 transition"
                   >
@@ -395,7 +452,11 @@ export default function FloatingAIChat() {
                     type="text"
                     value={lookupInput}
                     onChange={(e) => setLookupInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && lookupInput && sendMessage(`Tra cứu chi tiết: ${lookupInput}`)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      lookupInput &&
+                      sendMessage(`Tra cứu chi tiết: ${lookupInput}`)
+                    }
                     placeholder="Nhập mã tài sản (ví dụ: TS001)"
                     className="w-full bg-zinc-900 border border-zinc-700 focus:border-violet-500 rounded-3xl px-6 py-4 text-base outline-none text-white placeholder:text-zinc-500"
                   />
@@ -414,50 +475,49 @@ export default function FloatingAIChat() {
             </div>
           )}
 
-         {/* Input Area - Quick Questions + Input */}
-            {activeTab === "chat" && (
-              <div className="border-t border-zinc-800 bg-zinc-900 p-4">
-                {/* Quick Questions */}
-                <div className="flex gap-2 mb-3 overflow-x-auto pb-2 hide-scroll">
-                  {LOGIC_QUESTIONS.map((q, i) => (
-                    <button
-                      key={i}
-                      onClick={() => sendMessage(q)}
-                      className="text-xs whitespace-nowrap 
+          {/* Input Area - Quick Questions + Input */}
+          {activeTab === "chat" && (
+            <div className="border-t border-zinc-800 bg-zinc-900 p-4">
+              {/* Quick Questions */}
+              <div className="flex gap-2 mb-3 overflow-x-auto pb-2 hide-scroll">
+                {LOGIC_QUESTIONS.map((q, i) => (
+                  <button
+                    key={i}
+                    onClick={() => sendMessage(q)}
+                    className="text-xs whitespace-nowrap 
                                 bg-zinc-800 hover:bg-zinc-700 
                                 text-zinc-200 hover:text-white
                                 px-4 py-2.5 rounded-2xl 
                                 border border-zinc-700 hover:border-violet-500/50 
                                 font-medium transition-all active:scale-95"
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Input Field */}
-                <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-700 focus-within:border-violet-500 rounded-3xl px-5 py-2 transition-all">
-                  <input
-                    ref={chatInputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                    placeholder="Hỏi Grok về bảo trì..."
-                    className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-zinc-500"
-                  />
-                  <button
-                    onClick={() => sendMessage()}
-                    disabled={loading || !input.trim()}
-                    className="w-9 h-9 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 rounded-2xl flex items-center justify-center transition"
                   >
-                    <Send className="w-4 h-4" />
+                    {q}
                   </button>
-                </div>
+                ))}
               </div>
-            )}
+
+              {/* Input Field */}
+              <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-700 focus-within:border-violet-500 rounded-3xl px-5 py-2 transition-all">
+                <input
+                  ref={chatInputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  placeholder="Hỏi Grok về bảo trì..."
+                  className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-zinc-500"
+                />
+                <button
+                  onClick={() => sendMessage()}
+                  disabled={loading || !input.trim()}
+                  className="w-9 h-9 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 rounded-2xl flex items-center justify-center transition"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>
   );
 }
-

@@ -13,6 +13,9 @@ export const askAI = async (question, context = "", history = []) => {
     return "❌ Lỗi cấu hình: Thiếu API Key trong file .env";
   }
 
+  // Thêm dòng này để debug xem lúc chạy AI có nhận được dữ liệu không
+  console.log("Dữ liệu gửi cho AI:", context);
+
   try {
     const messages = [
       {
