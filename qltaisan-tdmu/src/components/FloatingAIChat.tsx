@@ -203,7 +203,7 @@ export default function FloatingAIChat() {
     const contextData = assets
       .map(
         (a) =>
-          `- ${a.macode}: ${a.tentaisan} (${a.loai}), Vị trí: ${a.vitri}, Trạng thái: ${a.trangthai}`,
+          `- ${a.macode}: ${a.tentaisan} (${a.loai}), Vị trí: ${a.phong}, Trạng thái: ${a.trangthai}`,
       )
       .join("\n");
 
