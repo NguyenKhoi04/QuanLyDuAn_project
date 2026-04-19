@@ -144,14 +144,14 @@ export default function FloatingAIChat() {
       .from("taisan")
       .select(`
         *,
-        vitri:mavitri ( tenvitri )
+        vitri:mavitri ( phong )
       `)
       .order("macode", { ascending: false });
 
     if (error) throw error;
 
     if (assetData) {
-      // assetData lúc này sẽ có cấu trúc: { ..., vitri: { tenvitri: "Phòng A" } }
+      // assetData lúc này sẽ có cấu trúc: { ..., vitri: { phong: "Phòng A" } }
       setAssets(assetData);
       mapToSuggestions(assetData, 0);
     }
@@ -210,10 +210,10 @@ export default function FloatingAIChat() {
   const contextData = assets
     .map((a) => {
       // Lấy tên vị trí từ object đã join, nếu không có thì để "Chưa xác định"
-      const tenViTri = a.vitri?.tenvitri || "Chưa xác định";
+      const phong = a.vitri?.phong || "Chưa xác định";
       const tenTrangThai = TRANG_THAI[a.trangthai] || "Không xác định";
 
-      return `- ${a.macode}: ${a.tentaisan}, Vị trí: ${tenViTri}, Trạng thái: ${tenTrangThai}`;
+      return `- ${a.macode}: ${a.tentaisan}, Vị trí: ${phong}, Trạng thái: ${tenTrangThai}`;
     })
     .join("\n");
 
