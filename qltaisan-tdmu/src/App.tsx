@@ -30,24 +30,64 @@ import AssetClassification from "./pages/AssetClassification";
 import SupplierManagement from "./pages/SupplierManagement";
 import NotificationManagement from "./pages/NotificationManagement";
 import IncidentReport from "./pages/giaovien_sinhvien/IncidentReport";
-
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 const queryClient = new QueryClient();
 
 function App() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Kiểm tra user từ localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    // Lắng nghe thay đổi auth
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          // Fetch user data từ database nếu cần
+          const { data: dbUser } = await supabase
+            .from("nguoidung")
+            .select("*")
+            .eq("email", session.user.email)
+            .single();
+          if (dbUser) {
+            localStorage.setItem("user", JSON.stringify(dbUser));
+            setUser(dbUser);
+          }
+        } else {
+          localStorage.removeItem("user");
+          setUser(null);
+        }
+      },
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Kiểm tra có đăng nhập và role hợp lệ (1,2,4)
+  const isLoggedIn =
+    user && [1, 2, 4].includes(user.mavaitro ?? user.mavaitro ?? 0);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <FloatingAIChat />
+          {isLoggedIn && <FloatingAIChat />}
           <Routes>
             <Route path="/" element={<Index />} />
-             <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/assets" element={<AssetList />} />
-            //Trang quảng lý thông báo 
+            //Trang quảng lý thông báo
             <Route path="/notifications" element={<NotificationManagement />} />
             /// Các route khác trong header
             <Route path="/quản-lý-tài-liệu" element={<DocumentManagement />} />
@@ -68,16 +108,27 @@ function App() {
             <Route path="*" element={<NotFound />} />
             <Route path="/thongke" element={<ThongKe />} />
             <Route path="/kiem-ke" element={<KiemKe />} />
-            <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
+            <Route
+              path="/dieu-chuyen-tai-san"
+              element={<AssetTransferManagement />}
+            />
             <Route path="/lich-su-bao-tri" element={<MaintenanceHistory />} />
             <Route path="/vi-tri-tai-san" element={<AssetLocationTracking />} />
-              <Route path="/vi-tri-phong-ban" element={<PositionDepartment />} />
-              <Route path="/dieu-chuyen-tai-san" element={<AssetTransferManagement />} />
-              <Route path="/phan-loai-tai-san" element={<AssetClassification/>} />
-              <Route path="/nha-cung-cap" element={<SupplierManagement />} />
-              {/* <Route path="/su-dung-bao-tri" element={<MaintenanceUsage />} /> */}
-
-              <Route path="/bao-cao-giaovien-sinhvien" element={<IncidentReport />} />
+            <Route path="/vi-tri-phong-ban" element={<PositionDepartment />} />
+            <Route
+              path="/dieu-chuyen-tai-san"
+              element={<AssetTransferManagement />}
+            />
+            <Route
+              path="/phan-loai-tai-san"
+              element={<AssetClassification />}
+            />
+            <Route path="/nha-cung-cap" element={<SupplierManagement />} />
+            {/* <Route path="/su-dung-bao-tri" element={<MaintenanceUsage />} /> */}
+            <Route
+              path="/bao-cao-giaovien-sinhvien"
+              element={<IncidentReport />}
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
