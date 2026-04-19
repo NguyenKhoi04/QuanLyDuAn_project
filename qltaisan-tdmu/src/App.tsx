@@ -58,6 +58,15 @@ function App() {
           if (dbUser) {
             localStorage.setItem("user", JSON.stringify(dbUser));
             setUser(dbUser);
+          } else {
+            // Nếu không tìm thấy trong database, tạo user tạm thời với role mặc định
+            const tempUser = {
+              email: session.user.email,
+              mavaitro: 1, // Mặc định là admin
+              tendangnhap: session.user.email.split("@")[0],
+            };
+            localStorage.setItem("user", JSON.stringify(tempUser));
+            setUser(tempUser);
           }
         } else {
           localStorage.removeItem("user");
@@ -73,7 +82,7 @@ function App() {
 
   // Kiểm tra có đăng nhập và role hợp lệ (1,2,4)
   const isLoggedIn =
-    user && [1, 2, 4].includes(user.mavaitro ?? user.mavaitro ?? 0);
+    user && [1, 2, 4].includes(user.mavaitro ?? user.MaVaiTro ?? 0);
 
   return (
     <QueryClientProvider client={queryClient}>
