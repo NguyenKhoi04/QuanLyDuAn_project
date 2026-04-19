@@ -82,7 +82,7 @@ function App() {
 
   // Kiểm tra có đăng nhập và role hợp lệ (1,2,4)
   const isLoggedIn =
-    user && [1, 2, 4].includes(user.mavaitro ?? user.MaVaiTro ?? 0);
+    user && [1, 2, 4].includes(user.mavaitro ?? user.mavaitro ?? 0);
 
   return (
     <QueryClientProvider client={queryClient}>
