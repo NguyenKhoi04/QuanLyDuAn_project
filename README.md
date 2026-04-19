@@ -62,3 +62,22 @@ export default defineConfig([
     },
   },
 ])
+
+
+
+
+
+GitScan detected AI API key (Groq) possibly leaked in your public repository.
+
+Details
+File: src/services/aiService.js
+Line: 3
+Commit: 2854597
+Snippet (redacted):
+const GROQ_API_KEY = "gsk_********************************1My";
+Recommended actions
+Revoke and rotate this key in the Groq Cloud console.
+Remove the secret from your code
+Clean it from your Git history if possible
+Push a new commit
+When you're ready, mark this finding as resolved on GitScan — we'll verify the fix automatically. You can also close this issue from GitHub if you prefer.
