@@ -71,11 +71,14 @@ const Login = () => {
         case 2:
           navigate("/assets");
           break;
+        case 3:
+          navigate("/bao-cao-giaovien-sinhvien");
+          break;
         case 4:
           navigate("/bao-tri");
           break;
         default:
-          navigate("/dashboard");
+          navigate("/bao-cao-giaovien-sinhvien");
       }
     } catch (err: any) {
       setError("Lỗi: " + err.message);
