@@ -134,7 +134,7 @@ function MaintenanceHistory() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[450px]">
               <DialogHeader>
-                <DialogTitle>Ghi nhận bảo trì mới</DialogTitle>
+                <DialogTitle>Tạo hóa đơn bảo trì mới</DialogTitle>
               </DialogHeader>
               
               <div className="grid gap-4 py-4">
