@@ -1,0 +1,93 @@
+mavitri,toanha,tang,phong
+1,A1,0,CSVC
+2,A1,0,Truyền thông
+3,A1,0,Hành chính
+4,A1,0,Phát giấy chứng nhận
+5,A1,0,Phòng khách 1
+6,A1,0,Phòng khách 2
+7,A1,0,A1.101
+8,A1,0,A1.102
+9,A1,2,Phòng khách
+10,A1,2,Phòng Chủ tịch
+11,A1,3,Thanh tra
+12,A1,3,Ban Tài chính
+13,A1,3,Kế toán
+14,A1,3,Trung tâm dữ liệu
+15,A2,0,A2.101
+16,A2,0,A2.102
+17,A2,0,A2.103
+18,A2,0,A2.104
+19,A2,0,A2.105
+20,A2,0,A2.106
+21,A2,0,A2.107
+22,A2,0,A2.108
+23,A2,0,A2.109
+24,A2,0,A2.110
+25,A2,0,A2.111
+26,A2,0,A2.112
+27,A2,0,A2.113
+28,A2,0,A2.114
+29,A2,0,Văn phòng khoa Kỹ thuật công nghệ
+30,A2,1,Thư viện
+31,A2,1,Hội trường lớn
+32,A2,2,Thư viện
+33,A3,1,A3.101
+34,A3,1,A3.102
+35,A3,1,A3.103
+36,A3,1,A3.104
+37,A3,1,A3.105
+38,B1,3,B1.301
+39,B1,3,B1.302
+40,B1,3,B1.303
+41,B1,3,B1.304
+42,B1,3,B1.305
+43,C,0,C101
+44,C,0,C102
+45,C,0,C103
+46,C,0,C104
+47,C,2,C201
+48,C,2,C202
+49,C,2,C203
+50,C,2,C204
+51,D,1,D101
+52,D,1,D102
+53,D,1,D103
+54,D,1,D104
+55,D,1,D105
+56,D,1,D106
+57,E1,1,E1.201
+58,E1,1,E1.202
+59,E1,2,E1.301
+60,E1,3,E1.410
+61,E1,0,Phòng họp 1
+62,E1,0,Phòng họp 2
+63,E1,0,Phòng họp 3
+64,E1,0,Phòng họp 4
+65,F1,3,Ban Chăm sóc và Hỗ trợ người học
+66,F1,3,Viện nghiên cứu Đông Nam Bộ
+67,F1,3,Viện Sau đại học
+68,F1,3,Văn phòng Đoàn Hội
+69,G,0,Trạm Y tế
+70,G,0,G.101
+71,H2,0,Nhà kho
+72,H2,0,VP Ban chuyển đổi số
+73,H2,0,VP Khoa Công nghệ xanh và bền vững
+74,I1,4,I1.501
+75,I1,4,I1.502
+76,I1,4,I1.503
+77,I1,4,I1.504
+78,I2,0,Khoa công nghệ xanh
+79,I2,0,Khoa Kiến thức chung
+80,I2,3,I2.304
+81,I2,3,I2.305
+82,I3,1,I3.101
+83,I3,1,I3.102
+84,I3,0,Khu tự học I3
+85,I4,1,I4.107
+86,I4,1,I4.314
+87,I4,4,I4.413
+88,I4,4,I4.414
+89,I4,0,Khu tự học I4
+90,K1,1,Trung tâm hợp tác doanh nghiệp
+91,K1,1,K.201
+92,K1,0,Phòng học K1

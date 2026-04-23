@@ -1,0 +1,8 @@
+mathongbao,manguoidung,mataisan,noidung,ngaygui,isread,loaithongbao
+1,1,1,Tài sản TS001 cần kiểm tra bảo trì,2026-04-08 14:49:34.099297+00,true,general
+2,2,5,Máy in TS005 đã được sửa xong,2026-04-08 14:49:34.099297+00,false,general
+3,4,17,Server TS006 đang hoạt động ổn định,2026-04-08 14:49:34.099297+00,false,general
+4,5,3,🚨 Sự cố mới: Bộ bàn ghế gỗ 4 chỗ - ghế bị lệch,2026-04-16 16:00:45.036631+00,true,incident
+5,1,2,🚨 Sự cố mới: Máy chiếu Epson - máy chiếu mờ,2026-04-16 18:38:41.876+00,false,incident
+6,1,3,🚨 Sự cố mới: Bộ bàn ghế gỗ 4 chỗ - Có dấu hiệu bị mòn,2026-04-18 06:58:38.182+00,false,incident
+7,1,4,🚨 Sự cố mới: Máy đo pH thí nghiệm - Bị lỗi ko nhận diện được,2026-04-18 06:58:58.891+00,false,incident
